@@ -109,7 +109,7 @@ const DASHBOARD_UI = {
 
 function startDashboardSession(user) {
     if (user.role === 'visitante') {
-        window.location.href = 'portal.html';
+        window.location.href = 'index.html';
         return;
     }
 

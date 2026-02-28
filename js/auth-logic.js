@@ -235,7 +235,7 @@ function checkRoleAndRedirect(user) {
             window.location.href = 'login.html';
         }
     } else if (user.role === 'visitante') {
-        window.location.href = 'portal.html';
+        window.location.href = 'index.html';
     }
 }
 
@@ -321,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedSession) {
         const user = JSON.parse(savedSession);
         if (user.role === 'visitante' && window.location.pathname.includes('login.html')) {
-            window.location.href = 'portal.html';
+            window.location.href = 'index.html';
         }
     }
 });
