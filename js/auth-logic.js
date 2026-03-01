@@ -164,10 +164,17 @@ async function handleRegister(e) {
         AUTH_UI.regMatchError.classList.add('hidden');
     }
 
-    // 4. Validar si el usuario ya existe
+    // 4. Validar si el usuario o email ya existe
     const localUsers = typeof getLocalUsers === 'function' ? getLocalUsers() : [];
-    if (localUsers.some(u => u.email === email) || AUTH_CONFIG.hardcodedUsers.some(u => u.email === email)) {
+    const allUsers = [...AUTH_CONFIG.hardcodedUsers, ...localUsers];
+
+    if (allUsers.some(u => u.email === email)) {
         AUTH_UI.regError.classList.remove('hidden'); // Este div ahora tiene el link a recuperación
+        return;
+    }
+
+    if (name && allUsers.some(u => u.username && u.username.toLowerCase() === name.toLowerCase())) {
+        AlertService.notify('Usuario No Disponible', 'El nombre de usuario ya está registrado. Elige otro por favor.', 'error');
         return;
     }
 
@@ -175,12 +182,13 @@ async function handleRegister(e) {
     const passwordHash = await hashSHA256(pass);
 
     const newUser = {
-        name,
+        name: '',
+        username: name,
         email,
         password: passwordHash, // Guardamos el HASH
         role: 'visitante',
         status: 'Pendiente', // Inicia como pendiente (Simulación de activación)
-        initials: name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)
+        initials: name.substring(0, 2).toUpperCase()
     };
 
     if (typeof saveLocalUser === 'function') {

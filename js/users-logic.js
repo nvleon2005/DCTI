@@ -25,6 +25,54 @@ function saveLocalUser(user) {
 
 // --- LÓGICA DE ADMINISTRACIÓN DE USUARIOS (CRUD) ---
 
+function previewAvatar(event) {
+    const file = event.target.files[0];
+    if (file) {
+        if (!file.type.startsWith('image/')) {
+            alert('Error: Solo se permiten subir imágenes.');
+            event.target.value = ''; // Limpiar el input
+            document.getElementById('admin-user-avatar-preview').style.display = 'none';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            // Comprimir la imagen usando un canvas local temporal para no saturar el localStorage
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 150;
+                const MAX_HEIGHT = 150;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                const preview = document.getElementById('admin-user-avatar-preview');
+                preview.src = dataUrl;
+                preview.style.display = 'block';
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
 function openUserModal(email = null) {
     const modal = document.getElementById('user-modal');
     const form = document.getElementById('user-admin-form');
@@ -37,23 +85,66 @@ function openUserModal(email = null) {
     form.reset();
 
     if (email) {
-        title.textContent = 'Editar Usuario';
+        if (title) title.textContent = 'Editar Usuario';
         editEmailInput.value = email;
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.textContent = 'Actualizar';
 
         const allUsers = [...AUTH_CONFIG.hardcodedUsers, ...getLocalUsers()];
         const user = allUsers.find(u => u.email === email);
 
         if (user) {
-            document.getElementById('admin-user-name').value = user.name;
-            document.getElementById('admin-user-email').value = user.email;
-            document.getElementById('admin-user-role').value = user.role;
+            document.getElementById('admin-user-name').value = user.name || '';
+            document.getElementById('admin-user-lastname').value = user.lastname || '';
+            document.getElementById('admin-user-cedula').value = user.cedula || '';
+            document.getElementById('admin-user-username').value = user.username || '';
+            document.getElementById('admin-user-email').value = user.email || '';
+            document.getElementById('admin-user-role').value = user.role || 'visitante';
+            document.getElementById('admin-user-pass').value = '';
+            document.getElementById('admin-user-pass').placeholder = '•••••••• (Oculta por seguridad)';
+
+            // Sincronizar radio buttons
+            const radios = document.getElementsByName('admin-user-role-radio');
+            for (let radio of radios) {
+                if (radio.value === user.role) radio.checked = true;
+            }
+
+            const avatarPreview = document.getElementById('admin-user-avatar-preview');
+            if (user.avatar) {
+                avatarPreview.src = user.avatar;
+                avatarPreview.style.display = 'block';
+            } else {
+                avatarPreview.src = '';
+                avatarPreview.style.display = 'none';
+            }
+
             const isHardcoded = AUTH_CONFIG.hardcodedUsers.some(u => u.email === email);
             document.getElementById('admin-user-email').disabled = isHardcoded;
         }
     } else {
-        title.textContent = 'Nuevo Usuario';
+        if (title) title.textContent = 'Nuevo Usuario';
         editEmailInput.value = '';
         document.getElementById('admin-user-email').disabled = false;
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.textContent = 'Registrar';
+
+        // Limpiar previo de avatar y radios
+        document.getElementById('admin-user-avatar-preview').src = '';
+        document.getElementById('admin-user-avatar-preview').style.display = 'none';
+
+        const avatarInput = document.getElementById('admin-user-avatar-input');
+        if (avatarInput) avatarInput.value = '';
+
+        document.getElementById('admin-user-pass').value = '';
+        document.getElementById('admin-user-pass').placeholder = 'Ingrese contraseña segura...';
+
+        const radios = document.getElementsByName('admin-user-role-radio');
+        for (let radio of radios) {
+            if (radio.value === 'visitante') radio.checked = true;
+        }
+        document.getElementById('admin-user-role').value = 'visitante';
     }
 
     // Reset error div
@@ -73,60 +164,69 @@ async function handleUserAdminSubmit(e) {
 
     const editEmail = document.getElementById('edit-email-target').value;
     const name = document.getElementById('admin-user-name').value;
+    const lastname = document.getElementById('admin-user-lastname').value;
+    const cedula = document.getElementById('admin-user-cedula').value;
+    const username = document.getElementById('admin-user-username').value;
     const email = document.getElementById('admin-user-email').value;
     const pass = document.getElementById('admin-user-pass').value;
     const role = document.getElementById('admin-user-role').value;
+    const avatarPreview = document.getElementById('admin-user-avatar-preview');
+    const avatar = avatarPreview.style.display === 'block' ? avatarPreview.src : null;
 
     // 1. Validar formato de email
     if (typeof validateEmailFormat === 'function' && !validateEmailFormat(email)) {
-        if (errorDiv) {
-            errorDiv.textContent = 'Formato de correo electrónico no válido.';
-            errorDiv.classList.remove('hidden');
-        }
+        AlertService.notify('Validación Fallida', 'Formato de correo electrónico no válido.', 'error');
         return;
     }
 
     // 2. Validar complejidad de contraseña (solo si se ingresa una nueva)
     if (pass && typeof validatePasswordComplexity === 'function' && !validatePasswordComplexity(pass)) {
-        if (errorDiv) {
-            errorDiv.textContent = 'La contraseña debe tener 8+ caracteres, mayúscula, número y carácter especial.';
-            errorDiv.classList.remove('hidden');
-        }
+        AlertService.notify('Contraseña Insegura', 'La contraseña debe tener 8+ caracteres, mayúscula, número y carácter especial.', 'error');
         return;
+    }
+
+    const allUsers = [...AUTH_CONFIG.hardcodedUsers, ...getLocalUsers()];
+
+    // 3. Validar que el nombre de usuario sea único
+    if (username) {
+        const existingUsername = allUsers.find(u => u.username && u.username.toLowerCase() === username.toLowerCase());
+        if (existingUsername && existingUsername.email !== editEmail) {
+            AlertService.notify('Usuario No Disponible', 'Este nombre de usuario ya está en uso por otra persona.', 'error');
+            return;
+        }
     }
 
     if (editEmail) {
         // ACTUALIZAR
-        await updateUser(editEmail, { name, email, role, password: pass });
+        await updateUser(editEmail, { name, lastname, cedula, username, email, role, password: pass, avatar });
     } else {
         // AGREGAR
         if (!pass) {
-            if (errorDiv) {
-                errorDiv.textContent = 'La contraseña es obligatoria para nuevos usuarios.';
-                errorDiv.classList.remove('hidden');
-            }
+            AlertService.notify('Campo Requerido', 'La contraseña es obligatoria para registrar nuevos usuarios.', 'warning');
             return;
         }
 
         const allUsers = [...AUTH_CONFIG.hardcodedUsers, ...getLocalUsers()];
         if (allUsers.some(u => u.email === email)) {
-            if (errorDiv) {
-                errorDiv.textContent = 'Error: Este correo ya pertenece a un usuario.';
-                errorDiv.classList.remove('hidden');
-            }
+            AlertService.notify('Correo Duplicado', 'Error: Este correo ya pertenece a un usuario.', 'error');
             return;
         }
 
         // Hashing de contraseña para cumplimiento de HU-001
         const passwordHash = await hashSHA256(pass);
 
+        const nameSafe = name || username || 'Usuario';
         const newUser = {
             name,
+            lastname,
+            cedula,
+            username,
             email,
             password: passwordHash,
             role,
+            avatar,
             status: 'Activo', // El admin crea usuarios activos por defecto
-            initials: name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)
+            initials: nameSafe.substring(0, 2).toUpperCase()
         };
         saveLocalUser(newUser);
     }
@@ -148,9 +248,13 @@ async function updateUser(oldEmail, newData) {
         const updatedUser = {
             ...localUsers[index],
             name: newData.name,
+            lastname: newData.lastname,
+            cedula: newData.cedula,
+            username: newData.username,
             email: newData.email,
             role: newData.role,
-            initials: newData.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)
+            avatar: newData.avatar,
+            initials: (newData.name || newData.username || 'U').substring(0, 2).toUpperCase()
         };
 
         // Si hay nueva contraseña, hay que hashearla

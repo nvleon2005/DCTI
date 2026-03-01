@@ -42,7 +42,7 @@ const UsersView = {
                                                 <div style="width: 32px; height: 32px; background: var(--grad-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700;">
                                                     ${u.initials || '??'}
                                                 </div>
-                                                <span style="font-weight: 600;">${u.name}</span>
+                                                <span style="font-weight: 600;">${u.username || u.name || 'Sin Usuario'}</span>
                                             </div>
                                         </td>
                                         <td style="padding: 15px; color: var(--color-text-muted);">${u.email}</td>
@@ -94,41 +94,94 @@ const UsersView = {
                 </div>
 
                 <!-- Modal de Usuario -->
-                <div id="user-modal" class="modal-overlay hidden">
-                    <div class="modal-card" style="max-width: 450px;">
-                        <div class="modal-header">
-                            <h3 id="modal-title">Nuevo Usuario</h3>
-                            <button class="close-modal" onclick="closeUserModal()">&times;</button>
+                <div id="user-modal" class="modal-overlay hidden" onclick="if(event.target === this) closeUserModal()">
+                    <div class="modal-card" style="max-width: 600px; padding: 0; display: flex; flex-direction: row; overflow: hidden; position: relative;">
+                        <!-- Barra vertical izquierda -->
+                        <div style="width: 40px; background: var(--grad-primary); flex-shrink: 0;"></div>
+                        
+                        <div style="flex: 1; padding: 30px 40px 30px 30px; position: relative;">
+                            <button class="close-modal" onclick="closeUserModal()" style="position: absolute; right: 15px; top: 15px; background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted);">&times;</button>
+                            
+                            <form id="user-admin-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <input type="hidden" id="edit-email-target">
+                                
+                                <!-- Izquierda Arriba: Imagen y botón "+" -->
+                                <div style="grid-column: 1; grid-row: 1; display: flex; justify-content: flex-start;">
+                                    <div style="background: #e2e8f0; border-radius: 4px; width: 130px; height: 160px; position: relative; overflow: visible;">
+                                        <img id="admin-user-avatar-preview" src="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px; display: none;">
+                                        <input type="file" id="admin-user-avatar-input" accept="image/*" style="display: none;" onchange="previewAvatar(event)">
+                                        <button type="button" onclick="document.getElementById('admin-user-avatar-input').click()" style="position: absolute; bottom: -12px; right: -12px; background: #2563eb; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Izquierda Abajo: Nombre, Apellido, Cedula -->
+                                <div style="grid-column: 1; grid-row: 2; display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+                                    <div class="form-field">
+                                        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Nombre</label>
+                                        <input type="text" id="admin-user-name" required style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                    </div>
+                                    <div class="form-field">
+                                        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Apellido</label>
+                                        <input type="text" id="admin-user-lastname" style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                    </div>
+                                    <div class="form-field">
+                                        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Cedula</label>
+                                        <input type="text" id="admin-user-cedula" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                    </div>
+                                </div>
+
+                                <!-- Derecha Arriba: Correo, Usuario, Contraseña -->
+                                <div style="grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 12px;">
+                                    <div class="form-field">
+                                        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Correo</label>
+                                        <input type="email" id="admin-user-email" required style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                    </div>
+                                    <div class="form-field">
+                                        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Usuario</label>
+                                        <input type="text" id="admin-user-username" required style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                    </div>
+                                    <div class="form-field" id="pass-field-group">
+                                        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Contraseña</label>
+                                        <input type="password" id="admin-user-pass" placeholder="Ingresa para cambiar (vacío = mantener actual)" style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); font-size: 0.8rem;">
+                                    </div>
+                                </div>
+
+                                <!-- Derecha Abajo: Rol de Usuario, Botón -->
+                                <div style="grid-column: 2; grid-row: 2; display: flex; flex-direction: column; justify-content: space-between; margin-top: 10px;">
+                                    <div class="form-field">
+                                        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 10px;">Rol de Usuario</label>
+                                        <div style="display: flex; flex-direction: column; gap: 6px; margin-left: 10px;">
+                                            <label style="display: flex; align-items: center; justify-content: flex-start; gap: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer; margin: 0; padding: 0;">
+                                                <input type="radio" name="admin-user-role-radio" value="admin" style="margin: 0; padding: 0; width: auto; outline: none; box-shadow: none; accent-color: #2563eb;" onchange="document.getElementById('admin-user-role').value = this.value">
+                                                <span style="margin: 0; text-align: left; line-height: 1.2;">Administrador</span>
+                                            </label>
+                                            <label style="display: flex; align-items: center; justify-content: flex-start; gap: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer; margin: 0; padding: 0;">
+                                                <input type="radio" name="admin-user-role-radio" value="editor" style="margin: 0; padding: 0; width: auto; outline: none; box-shadow: none; accent-color: #2563eb;" onchange="document.getElementById('admin-user-role').value = this.value">
+                                                <span style="margin: 0; text-align: left; line-height: 1.2;">Editor</span>
+                                            </label>
+                                            <label style="display: flex; align-items: center; justify-content: flex-start; gap: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer; margin: 0; padding: 0;">
+                                                <input type="radio" name="admin-user-role-radio" value="visitante" checked style="margin: 0; padding: 0; width: auto; outline: none; box-shadow: none; accent-color: #2563eb;" onchange="document.getElementById('admin-user-role').value = this.value">
+                                                <span style="margin: 0; text-align: left; line-height: 1.2;">Visitante</span>
+                                            </label>
+                                        </div>
+                                        <select id="admin-user-role" style="display: none;">
+                                            <option value="visitante" selected>Visitante</option>
+                                            <option value="editor">Editor</option>
+                                            <option value="admin">Administrador</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div id="admin-user-error" class="login-error hidden" style="background: #fff1f2; border: 1px solid #fda4af; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #e11d48; margin-top: auto; margin-bottom: 10px;"></div>
+
+                                    <div style="display: flex; justify-content: flex-start; margin-left: 10px;">
+                                        <button type="submit" style="background: #16a34a; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Registrar</button>
+                                        <button type="button" class="btn-secondary" onclick="closeUserModal()" style="display: none;">Cancelar</button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                        <form id="user-admin-form" style="padding: var(--space-lg); display: flex; flex-direction: column; gap: 15px;">
-                            <input type="hidden" id="edit-email-target">
-                            <div class="form-field">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Nombre Completo</label>
-                                <input type="text" id="admin-user-name" placeholder="Ej. Pedro Pérez" required>
-                            </div>
-                            <div class="form-field">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Correo Electrónico</label>
-                                <input type="email" id="admin-user-email" placeholder="email@dcti.gob" required>
-                            </div>
-                            <div class="form-field" id="pass-field-group">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Contraseña</label>
-                                <input type="password" id="admin-user-pass" placeholder="Mínimo 8 caracteres, Mayúscula, Número y Especial">
-                                <p style="font-size: 0.7rem; color: var(--color-text-muted); margin-top: 4px; line-height: 1.2;">* 8+ caracteres, una mayúscula, un número y un carácter especial.<br>Dejar en blanco para mantener la actual si está editando.</p>
-                            </div>
-                            <div id="admin-user-error" class="login-error hidden" style="background: #fff1f2; border: 1px solid #fda4af; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #e11d48;"></div>
-                            <div class="form-field">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Rol Asignado</label>
-                                <select id="admin-user-role" style="width: 100%; padding: 12px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); font-size: 0.95rem;">
-                                    <option value="visitante">Visitante</option>
-                                    <option value="editor">Editor</option>
-                                    <option value="admin">Administrador</option>
-                                </select>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn-secondary" onclick="closeUserModal()">Cancelar</button>
-                                <button type="submit" class="btn-primary">Guardar Usuario</button>
-                            </div>
-                        </form>
                     </div>
                 </div>
             </div>
