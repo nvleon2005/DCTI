@@ -62,7 +62,7 @@ function previewAvatar(event) {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                const dataUrl = canvas.toDataURL('image/webp', 0.85);
                 const preview = document.getElementById('admin-user-avatar-preview');
                 preview.src = dataUrl;
                 preview.style.display = 'block';
@@ -245,8 +245,20 @@ async function updateUser(oldEmail, newData) {
     const index = localUsers.findIndex(u => u.email === oldEmail);
 
     if (index !== -1) {
+        const currentUser = localUsers[index];
+
+        // Regla de negocio: Prevenir degradar de rol al último administrador
+        if (currentUser.role === 'admin' && newData.role !== 'admin') {
+            const allUsers = [...AUTH_CONFIG.hardcodedUsers, ...localUsers];
+            const remainingAdmins = allUsers.filter(u => u.role === 'admin' && u.status === 'Activo' && u.email !== oldEmail);
+            if (remainingAdmins.length === 0) {
+                AlertService.notify('Acción Denegada', 'Debe existir al menos un administrador en el sistema. No puede degradarse a sí mismo si es el único.', 'error');
+                return;
+            }
+        }
+
         const updatedUser = {
-            ...localUsers[index],
+            ...currentUser,
             name: newData.name,
             lastname: newData.lastname,
             cedula: newData.cedula,
@@ -274,6 +286,20 @@ async function deleteUser(email) {
     if (email === 'admin@dcti.gob') {
         AlertService.notify('Acción Denegada', 'El administrador principal no puede ser eliminado.', 'error');
         return;
+    }
+
+    const allUsers = [...AUTH_CONFIG.hardcodedUsers, ...getLocalUsers()];
+
+    // Identificar rol del usuario a eliminar
+    const targetUser = allUsers.find(u => u.email === email);
+
+    // Regla de negocio: Si el usuario es administrador, asegurarse de que quede otro activo.
+    if (targetUser && targetUser.role === 'admin') {
+        const remainingAdmins = allUsers.filter(u => u.role === 'admin' && u.status === 'Activo' && u.email !== email);
+        if (remainingAdmins.length === 0) {
+            AlertService.notify('Acción Denegada', 'Debe existir al menos un administrador activo en el sistema.', 'error');
+            return;
+        }
     }
 
     const confirmed = await AlertService.confirm(
@@ -309,11 +335,22 @@ function toggleUserStatus(email) {
 
     if (index !== -1) {
         const user = localUsers[index];
+
         // Flujo de activación HU-001: Si está pendiente, se activa. Si está activo, se inhabilita.
         if (user.status === 'Pendiente') {
             user.status = 'Activo';
             AlertService.notify('Usuario Activado', `La cuenta ${user.email} ahora está activa.`, 'success');
         } else {
+            // Regla de Negocio: No inhabilitar al último administrador
+            if (user.status === 'Activo' && user.role === 'admin') {
+                const allUsers = [...AUTH_CONFIG.hardcodedUsers, ...localUsers];
+                const remainingAdmins = allUsers.filter(u => u.role === 'admin' && u.status === 'Activo' && u.email !== email);
+                if (remainingAdmins.length === 0) {
+                    AlertService.notify('Acción Denegada', 'Debe existir al menos un administrador activo en el sistema.', 'error');
+                    return;
+                }
+            }
+
             user.status = user.status === 'Inactivo' ? 'Activo' : 'Inactivo';
             const msg = user.status === 'Activo' ? 'habilitada' : 'inhabilitada';
             AlertService.notify('Estado Actualizado', `La cuenta ha sido ${msg} correctamente.`, 'info');

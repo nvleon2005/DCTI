@@ -3,6 +3,17 @@ const NewsView = {
         const paginated = data.pagination;
         const news = paginated ? paginated.items : data.news;
         const today = new Date().toISOString().split('T')[0];
+        const currentCategory = data.categoryFilter || 'Todas';
+
+        const categories = ['Regional', 'Nacional', 'Internacional', 'Local', 'Institucionales', 'Carrusel de Noticias'];
+
+        const filterButtons = ['Todas', ...categories].map(cat => `
+            <button onclick="if(typeof filterNewsAdmin === 'function') filterNewsAdmin('${cat}')" 
+                style="padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: 1px solid var(--color-border); transition: 0.2s; 
+                ${currentCategory === cat ? 'background: var(--color-accent); color: white; border-color: var(--color-accent);' : 'background: white; color: var(--color-text-main);'}">
+                ${cat}
+            </button>
+        `).join('');
 
         return `
             <div class="view-container">
@@ -18,9 +29,14 @@ const NewsView = {
                     </button>
                 </div>
 
+                <div style="display: flex; gap: 10px; margin-bottom: var(--space-lg); overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;">
+                    ${filterButtons}
+                </div>
+
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">
                     ${news.map(n => {
             const isPublished = (n.status || []).includes('Publicada');
+            const categoryColor = n.category ? '#6366f1' : '#94a3b8'; // Indigo default, o gris si no tiene
             return `
                         <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative;">
                             ${isPublished ? `
@@ -37,6 +53,11 @@ const NewsView = {
                                 </div>
                             </div>
                             <div style="padding: var(--space-md); flex: 1; display: flex; flex-direction: column;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                    <span style="font-size: 0.7rem; background: ${categoryColor}15; color: ${categoryColor}; padding: 2px 8px; border-radius: 4px; font-weight: 700; border: 1px solid ${categoryColor}30;">
+                                        ${n.category || 'Sin Categoría'}
+                                    </span>
+                                </div>
                                 <h3 style="font-size: 0.95rem; color: var(--color-text-main); margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.8em;">${n.headline}</h3>
                                 <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 12px;">${n.published}</p>
                                 <div style="display: flex; gap: 8px; margin-top: auto;">
@@ -46,6 +67,12 @@ const NewsView = {
                             </div>
                         </div>
                     `}).join('')}
+                    ${news.length === 0 ? `
+                        <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--color-text-muted); background: white; border-radius: var(--radius-md); border: 1px dashed var(--color-border);">
+                            <i class="fas fa-newspaper" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <p>No hay noticias para mostrar en esta categoría.</p>
+                        </div>
+                    ` : ''}
                 </div>
 
                 <!-- Paginación Footer -->
@@ -78,6 +105,18 @@ const NewsView = {
                                     <div class="form-group">
                                         <label>Titular de la Noticia <span style="color: #ef4444;">*</span></label>
                                         <input type="text" id="admin-news-headline" placeholder="Ej: Nueva Beca para Investigadores" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Categoría <span style="color: #ef4444;">*</span></label>
+                                        <select id="admin-news-category" required style="width: 100%; padding: 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 0.9rem;">
+                                            <option value="">Seleccione Categoría</option>
+                                            <option value="Regional">Regional</option>
+                                            <option value="Nacional">Nacional</option>
+                                            <option value="Internacional">Internacional</option>
+                                            <option value="Local">Local</option>
+                                            <option value="Institucionales">Institucionales</option>
+                                            <option value="Carrusel de Noticias">Carrusel de Noticias</option>
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label>Resumen de Portada <span style="color: #ef4444;">*</span></label>

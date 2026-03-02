@@ -51,6 +51,8 @@ function updateFeaturedState() {
 
 // --- LÓGICA DE MODAL ---
 
+let projectImageQueue = [];
+
 function openProjectModal(id = null) {
     // Verificar permisos (Solo Administrador)
     const session = JSON.parse(localStorage.getItem('dcti_session'));
@@ -63,16 +65,18 @@ function openProjectModal(id = null) {
     const form = document.getElementById('project-admin-form');
     const title = document.getElementById('project-modal-title');
     const editIdInput = document.getElementById('edit-project-id');
+    const galleryTitle = document.getElementById('project-gallery-title');
 
     if (!modal) return;
 
     modal.classList.remove('hidden');
     form.reset();
-    document.getElementById('admin-project-preview').style.backgroundImage = 'none';
+    projectImageQueue = [];
 
     if (id) {
         title.textContent = 'Editar Proyecto';
         editIdInput.value = id;
+        if (galleryTitle) galleryTitle.textContent = 'Publicadas';
 
         const allProjects = getLocalProjects();
         const project = allProjects.find(p => p.id == id);
@@ -84,20 +88,16 @@ function openProjectModal(id = null) {
             document.getElementById('admin-project-status').value = project.status || 'En Proceso';
             document.getElementById('admin-project-progress').value = project.progress || 0;
             document.getElementById('admin-project-featured').checked = project.featured || false;
-            document.getElementById('admin-project-media').value = project.image || '';
 
-            if (project.image) {
-                const preview = document.getElementById('admin-project-preview');
-                preview.style.backgroundImage = `url(${project.image})`;
-                preview.style.backgroundSize = 'cover';
-                preview.style.backgroundPosition = 'center';
-            }
+            projectImageQueue = project.images ? [...project.images] : (project.image && project.image !== 'img/proyectos.png' ? [project.image] : []);
         }
     } else {
         title.textContent = 'Nuevo Proyecto';
         editIdInput.value = '';
+        if (galleryTitle) galleryTitle.textContent = 'Previsualizar imágenes';
     }
 
+    renderProjectGallery();
     // Inicializar estado del checkbox destacado
     updateFeaturedState();
 }
@@ -111,25 +111,124 @@ function closeProjectModal() {
 
 document.addEventListener('change', async (e) => {
     if (e.target && e.target.id === 'admin-project-file') {
-        const file = e.target.files[0];
-        if (!file) return;
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
 
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-            const base64 = reader.result;
-            document.getElementById('admin-project-media').value = base64;
-            const preview = document.getElementById('admin-project-preview');
-            preview.style.backgroundImage = `url(${base64})`;
-            preview.style.backgroundSize = 'cover';
-            preview.style.backgroundPosition = 'center';
-        };
+        let remainingSlots = 4 - projectImageQueue.length;
+        if (remainingSlots <= 0) {
+            AlertService.notify('Límite alcanzado', 'Solo puedes subir un máximo de 4 imágenes por proyecto.', 'warning');
+            e.target.value = '';
+            return;
+        }
+
+        const filesToProcess = files.slice(0, remainingSlots);
+        if (files.length > remainingSlots) {
+            AlertService.notify('Límite excedido', `Se subirán solo las primeras ${remainingSlots} imágenes seleccionadas para no superar el límite de 4.`, 'warning');
+        }
+
+        for (const file of filesToProcess) {
+            if (!file.type.startsWith('image/')) {
+                AlertService.notify('Archivo inválido', `El archivo ${file.name} no es una imagen.`, 'error');
+                continue;
+            }
+
+            try {
+                const base64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const MAX_WIDTH = 1200;
+                            const MAX_HEIGHT = 1200;
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height) {
+                                if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                            } else {
+                                if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+
+                            resolve(canvas.toDataURL('image/webp', 0.85)); // Usando WEBP con soporte de transparencia
+                        };
+                        img.onerror = reject;
+                        img.src = reader.result;
+                    };
+                    reader.onerror = reject;
+                });
+
+                projectImageQueue.push(base64);
+            } catch (err) {
+                AlertService.notify('Error', `No se pudo procesar la imagen ${file.name}.`, 'error');
+            }
+        }
+
+        renderProjectGallery();
+        e.target.value = '';
     }
 
     if (e.target && e.target.id === 'admin-project-status') {
         updateFeaturedState();
     }
 });
+
+function renderProjectGallery() {
+    const preview = document.getElementById('admin-project-preview');
+    const gallery = document.getElementById('admin-project-gallery');
+    const icon = document.getElementById('admin-project-icon');
+
+    if (!preview || !gallery) return;
+
+    if (projectImageQueue.length > 0) {
+        preview.style.backgroundImage = `url(${projectImageQueue[0]})`;
+        if (icon) icon.style.display = 'none';
+    } else {
+        preview.style.backgroundImage = 'none';
+        if (icon) icon.style.display = 'block';
+    }
+
+    let html = '';
+    for (let i = 0; i < 4; i++) {
+        if (i < projectImageQueue.length) {
+            html += `
+                <div style="position: relative; aspect-ratio: 1; border-radius: 4px; border: 1px solid var(--color-border); overflow: hidden; background-image: url(${projectImageQueue[i]}); background-size: cover; background-position: center; cursor: pointer;" onclick="setProjectMainPreview(${i})">
+                    <button type="button" onclick="event.stopPropagation(); removeProjectImage(${i})" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; box-shadow: 0 1px 3px rgba(0,0,0,0.3);" title="Quitar">&times;</button>
+                </div>
+            `;
+        } else {
+            html += `<div style="aspect-ratio: 1; background: #e2e8f0; border-radius: 4px; border: 1px dashed #cbd5e1;"></div>`;
+        }
+    }
+    gallery.innerHTML = html;
+}
+
+function setProjectMainPreview(index) {
+    if (projectImageQueue[index]) {
+        const temp = projectImageQueue[0];
+        projectImageQueue[0] = projectImageQueue[index];
+        projectImageQueue[index] = temp;
+        renderProjectGallery();
+    }
+}
+
+function removeProjectImage(index) {
+    const editId = document.getElementById('edit-project-id').value;
+    const isEditing = editId !== '';
+    if (isEditing && projectImageQueue.length <= 1) {
+        AlertService.notify('Acción no permitida', 'Debe conservar al menos una imagen para este proyecto.', 'warning');
+        return;
+    }
+    projectImageQueue.splice(index, 1);
+    renderProjectGallery();
+}
+
 
 async function handleProjectSubmit(e) {
     e.preventDefault();
@@ -143,11 +242,19 @@ async function handleProjectSubmit(e) {
     const featured = document.getElementById('admin-project-featured').checked;
     const image = document.getElementById('admin-project-media').value;
 
-    // 1. VALIDACIÓN DE OBLIGATORIEDAD
-    if (!title || !description || !objectives || !status) {
-        AlertService.notify('Campos Vacíos', 'Nombre, Descripción, Objetivos y Estado son obligatorios.', 'warning');
+    // 1. VALIDACIÓN DE OBLIGATORIEDAD ESTRICTA
+    if (!title || !description || !objectives || !status || title === '' || description === '' || objectives === '') {
+        AlertService.notify('Campos Vacíos', 'Los campos no pueden estar vacíos ni contener solo espacios.', 'warning');
         return;
     }
+
+    // 2. VALIDACIÓN DE IMÁGENES
+    if (projectImageQueue.length === 0) {
+        AlertService.notify('Imagen requerida', 'Debe subir al menos una imagen descriptiva para el proyecto.', 'warning');
+        return;
+    }
+
+    const imageToSave = projectImageQueue.length > 0 ? projectImageQueue[0] : 'img/proyectos.png';
 
     // CU-001: Validación de estado "Validado" para ser destacado
     if (featured && status !== 'Validado') {
@@ -173,7 +280,7 @@ async function handleProjectSubmit(e) {
             if (old.status !== status) changes.push('Estado');
             if (old.progress != progress) changes.push('Progreso');
             if (old.featured !== featured) changes.push('Destacado');
-            if (old.image !== image && image !== '') changes.push('Imagen');
+            if (old.image !== imageToSave) changes.push('Imagen Principal');
 
             if (changes.length > 0) {
                 const logEntry = {
@@ -190,7 +297,8 @@ async function handleProjectSubmit(e) {
                     status,
                     progress: parseInt(progress),
                     featured,
-                    image: image || old.image,
+                    image: imageToSave,
+                    images: [...projectImageQueue],
                     history: [logEntry, ...(old.history || [])].slice(0, 10) // Mantener últimos 10
                 };
                 AlertService.notify('Éxito', 'Proyecto actualizado y cambios registrados.', 'success');
@@ -211,7 +319,8 @@ async function handleProjectSubmit(e) {
             status,
             progress: parseInt(progress),
             featured,
-            image: image || 'img/proyectos.png',
+            image: imageToSave,
+            images: [...projectImageQueue],
             history: [{ date: now, responsible: session.name, fields: 'Creación inicial' }]
         };
         allProjects.push(newProject);

@@ -25,9 +25,9 @@ function getLocalDcti() {
  * Save institutional data to localStorage
  */
 function saveLocalDcti(data) {
-    if (!data.mission || !data.vision || !data.review) {
+    if (!data.mission || !data.vision || !data.review || data.mission.trim() === '' || data.vision.trim() === '' || data.review.trim() === '') {
         if (typeof AlertService !== 'undefined') {
-            AlertService.notify('Todos los campos institucionales son obligatorios.', 'error');
+            AlertService.notify('Todos los campos son obligatorios y no pueden contener solo espacios vacíos.', 'error');
         }
         return false;
     }
@@ -85,10 +85,17 @@ function previewOrganigrama(event) {
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
+
+                // Rellenar con fondo blanco por si la imagen tiene partes transparentes y el visor falla, 
+                // aunque WebP maneja transparencia.
+                // ctx.fillStyle = '#ffffff';
+                // ctx.fillRect(0, 0, width, height);
+
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Calidad al 75%
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+                // Usamos WebP para preservar transparencia (PNG) y a la vez comprimir, 
+                // evitando el fondo negro del JPEG tradicional.
+                const dataUrl = canvas.toDataURL('image/webp', 0.85);
                 const preview = document.getElementById('admin-dcti-organigrama-preview');
                 if (preview) {
                     preview.src = dataUrl;

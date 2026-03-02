@@ -8,6 +8,10 @@
     <title>Portal Web DCTI - Inicio</title>
     <!-- Estilos consolidados -->
     <link rel="stylesheet" href="css/portal.css">
+    <link rel="stylesheet" href="css/public-views.css">
+    <!-- CSS Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <!-- Iconos FontAwesome para coherencia -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -21,102 +25,697 @@
             </picture>
         </div>
         <nav>
-            <button class="nav-toggle" id="nav-toggle">
-                <i class="fas fa-bars"></i>
-                <span>Menú</span>
-            </button>
             <ul id="nav-menu">
-                <li><a href="index.html" aria-current="location">Inicio</a></li>
-                <li><a href="#">DCTI</a></li>
-                <li><a href="#">Ejes de gestión</a></li>
-                <li><a href="#">Noticias</a></li>
-                <li><a href="#">Cursos</a></li>
-                <li><a href="#">Contactos</a></li>
+                <li><a href="#" data-target="view-inicio" class="nav-link public-nav-active">Inicio</a></li>
+                <li><a href="#" data-target="view-dcti" class="nav-link">DCTI</a></li>
+                <li><a href="#" data-target="view-ejes" class="nav-link">Ejes de gestion</a></li>
+                <li><a href="#" data-target="view-noticias" class="nav-link">Noticias</a></li>
+                <li><a href="#" data-target="view-cursos" class="nav-link">Cursos</a></li>
+                <li><a href="#" data-target="view-contactos" class="nav-link">Contactos</a></li>
             </ul>
         </nav>
     </header>
 
-    <main>
-        <!-- Carrusel Principal -->
-        <section class="carrusel-principal">
-            <div class="carrusel-contenedor" id="principal">
-                <div class="ccp">
-                    <div class="imgc"><img src="img/img3.jpg" alt="Slide 1"></div>
-                    <div class="tc">
-                        <h2>Innovación Tecnológica</h2>
+    <main id="public-main-content">
+        <section id="view-inicio" class="public-view public-active">
+            <!-- Carrusel Principal -->
+            <section class="carrusel-principal">
+                <div class="carrusel-contenedor" id="principal">
+                    <div class="ccp">
+                        <div class="imgc"><img src="img/img3.jpg" alt="Slide 1"></div>
+                        <div class="tc">
+                            <h2>Innovación Tecnológica</h2>
+                        </div>
+                    </div>
+                    <div class="ccp">
+                        <div class="imgc"><img src="img/img4.jpg" alt="Slide 2"></div>
+                        <div class="tc">
+                            <h2>Gestión de Proyectos I+D</h2>
+                        </div>
+                    </div>
+                    <div class="ccp">
+                        <div class="imgc"><img src="img/img5.jpg" alt="Slide 3"></div>
+                        <div class="tc">
+                            <h2>Ciencia para el Pueblo</h2>
+                        </div>
+                    </div>
+                    <div class="ccp">
+                        <div class="imgc"><img src="img/img15.jpg" alt="Slide 4"></div>
+                        <div class="tc">
+                            <h2>Soberanía Tecnológica</h2>
+                        </div>
                     </div>
                 </div>
-                <div class="ccp">
-                    <div class="imgc"><img src="img/img4.jpg" alt="Slide 2"></div>
-                    <div class="tc">
-                        <h2>Gestión de Proyectos I+D</h2>
-                    </div>
+                <button class="btn-left">&#10094;</button>
+                <button class="btn-right">&#10095;</button>
+            </section>
+
+            <!-- Carrusel Noticias -->
+            <section class="carrusel-noticias">
+                <div class="noticia-contenedor">
+                    <article class="noticia">
+                        <img src="img/img8.jpg" alt="Noticia 1">
+                        <div class="contenido-noticia">
+                            <h2>Nuevos Convenios Científicos</h2>
+                            <p>La Dirección de Ciencia y Tecnología establece alianzas estratégicas para fortalecer el
+                                ecosistema de innovación en el estado Monagas. Se espera la incorporación de más de 50
+                                investigadores en la primera etapa...</p>
+                        </div>
+                    </article>
+                    <article class="noticia">
+                        <img src="img/img16.jpg" alt="Noticia 2">
+                        <div class="contenido-noticia">
+                            <h2>Lanzamiento de Plataforma E-Learning</h2>
+                            <p>Inicia el proceso de formación técnica especializada a través de nuestro nuevo portal de
+                                cursos virtuales. Accesibilidad, calidad y soberanía en el conocimiento tecnológico para
+                                todos los sectores...</p>
+                        </div>
+                    </article>
+                    <article class="noticia">
+                        <img src="img/img17.jpg" alt="Noticia 3">
+                        <div class="contenido-noticia">
+                            <h2>Hito en Soporte Técnico Redes</h2>
+                            <p>El equipo de Redes y Telecomunicaciones logra la migración total a tecnologías de
+                                software
+                                libre en las instituciones públicas del estado, garantizando seguridad y eficiencia en
+                                el
+                                procesamiento de datos...</p>
+                        </div>
+                    </article>
                 </div>
-                <div class="ccp">
-                    <div class="imgc"><img src="img/img5.jpg" alt="Slide 3"></div>
-                    <div class="tc">
-                        <h2>Ciencia para el Pueblo</h2>
-                    </div>
+                <div class="dots-container"></div>
+            </section>
+
+            <!-- Carrusel Miniaturas -->
+            <section class="carrusel-miniaturas">
+                <div class="miniaturas-contenedor" id="miniatura">
+                    <div class="miniaturasc"><img src="img/img4.jpg" alt="Min 1"></div>
+                    <div class="miniaturasc"><img src="img/img5.jpg" alt="Min 2"></div>
+                    <div class="miniaturasc"><img src="img/img6.jpg" alt="Min 3"></div>
+                    <div class="miniaturasc"><img src="img/img17.jpg" alt="Min 4"></div>
+                    <div class="miniaturasc"><img src="img/img11.jpg" alt="Min 5"></div>
+                    <div class="miniaturasc"><img src="img/img12.jpg" alt="Min 6"></div>
+                    <div class="miniaturasc"><img src="img/img13.jpg" alt="Min 7"></div>
+                    <div class="miniaturasc"><img src="img/img14.jpg" alt="Min 8"></div>
                 </div>
-                <div class="ccp">
-                    <div class="imgc"><img src="img/img15.jpg" alt="Slide 4"></div>
-                    <div class="tc">
-                        <h2>Soberanía Tecnológica</h2>
-                    </div>
-                </div>
-            </div>
-            <button class="btn-left">&#10094;</button>
-            <button class="btn-right">&#10095;</button>
+                <button class="btn-left-m">&#10094;</button>
+                <button class="btn-right-m">&#10095;</button>
+            </section>
         </section>
 
-        <!-- Carrusel Noticias -->
-        <section class="carrusel-noticias">
-            <div class="noticia-contenedor">
-                <article class="noticia">
-                    <img src="img/img8.jpg" alt="Noticia 1">
-                    <div class="contenido-noticia">
-                        <h2>Nuevos Convenios Científicos</h2>
-                        <p>La Dirección de Ciencia y Tecnología establece alianzas estratégicas para fortalecer el
-                            ecosistema de innovación en el estado Monagas. Se espera la incorporación de más de 50
-                            investigadores en la primera etapa...</p>
-                    </div>
+        <!-- Nuevas Vistas SPA -->
+        <section id="view-dcti" class="public-view public-hidden">
+            <section>
+                <article class="caja">
+                    <h2>Reseña Historica</h2>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Unde voluptatem atque illum
+                        delectus maxime odio nam cumque magni iste non sed quia illo facere neque iusto rem
+                        accusamus, sequi at. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatem
+                        dolores pariatur eaque facere, quis hic, eveniet perspiciatis rerum delectus, consequatur
+                        aliquid nobis iure. Deserunt ratione maxime explicabo. Nostrum, autem, animi. Lorem ipsum
+                        dolor sit amet, consectetur adipisicing elit. Optio aliquam deserunt veritatis, adipisci
+                        porro facilis nesciunt, sapiente sed commodi vel unde dolore consectetur suscipit nulla
+                        quasi cupiditate facere! Temporibus, blanditiis.</p>
                 </article>
-                <article class="noticia">
-                    <img src="img/img16.jpg" alt="Noticia 2">
-                    <div class="contenido-noticia">
-                        <h2>Lanzamiento de Plataforma E-Learning</h2>
-                        <p>Inicia el proceso de formación técnica especializada a través de nuestro nuevo portal de
-                            cursos virtuales. Accesibilidad, calidad y soberanía en el conocimiento tecnológico para
-                            todos los sectores...</p>
-                    </div>
+            </section>
+            <section class="conten">
+                <article class="caja">
+                    <h2>Misión</h2>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Similique ea quam perferendis ullam
+                        doloremque reprehenderit, minima repellendus delectus, autem aliquam ipsa? Beatae debitis
+                        atque quas, facere pariatur quae natus vel. Lorem ipsum dolor sit amet, consectetur
+                        adipisicing elit. Eos vitae hic, et tempore, deleniti dicta voluptate a, ipsa ratione
+                        numquam quidem earum pariatur facilis aspernatur nemo eum eveniet! Consequuntur, error!</p>
                 </article>
-                <article class="noticia">
-                    <img src="img/img17.jpg" alt="Noticia 3">
-                    <div class="contenido-noticia">
-                        <h2>Hito en Soporte Técnico Redes</h2>
-                        <p>El equipo de Redes y Telecomunicaciones logra la migración total a tecnologías de software
-                            libre en las instituciones públicas del estado, garantizando seguridad y eficiencia en el
-                            procesamiento de datos...</p>
-                    </div>
+                <article class="caja">
+                    <h2>Visión</h2>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Numquam distinctio necessitatibus
+                        obcaecati architecto, nulla minus ea, nostrum voluptatum molestiae nisi nesciunt. Asperiores
+                        id tempora adipisci mollitia vel fuga sint ex! Lorem ipsum dolor sit amet, consectetur
+                        adipisicing elit. Et a tempore, sapiente perferendis facilis accusantium, culpa non
+                        veritatis consectetur omnis tempora possimus nesciunt obcaecati est velit, eligendi sint,
+                        illum nam!</p>
                 </article>
+            </section>
+            <section class="c_organigrama">
+                <img src="img/organigrama_nuevo.png" alt="Organigrama de la Institucion" class="organigrama">
+            </section>
             </div>
-            <div class="dots-container"></div>
         </section>
 
-        <!-- Carrusel Miniaturas -->
-        <section class="carrusel-miniaturas">
-            <div class="miniaturas-contenedor" id="miniatura">
-                <div class="miniaturasc"><img src="img/img4.jpg" alt="Min 1"></div>
-                <div class="miniaturasc"><img src="img/img5.jpg" alt="Min 2"></div>
-                <div class="miniaturasc"><img src="img/img6.jpg" alt="Min 3"></div>
-                <div class="miniaturasc"><img src="img/img17.jpg" alt="Min 4"></div>
-                <div class="miniaturasc"><img src="img/img11.jpg" alt="Min 5"></div>
-                <div class="miniaturasc"><img src="img/img12.jpg" alt="Min 6"></div>
-                <div class="miniaturasc"><img src="img/img13.jpg" alt="Min 7"></div>
-                <div class="miniaturasc"><img src="img/img14.jpg" alt="Min 8"></div>
+        <section id="view-ejes" class="public-view public-hidden">
+            <h2 class="view-section-title">Ejes de Gestión</h2>
+            <section class="carrusel-eje1">
+                <div class="eje-contenedor1">
+                    <article class="eje1">
+                        <img src="img/img8.jpg" alt="Seccion 1">
+                        <div class="contenido-eje1">
+                            <h2>Coordinación de Redes y Servidores</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis, cumque nulla itaque
+                                unde temporibus, velit. Ut odio perferendis maiores ea quasi a aperiam aut, nostrum id
+                                quia magni, eligendi in. ipsum dolor sit amet, consectetur adipisicing elit. Pariatur
+                                ab, doloribus minus, possimus at ratione error nam accusantium quod praesentium adipisci
+                                quaerat, animi reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum
+                                dolor sit amet, consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit
+                                aspernatur illo aut odit est repellat omnis. Reprehenderit distinctio unde vitae
+                                aliquam, asperiores, minima voluptates? Repellat. Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. In quas perspiciatis cumque error, ipsam qui quaerat
+                                molestias assumenda optio. Ipsa inventore cum magnam, aperiam non error praesentium.
+                                Doloribus, quasi praesentium.</p>
+                        </div>
+                    </article>
+                    <article class="eje1">
+                        <img src="img/img5.jpg" alt="Noticia 2">
+                        <div class="contenido-eje1">
+                            <h2>Noticia 2</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit.</p>
+                        </div>
+                    </article>
+                    <article class="eje1">
+                        <img src="img/img14.jpg" alt="Noticia 3">
+                        <div class="contenido-eje1">
+                            <h2>Noticia 3</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eum quo optio quod quasi facere
+                                tenetur accusamus laudantium et, magnam hic odit dicta, labore ullam assumenda vero!
+                                Vero rerum, quam accusamus. ipsum dolor sit amet, consectetur adipisicing elit. Pariatur
+                                ab, doloribus minus, possimus at ration Porro amet quibusdam quod culpa, velit
+                                aspernatur illo aut odit est repellat omnis. Reprehenderit distinctio unde vitae
+                                aliquam, asperiores, minima voluptates? Repellat. Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. In quas perspiciatis cumque error, ipsam qui quaerat
+                                molestias assumenda optio. Ipsa inventore cum magnam, aperiam non error praesentium.
+                                Doloribus, quasi praesentium.</p>
+                        </div>
+                    </article>
+                </div>
+                <div class="dots-container-eje1"></div>
+            </section>
+            <section class="carrusel-eje2">
+                <div class="eje-contenedor2">
+                    <article class="eje2">
+                        <div class="contenido-eje2">
+                            <h2>Coordinación de Soporte Técnico</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                        <img src="img/img10.jpg" alt="Seccion 2">
+                    </article>
+                    <article class="eje2">
+                        <div class="contenido-eje2">
+                            <h2>Noticia 2</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                        <img src="img/img16.jpg" alt="Noticia 2">
+                    </article>
+                    <article class="eje2">
+                        <div class="contenido-eje2">
+                            <h2>Noticia 3</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                        <img src="img/img12.jpg" alt="Noticia 3">
+                    </article>
+                </div>
+                <div class="dots-container-eje2"></div>
+            </section>
+            <section class="carrusel-eje3">
+                <div class="eje-contenedor3">
+                    <article class="eje3">
+                        <img src="img/img7.jpg" alt="Noticia 1">
+                        <div class="contenido-eje3">
+                            <h2>Coordinación de Relaciones Institucionales</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                    </article>
+                    <article class="eje3">
+                        <img src="img/img4.jpg" alt="Seccion 3">
+                        <div class="contenido-eje3">
+                            <h2>Noticia 2</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                    </article>
+                    <article class="eje3">
+                        <img src="img/img17.jpg" alt="Noticia 3">
+                        <div class="contenido-eje3">
+                            <h2>Noticia 3</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                    </article>
+                </div>
+                <div class="dots-container-eje3"></div>
+            </section>
+            <section class="carrusel-eje4">
+                <div class="eje-contenedor4">
+                    <article class="eje4">
+                        <div class="contenido-eje4">
+                            <h2>Coordinación de Desarrollo e Implementación</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                        <img src="img/img10.jpg" alt="Seccion 4">
+                    </article>
+                    <article class="eje4">
+                        <div class="contenido-eje4">
+                            <h2>Noticia 2</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                        <img src="img/img16.jpg" alt="Noticia 2">
+                    </article>
+                    <article class="eje4">
+                        <div class="contenido-eje4">
+                            <h2>Noticia 3</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                        <img src="img/img12.jpg" alt="Noticia 3">
+                    </article>
+                </div>
+                <div class="dots-container-eje4"></div>
+            </section>
+            <section class="carrusel-eje5">
+                <div class="eje-contenedor5">
+                    <article class="eje5">
+                        <img src="img/img7.jpg" alt="Seccion 5">
+                        <div class="contenido-eje5">
+                            <h2>Coordinación de Métodos y Procesos</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                    </article>
+                    <article class="eje5">
+                        <img src="img/img4.jpg" alt="Noticia 2">
+                        <div class="contenido-eje5">
+                            <h2>Noticia 2</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                    </article>
+                    <article class="eje5">
+                        <img src="img/img17.jpg" alt="Noticia 3">
+                        <div class="contenido-eje5">
+                            <h2>Noticia 3</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                    </article>
+                </div>
+                <div class="dots-container-eje5"></div>
+            </section>
+            <section class="carrusel-eje6">
+                <div class="eje-contenedor6">
+                    <article class="eje6">
+                        <div class="contenido-eje6">
+                            <h2>Coordinación de Innovación</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                        <img src="img/img10.jpg" alt="Seccion 6">
+                    </article>
+                    <article class="eje6">
+                        <div class="contenido-eje6">
+                            <h2>Noticia 2</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                        <img src="img/img16.jpg" alt="Noticia 2">
+                    </article>
+                    <article class="eje6">
+                        <div class="contenido-eje6">
+                            <h2>Noticia 3</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ab, doloribus minus,
+                                possimus at ratione error nam accusantium quod praesentium adipisci quaerat, animi
+                                reprehenderit fugiat neque amet dolorem nihil. Dignissimos! Lorem ipsum dolor sit amet,
+                                consectetur adipisicing elit. Porro amet quibusdam quod culpa, velit aspernatur illo aut
+                                odit est repellat omnis. Reprehenderit distinctio unde vitae aliquam, asperiores, minima
+                                voluptates? Repellat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. In quas
+                                perspiciatis cumque error, ipsam qui quaerat molestias assumenda optio. Ipsa inventore
+                                cum magnam, aperiam non error praesentium. Doloribus, quasi praesentium.</p>
+                        </div>
+                        <img src="img/img12.jpg" alt="Noticia 3">
+                    </article>
+                </div>
+                <div class="dots-container-eje6"></div>
+            </section>
+        </section>
+
+        <section id="view-noticias" class="public-view public-hidden">
+            <section class="carrusel-principal">
+                <div class="carrusel-contenedor" id="principal-noticias">
+                    <div class="ccp">
+                        <div class="imgc"><img src="img/img3.jpg" alt="Slide 1"></div>
+                        <div class="tc">
+                            <h2>Titulo de imagen 1</h2>
+                        </div>
+                    </div>
+                    <div class="ccp">
+                        <div class="imgc"><img src="img/img4.jpg" alt="Slide 2"></div>
+                        <div class="tc">
+                            <h2>Titulo de imagen 2</h2>
+                        </div>
+                    </div>
+                    <div class="ccp">
+                        <div class="imgc"><img src="img/img5.jpg" alt="Slide 3"></div>
+                        <div class="tc">
+                            <h2>Titulo de imagen 3</h2>
+                        </div>
+                    </div>
+                    <div class="ccp">
+                        <div class="imgc"><img src="img/img15.jpg" alt="Slide 4"></div>
+                        <div class="tc">
+                            <h2>Titulo de imagen 4</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-left">&#10094;</div>
+                <div class="btn-right">&#10095;</div>
+            </section>
+            <section class="course-container-noticias">
+                <div class="titulo_noticia">
+                    <h2>Noticias institucionales</h2>
+                </div>
+                <div class="noticias">
+                    <div class="course-item">
+                        <img src="img/img5.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                    <div class="course-item">
+                        <img src="img/img4.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                    <div class="course-item">
+                        <img src="img/img9.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                </div>
+            </section>
+            <section class="course-container-noticias2">
+                <div class="titulo_noticia">
+                    <h2>Noticias locales</h2>
+                </div>
+                <div class="noticias">
+                    <div class="course-item">
+                        <img src="img/img10.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                    <div class="course-item">
+                        <img src="img/img3.jpg" alt="Curso 1">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                    <div class="course-item">
+                        <img src="img/img7.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                </div>
+            </section>
+            <section class="course-container-noticias">
+                <div class="titulo_noticia">
+                    <h2>Noticias regionales</h2>
+                </div>
+                <div class="noticias">
+                    <div class="course-item">
+                        <img src="img/img5.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                    <div class="course-item">
+                        <img src="img/img4.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                    <div class="course-item">
+                        <img src="img/img9.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                </div>
+            </section>
+            <section class="course-container-noticias2">
+                <div class="titulo_noticia">
+                    <h2>Noticias nacionales</h2>
+                </div>
+                <div class="noticias">
+                    <div class="course-item">
+                        <img src="img/img10.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                    <div class="course-item">
+                        <img src="img/img3.jpg" alt="Curso 1">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                    <div class="course-item">
+                        <img src="img/img7.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                </div>
+            </section>
+            <section class="course-container-noticias">
+                <div class="titulo_noticia">
+                    <h2>Noticias internacionales</h2>
+                </div>
+                <div class="noticias">
+                    <div class="course-item">
+                        <img src="img/img5.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                    <div class="course-item">
+                        <img src="img/img4.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                    <div class="course-item">
+                        <img src="img/img9.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <section id="view-cursos" class="public-view public-hidden">
+            <div class="titulo_noticia">
+                <h2>Cursos</h2>
             </div>
-            <button class="btn-left-m">&#10094;</button>
-            <button class="btn-right-m">&#10095;</button>
+            <section class="course-container">
+                <div class="course-item">
+                    <img src="img/img5.jpg" alt="Curso 1">
+                    <a href="#" class="enlaceCurso">
+                        <h2>Transporte de capacidades de voz y datos</h2>
+                    </a>
+                </div>
+                <div class="course-item">
+                    <img src="img/img4.jpg" alt="Curso 2">
+                    <a href="#" class="enlaceCurso">
+                        <h2>Transporte de capacidades de voz y datos</h2>
+                    </a>
+                </div>
+                <div class="course-item">
+                    <img src="img/img9.jpg" alt="Curso 2">
+                    <a href="#" class="enlaceCurso">
+                        <h2>Transporte de capacidades de voz y datos</h2>
+                    </a>
+                </div>
+            </section>
+            <section class="course-container">
+                <div class="course-item">
+                    <img src="img/img10.jpg" alt="Curso 2">
+                    <a href="#" class="enlaceCurso">
+                        <h2>Transporte de capacidades de voz y datos</h2>
+                    </a>
+                </div>
+                <div class="course-item">
+                    <img src="img/img3.jpg" alt="Curso 2">
+                    <a href="#" class="enlaceCurso">
+                        <h2>Transporte de capacidades de voz y datos</h2>
+                    </a>
+                </div>
+                <div class="course-item">
+                    <img src="img/img7.jpg" alt="Curso 2">
+                    <a href="#" class="enlaceCurso">
+                        <h2>Transporte de capacidades de voz y datos</h2>
+                    </a>
+                </div>
+            </section>
+        </section>
+
+        <section id="view-contactos" class="public-view public-hidden">
+            <section>
+                <div id="mi_map"></div>
+            </section>
+            <section class="contacto-container">
+                <div class="icon-container">
+                    <a href="#" class="icon-link">
+                        <img src="img/insta.svg" alt="instagram" width="40px">
+                        <span>@Instagram</span>
+                    </a>
+                    <a href="tel:555-5555555" class="icon-link">
+                        <img src="img/telefono.png" alt="telefono" width="40px">
+                        <span>555-5555555</span>
+                    </a>
+                </div>
+                <div class="icon-container">
+                    <a href="https://www.facebook.com" class="icon-link"
+                        aria-label="Visitar nuestra página de Facebook">
+                        <img src="img/face.svg" alt="ícono de facebook" width="40px">
+                        <span>@Facebook</span>
+                    </a>
+                    <a href="https://www.ubicación.com" class="icon-link" aria-label="Ver nuestra ubicación">
+                        <img src="img/ubicacion.png" alt="ícono de ubicación" width="40px">
+                        <span>Ubicación</span>
+                    </a>
+                </div>
+            </section>
+            <section>
+                <div class="cabeza">
+                    <h1 class="title" style="text-align:center; padding: 20px 0; color: #530e90;">¿Tienes una duda?
+                        ¡Consultanos!</h1>
+                </div>
+                <div class="container-form">
+                    <div class="form-container">
+                        <form>
+                            <div class="form-group">
+                                <label for="nombre">Nombre</label>
+                                <input type="text" id="nombre" name="nombre" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="apellido">Apellido</label>
+                                <input type="text" id="apellido" name="apellido" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="correo">Correo</label>
+                                <input type="email" id="correo" name="correo" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="consulta">Consulta</label>
+                                <textarea id="consulta" name="consulta" class="form-control" rows="5"
+                                    style="resize: none;"></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <input type="submit" value="Enviar" class="btn btn-primary" />
+                                <input type="reset" value="Limpiar" class="btn btn-danger" />
+                            </div>
+                        </form>
+                    </div>
+                    <div class="image-form">
+                        <img src="img/loteria.png" alt="Imagen LDO" />
+                    </div>
+                </div>
+            </section>
         </section>
     </main>
 
@@ -130,18 +729,22 @@
         <div class="footer">
             <p>Dirección de Ciencia, Tecnología e Innovación. Gobierno del Estado Monagas. Comprometidos con el
                 desarrollo científico y tecnológico de nuestra patria.</p>
-            <div class="footer-social">
-                <a href="#"><img src="img/insta.svg" alt="instagram" width="40px"></a>
-                <a href="#"><img src="img/face.svg" alt="facebook" width="40px"></a>
-                <a href="#"><img src="img/twitterx.png" alt="twitter" width="40px"></a>
-                <a href="login.html"><img src="img/usuario.png" title="Intranet" alt="iniciar sesion" class="inicio"
-                        width="40px"></a>
-            </div>
+            <a href="#"><img src="img/insta.svg" alt="instagram" width="40px"></a>
+            <a href="#"><img src="img/face.svg" alt="facebook" width="40px"></a>
+            <a href="#"><img src="img/twitterx.png" alt="twitter" width="40px"></a>
+            <a href="login.html"><img src="img/usuario.png" alt="iniciar sesion" class="inicio" width="40px"></a>
         </div>
     </footer>
 
-    <!-- Lógica de carruseles -->
+    <!-- Lógica de carruseles e interactividad -->
     <script src="js/portal-logic.js"></script>
+    <script src="js/public-navigation.js"></script>
+    <script src="js/carrusel_ejes.js"></script>
+
+    <!-- Scripts de Contactos (Mapa) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="js/mapa.js"></script>
 </body>
 
 </html>

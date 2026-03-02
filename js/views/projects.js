@@ -78,64 +78,80 @@ const ProjectsView = {
 
                 <!-- Modal de Proyectos (HU001, HU004) -->
                 <div id="project-modal" class="modal-overlay hidden">
-                    <div class="modal-card" style="max-width: 650px; padding: 0;">
+                    <div class="modal-card" style="max-width: 900px; width: 90%; padding: 0;">
                         <div class="modal-header">
                             <h2 id="project-modal-title">Gestión de Proyecto</h2>
                             <button class="close-modal" onclick="closeProjectModal()">&times;</button>
                         </div>
-                        <form id="project-admin-form" onsubmit="handleProjectSubmit(event)" style="padding: 20px; display: grid; grid-template-columns: 1fr; gap: 15px; max-height: 70vh; overflow-y: auto;">
+                        <form id="project-admin-form" onsubmit="handleProjectSubmit(event)" style="padding: 25px; max-height: 85vh; overflow-y: auto;">
                             <input type="hidden" id="edit-project-id">
                             
-                            <div class="form-group" style="grid-column: span 2;">
-                                <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Nombre del Proyecto <span style="color: #ef4444;">*</span></label>
-                                <input type="text" id="admin-project-title" placeholder="Ej: Modernización Red Eléctrica" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Estado <span style="color: #ef4444;">*</span></label>
-                                <select id="admin-project-status" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; background-color: white; font-weight: 600;" required>
-                                    <option value="Borrador">Borrador</option>
-                                    <option value="En Proceso">En Proceso</option>
-                                    <option value="Validado">Validar Proyecto (Listo para Destacar)</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Progreso (%)</label>
-                                <input type="number" id="admin-project-progress" min="0" max="100" value="0" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
-                            </div>
-
-                            <div class="form-group" style="grid-column: span 2;">
-                                <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Descripción Breve <span style="color: #ef4444;">*</span></label>
-                                <textarea id="admin-project-description" placeholder="Resumen para el listado..." style="width: 100%; height: 60px; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; resize: none;" required></textarea>
-                            </div>
-
-                            <div class="form-group" style="grid-column: span 2;">
-                                <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Objetivos Estratégicos <span style="color: #ef4444;">*</span></label>
-                                <textarea id="admin-project-objectives" placeholder="Metas a alcanzar..." style="width: 100%; height: 80px; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; resize: none;" required></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Imagen del Proyecto</label>
-                                <div id="admin-project-preview" style="height: 100px; border: 2px dashed var(--color-border); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; position: relative; overflow: hidden;">
-                                    <input type="file" id="admin-project-file" accept="image/*" style="position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer;">
-                                    <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem; color: #cbd5e1;"></i>
-                                    <span style="font-size: 0.7rem; color: #94a3b8; margin-top: 5px;">Subir foto</span>
-                                    <input type="hidden" id="admin-project-media">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr)); gap: 30px; box-sizing: border-box;">
+                                
+                                <!-- Columna Izquierda: Imagen y Carrusel -->
+                                <div style="display: flex; flex-direction: column;">
+                                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--color-text-muted);">Añadir imágenes</label>
+                                    <div style="position: relative; width: 100%; aspect-ratio: 1; background: #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
+                                        <div id="admin-project-preview" style="width: 100%; height: 100%; border-radius: 8px; background-color: #cbd5e1; background-position: center; background-size: cover; position: relative; border: 2px dashed var(--color-border); display: flex; align-items: center; justify-content: center;">
+                                            <input type="file" id="admin-project-file" multiple accept="image/*" style="opacity: 0; position: absolute; width: 100%; height: 100%; cursor: pointer; z-index: 10;">
+                                            <input type="hidden" id="admin-project-media">
+                                            <i class="fas fa-image placeholder-icon" id="admin-project-icon" style="font-size: 2rem; color: #94a3b8; pointer-events: none;"></i>
+                                        </div>
+                                        <button type="button" onclick="document.getElementById('admin-project-file').click()" style="position: absolute; bottom: -15px; right: -15px; width: 40px; height: 40px; border-radius: 50%; background: #1d4ed8; color: white; border: none; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; z-index: 11; box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor: pointer;" title="Subir Imagen">+</button>
+                                    </div>
+                                    
+                                    <label id="project-gallery-title" style="display: block; margin-bottom: 10px; font-size: 0.9rem; color: var(--color-text-muted);">Publicadas</label>
+                                    <div id="admin-project-gallery" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                                        <!-- Renderizado dinámico -->
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-group" style="grid-column: span 2; display: flex; flex-direction: column; gap: 5px; padding-top: 15px;">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <input type="checkbox" id="admin-project-featured" style="width: 20px; height: 20px;">
-                                    <label for="admin-project-featured" style="font-size: 0.9rem; font-weight: 700; color: var(--color-primary);">Marcar como Destacado (Visible en el Portal)</label>
+                                <!-- Columna Derecha: Formulario -->
+                                <div style="display: flex; flex-direction: column; gap: 15px;">
+                                    <div class="form-group">
+                                        <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Título <span style="color: #ef4444;">*</span></label>
+                                        <input type="text" id="admin-project-title" placeholder="Ej: Modernización Red Eléctrica" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
+                                    </div>
+
+                                    <div class="form-group" style="flex-grow: 1;">
+                                        <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Descripción Breve <span style="color: #ef4444;">*</span></label>
+                                        <textarea id="admin-project-description" placeholder="Resumen para el listado..." style="width: 100%; height: 100px; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; resize: none;" required></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Objetivos Estratégicos <span style="color: #ef4444;">*</span></label>
+                                        <textarea id="admin-project-objectives" placeholder="Metas a alcanzar..." style="width: 100%; height: 80px; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; resize: none;" required></textarea>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                        <div class="form-group">
+                                            <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Estado <span style="color: #ef4444;">*</span></label>
+                                            <select id="admin-project-status" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; background-color: white; font-weight: 600;" required>
+                                                <option value="Borrador">Borrador</option>
+                                                <option value="En Proceso">En Proceso</option>
+                                                <option value="Validado">Validar Proyecto (Listo para Destacar)</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Progreso (%)</label>
+                                            <input type="number" id="admin-project-progress" min="0" max="100" value="0" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" style="display: flex; flex-direction: column; gap: 5px; padding-top: 5px;">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <input type="checkbox" id="admin-project-featured" style="width: 20px; height: 20px;">
+                                            <label for="admin-project-featured" style="font-size: 0.9rem; font-weight: 700; color: var(--color-primary);">Marcar como Destacado (Visible en el Portal)</label>
+                                        </div>
+                                        <span id="featured-hint" style="font-size: 0.75rem; color: #ef4444; margin-left: 30px; display: none;">* Requiere estado "Validar Proyecto"</span>
+                                    </div>
+
+                                    <div class="form-group" style="display: flex; gap: 15px; margin-top: auto; padding-top: 15px; border-top: 1px solid #eee;">
+                                        <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 6px; background: #16a34a; color: white; border: none; font-weight: 600;">Publicar</button>
+                                        <button type="button" class="btn-secondary" onclick="closeProjectModal()" style="flex: 1; padding: 12px; border-radius: 6px; background: #9333ea; color: white; border: none; font-weight: 600;">Borrar / Cancelar</button>
+                                    </div>
                                 </div>
-                                <span id="featured-hint" style="font-size: 0.75rem; color: #ef4444; margin-left: 30px; display: none;">* Requiere estado "Validar Proyecto"</span>
-                            </div>
-
-                            <div style="grid-column: span 2; display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; padding-top: 15px; border-top: 1px solid #eee;">
-                                <button type="button" class="btn-secondary" onclick="closeProjectModal()" style="padding: 10px 20px; border-radius: 6px; border: 1px solid var(--color-border); background: white;">Cancelar</button>
-                                <button type="submit" class="btn-primary" style="padding: 10px 25px; border-radius: 6px; background: var(--color-primary); color: white; border: none; font-weight: 600;">Guardar Cambios</button>
                             </div>
                         </form>
                     </div>

@@ -116,8 +116,19 @@ function startDashboardSession(user) {
     DASHBOARD_UI.loginScreen.classList.add('hidden');
     DASHBOARD_UI.dashboardView.classList.remove('hidden');
 
-    DASHBOARD_UI.userInitials.textContent = user.initials;
-    DASHBOARD_UI.userName.textContent = user.name;
+    if (user.avatar) {
+        DASHBOARD_UI.userInitials.textContent = '';
+        DASHBOARD_UI.userInitials.style.backgroundImage = `url(${user.avatar})`;
+        DASHBOARD_UI.userInitials.style.backgroundSize = 'cover';
+        DASHBOARD_UI.userInitials.style.backgroundPosition = 'center';
+        DASHBOARD_UI.userInitials.style.border = '2px solid rgba(255,255,255,0.2)';
+    } else {
+        DASHBOARD_UI.userInitials.textContent = user.initials;
+        DASHBOARD_UI.userInitials.style.backgroundImage = 'none';
+        DASHBOARD_UI.userInitials.style.border = 'none';
+    }
+
+    DASHBOARD_UI.userName.textContent = user.name || user.username || 'Usuario';
     DASHBOARD_UI.userRole.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
 
     applyDashboardPermissions(user.role);
