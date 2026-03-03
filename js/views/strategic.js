@@ -1,6 +1,7 @@
 const StrategicView = {
     render: (data) => {
-        const areas = data.strategic;
+        const paginated = data.pagination;
+        const areas = paginated ? paginated.items : data.strategic;
         return `
             <div class="view-container">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
@@ -48,6 +49,19 @@ const StrategicView = {
                         </div>
                     `).join('')}
                 </div>
+
+                <!-- Paginación Footer -->
+                ${paginated && paginated.totalPages > 1 ? `
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; padding: 20px 0;">
+                        <button onclick="changePage('strategic', ${paginated.currentPage - 1})" ${paginated.currentPage === 1 ? 'disabled' : ''} style="width: 35px; height: 35px; border: 1px solid var(--color-border); background: white; border-radius: 50%; cursor: ${paginated.currentPage === 1 ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === 1 ? '0.3' : '1'}; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-chevron-left" style="font-size: 0.8rem;"></i>
+                        </button>
+                        <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-main);">Página ${paginated.currentPage} de ${paginated.totalPages}</span>
+                        <button onclick="changePage('strategic', ${paginated.currentPage + 1})" ${paginated.currentPage === paginated.totalPages ? 'disabled' : ''} style="width: 35px; height: 35px; border: 1px solid var(--color-border); background: white; border-radius: 50%; cursor: ${paginated.currentPage === paginated.totalPages ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === paginated.totalPages ? '0.3' : '1'}; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-chevron-right" style="font-size: 0.8rem;"></i>
+                        </button>
+                    </div>
+                ` : ''}
 
                 <!-- Modal de Áreas -->
                 <div id="strategic-modal" class="modal-overlay hidden">

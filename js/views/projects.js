@@ -1,7 +1,8 @@
 const ProjectsView = {
     render: (data) => {
         // En este punto, renderModule ya debió sincronizar MOCK_DATA.projects con localStorage si existe getLocalProjects
-        const projects = data.projects;
+        const paginated = data.pagination;
+        const projects = paginated ? paginated.items : data.projects;
         const session = JSON.parse(localStorage.getItem('dcti_session'));
         const isAdmin = session && session.role === 'admin';
 
@@ -21,60 +22,69 @@ const ProjectsView = {
                     ` : ''}
                 </div>
 
-                <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left;">
-                        <thead style="background: #f8fafc; border-bottom: 1px solid var(--color-border);">
-                            <tr>
-                                <th style="padding: 15px; width: 60px;">ID</th>
-                                <th style="padding: 15px;">Proyecto</th>
-                                <th style="padding: 15px;">Estado</th>
-                                <th style="padding: 15px;">Progreso</th>
-                                <th style="padding: 15px; text-align: center;">Destacado</th>
-                                <th style="padding: 15px; text-align: right;">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${projects.map(p => `
-                                <tr style="border-bottom: 1px solid #f1f5f9; transition: 0.2s;" onmouseover="this.style.background='#fcfcfc'" onmouseout="this.style.background='transparent'">
-                                    <td style="padding: 15px; color: var(--color-text-muted);">#${p.id}</td>
-                                    <td style="padding: 15px;">
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="width: 28px; height: 28px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--color-primary); font-weight: 800; border: 1.5px solid var(--color-border);">
-                                                ${p.id}
-                                            </div>
-                                            <div>
-                                                <div style="font-weight: 700; color: var(--color-text-main);">${p.title}</div>
-                                                <div style="font-size: 0.75rem; color: var(--color-text-muted); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; max-width: 250px;">${p.description}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td style="padding: 15px;">
-                                        <span style="padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; background: ${p.status === 'Validado' ? '#dcfce7' : (p.status === 'En Proceso' ? '#fef9c3' : '#f3f4f6')}; color: ${p.status === 'Validado' ? '#166534' : (p.status === 'En Proceso' ? '#854d0e' : '#374151')};">
-                                            ${p.status}
-                                        </span>
-                                    </td>
-                                    <td style="padding: 15px;">
-                                        <div style="width: 80px; height: 6px; background: #eee; border-radius: 10px; margin-bottom: 4px;">
-                                            <div style="width: ${p.progress}%; height: 100%; background: var(--color-primary); border-radius: 10px;"></div>
-                                        </div>
-                                        <span style="font-size: 0.75rem; color: var(--color-text-muted);">${p.progress}%</span>
-                                    </td>
-                                    <td style="padding: 15px; text-align: center;">
-                                        <button onclick="toggleFeatured(${p.id})" style="background: none; border: none; cursor: pointer; color: ${p.featured ? '#f59e0b' : '#cbd5e1'}; font-size: 1.2rem;">
-                                            <i class="${p.featured ? 'fas' : 'far'} fa-star"></i>
-                                        </button>
-                                    </td>
-                                    <td style="padding: 15px; text-align: right;">
-                                        <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                                            <button onclick="openProjectModal(${p.id})" title="Editar" style="background: none; border: 1px solid var(--color-border); padding: 8px; border-radius: 6px; cursor: pointer; color: var(--color-text-main);"><i class="fas fa-edit"></i></button>
-                                            <button onclick="deleteProject(${p.id})" title="Eliminar" style="background: none; border: 1px solid #fee2e2; color: #ef4444; padding: 8px; border-radius: 6px; cursor: pointer;"><i class="fas fa-trash-alt"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">
+                    ${projects.map(p => {
+            const coverImage = (p.images && p.images.length > 0) ? (p.images[0].image || p.images[0]) : (p.image || 'img/img8.jpg');
+            return `
+                        <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative;">
+                            ${p.featured ? `
+                                <div style="position: absolute; top: 12px; left: 12px; background: #f59e0b; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                    <i class="fas fa-star"></i> DESTACADO
+                                </div>
+                            ` : ''}
+                            <div style="height: 140px; background: #f1f5f9; overflow: hidden; position: relative;">
+                                <img src="${coverImage}" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div style="padding: var(--space-md); flex: 1; display: flex; flex-direction: column;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                    <span style="font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; font-weight: 700; background: ${p.status === 'Validado' ? '#dcfce7' : (p.status === 'En Proceso' ? '#fef9c3' : '#f3f4f6')}; color: ${p.status === 'Validado' ? '#166534' : (p.status === 'En Proceso' ? '#854d0e' : '#374151')}; border: 1px solid ${p.status === 'Validado' ? '#bbf7d0' : (p.status === 'En Proceso' ? '#fef08a' : '#e5e7eb')};">
+                                        ${p.status}
+                                    </span>
+                                    <div style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 600;">ID: #${p.id}</div>
+                                </div>
+                                
+                                <h3 style="font-size: 0.95rem; color: var(--color-text-main); margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.8em;">${p.title}</h3>
+                                <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.4em;">${p.description}</p>
+                                
+                                <div style="margin-bottom: 15px; margin-top: auto;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; font-weight: 600;">
+                                        <span>Progreso</span>
+                                        <span>${p.progress}%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 6px; background: #eee; border-radius: 10px; overflow: hidden;">
+                                        <div style="width: ${p.progress}%; height: 100%; background: var(--color-primary); border-radius: 10px; transition: width 0.3s ease;"></div>
+                                    </div>
+                                </div>
+    
+                                <div style="display: flex; gap: 8px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
+                                    <button onclick="toggleFeatured(${p.id})" title="${p.featured ? 'Quitar Destacado' : 'Destacar'}" style="flex: 0 0 auto; width: 35px; background: ${p.featured ? '#fffbeb' : 'white'}; border: 1px solid ${p.featured ? '#fde68a' : 'var(--color-border)'}; border-radius: 6px; cursor: pointer; color: ${p.featured ? '#f59e0b' : '#cbd5e1'}; font-size: 1rem; transition: 0.2s;"><i class="${p.featured ? 'fas' : 'far'} fa-star"></i></button>
+                                    <button onclick="openProjectModal(${p.id})" title="Editar" style="flex: 1; background: none; border: 1px solid var(--color-border); padding: 8px; border-radius: 6px; cursor: pointer; color: var(--color-text-main); transition: 0.2s;"><i class="fas fa-edit"></i></button>
+                                    <button onclick="deleteProject(${p.id})" title="Eliminar" style="flex: 1; background: none; border: 1px solid #fee2e2; color: #ef4444; padding: 8px; border-radius: 6px; cursor: pointer; transition: 0.2s;"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+        }).join('')}
+                    ${projects.length === 0 ? `
+                        <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--color-text-muted); background: white; border-radius: var(--radius-md); border: 1px dashed var(--color-border);">
+                            <i class="fas fa-project-diagram" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <p>No hay proyectos registrados.</p>
+                        </div>
+                    ` : ''}
                 </div>
+
+                <!-- Paginación Footer -->
+                ${paginated && paginated.totalPages > 1 ? `
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; padding: 20px 0;">
+                        <button onclick="changePage('projects', ${paginated.currentPage - 1})" ${paginated.currentPage === 1 ? 'disabled' : ''} style="width: 35px; height: 35px; border: 1px solid var(--color-border); background: white; border-radius: 50%; cursor: ${paginated.currentPage === 1 ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === 1 ? '0.3' : '1'}; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-chevron-left" style="font-size: 0.8rem;"></i>
+                        </button>
+                        <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-main);">Página ${paginated.currentPage} de ${paginated.totalPages}</span>
+                        <button onclick="changePage('projects', ${paginated.currentPage + 1})" ${paginated.currentPage === paginated.totalPages ? 'disabled' : ''} style="width: 35px; height: 35px; border: 1px solid var(--color-border); background: white; border-radius: 50%; cursor: ${paginated.currentPage === paginated.totalPages ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === paginated.totalPages ? '0.3' : '1'}; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-chevron-right" style="font-size: 0.8rem;"></i>
+                        </button>
+                    </div>
+                ` : ''}
 
                 <!-- Modal de Proyectos (HU001, HU004) -->
                 <div id="project-modal" class="modal-overlay hidden">

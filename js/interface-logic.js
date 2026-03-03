@@ -1,6 +1,8 @@
 const PAGINATION_STATE = {
     users: { currentPage: 1, itemsPerPage: 5 },
-    news: { currentPage: 1, itemsPerPage: 5 }
+    news: { currentPage: 1, itemsPerPage: 6 },
+    projects: { currentPage: 1, itemsPerPage: 6 },
+    strategic: { currentPage: 1, itemsPerPage: 6 }
 };
 
 /**
@@ -30,6 +32,15 @@ function getPaginatedData(data, module) {
 function changePage(module, page) {
     if (PAGINATION_STATE[module]) {
         PAGINATION_STATE[module].currentPage = page;
+
+        // Soporte para filtros dinámicos en vivo (ej: Noticias)
+        if (module === 'news' && typeof currentNewsCategoryFilter !== 'undefined' && currentNewsCategoryFilter !== 'Todas') {
+            if (typeof filterNewsAdmin === 'function') {
+                filterNewsAdmin(currentNewsCategoryFilter, false); // false = don't reset page
+                return;
+            }
+        }
+
         renderModule(module);
     }
 }
@@ -204,11 +215,42 @@ function renderModule(id) {
             }
         }
 
+        if (id === 'strategic' || id === 'dashboard') {
+            if (typeof getLocalStrategic === 'function') {
+                const allStrategic = getLocalStrategic();
+                viewData.strategic = allStrategic;
+                MOCK_DATA.strategic = allStrategic;
+            }
+        }
+
+        if (id === 'courses' || id === 'dashboard') {
+            if (typeof getLocalCourses === 'function') {
+                const allCourses = getLocalCourses();
+                // Por defecto el Grid UI va a mostrar solo "Publicados" a menos que modifiquen el Pill
+                viewData.courses = allCourses;
+                viewData.stats.courses = allCourses.length;
+                MOCK_DATA.courses = allCourses;
+            }
+        }
+
         if (id === 'users') {
             viewData.pagination = getPaginatedData(allUsers, 'users');
         }
         if (id === 'news') {
             viewData.pagination = getPaginatedData(allNews, 'news');
+        }
+        if (id === 'projects') {
+            viewData.pagination = getPaginatedData(viewData.projects, 'projects');
+        }
+        if (id === 'strategic') {
+            viewData.pagination = getPaginatedData(viewData.strategic, 'strategic');
+        }
+        if (id === 'courses') {
+            // Support Live Pill Filter for Courses too
+            if (typeof globalCourseFilter !== 'undefined' && globalCourseFilter !== 'Todos') {
+                viewData.courses = viewData.courses.filter(c => c.estadoCurso === globalCourseFilter);
+            }
+            viewData.pagination = getPaginatedData(viewData.courses, 'courses');
         }
     }
 
