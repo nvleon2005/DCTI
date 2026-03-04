@@ -73,6 +73,7 @@ function getLocalParticipations() {
 // ==========================================
 
 let courseImageQueue = []; // Cola de subida para el modal
+let courseMaterialsQueue = []; // Cola de materiales didácticos
 let globalCourseFilter = 'Publicado'; // Query de Listado por Defecto
 
 
@@ -99,6 +100,7 @@ function logCourseStateChange(course, nuevoEstado, motivo = "Cambio realizado po
 
 function openCourseModal(id = null) {
     if (typeof courseImageQueue !== 'undefined') courseImageQueue = [];
+    courseMaterialsQueue = [];
 
     document.getElementById('edit-course-id').value = id ? id : '';
 
@@ -143,6 +145,14 @@ function openCourseModal(id = null) {
                 document.getElementById('btn-save-course').style.display = 'inline-block';
             }
 
+            // Cargar Materiales y Fechas
+            if (course.materiales) {
+                courseMaterialsQueue = [...course.materiales];
+            }
+            const dateInput = document.getElementById('admin-course-materials-date');
+            if (dateInput) dateInput.value = course.fechaLiberacionMateriales || '';
+            renderCourseMaterialsGallery();
+
             // Lógica de Pestañas Adicionales (Participantes)
             renderCourseParticipants(id);
         }
@@ -152,11 +162,14 @@ function openCourseModal(id = null) {
         document.getElementById('admin-course-status').value = "Borrador"; // default
         document.getElementById('btn-save-course').style.display = 'inline-block';
 
-        // Bloquear tabs que requieren ID del curso para relacionarse
+        // Bloquear tabs que requieren ID del curso para relacionarse (Alumnos)
         document.getElementById('tab-students-btn').style.opacity = '0.5';
         document.getElementById('tab-students-btn').style.pointerEvents = 'none';
-        document.getElementById('tab-materials-btn').style.opacity = '0.5';
-        document.getElementById('tab-materials-btn').style.pointerEvents = 'none';
+
+        // Pestaña materiales sí disponible desde creación
+        const dateInput = document.getElementById('admin-course-materials-date');
+        if (dateInput) dateInput.value = '';
+        renderCourseMaterialsGallery();
     }
 
     document.getElementById('course-modal').classList.remove('hidden');
@@ -218,6 +231,7 @@ async function handleCourseSubmit(e) {
     const fechaFin = document.getElementById('admin-course-end').value;
     const cupoMaximo = parseInt(document.getElementById('admin-course-quota').value, 10);
     const estadoCurso = document.getElementById('admin-course-status').value;
+    const fechaLiberacionMateriales = document.getElementById('admin-course-materials-date') ? document.getElementById('admin-course-materials-date').value : '';
 
     // Validación Anti-Espacios Vacíos (Hard Stop)
     if (!nombreCurso || !descripcion) {
@@ -261,7 +275,9 @@ async function handleCourseSubmit(e) {
                 fechaFin,
                 cupoMaximo,
                 estadoCurso,
-                images: courseImageQueue.length > 0 ? courseImageQueue : currentCourse.images
+                images: courseImageQueue.length > 0 ? courseImageQueue : currentCourse.images,
+                materiales: courseMaterialsQueue,
+                fechaLiberacionMateriales
             };
 
             // Verificar si hubo un cambio de Estado para activar la Función Log Audit
@@ -280,6 +296,8 @@ async function handleCourseSubmit(e) {
             cupoMaximo,
             estadoCurso,
             images: courseImageQueue,
+            materiales: courseMaterialsQueue,
+            fechaLiberacionMateriales,
             auditLogs: []
         };
         // Auditoria Inicial de Registro
@@ -300,8 +318,16 @@ function handleCourseImageUpload(event) {
     const files = event.target.files;
     if (files.length === 0) return;
 
+    const validExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        const fileExt = file.name.split('.').pop().toLowerCase();
+
+        if (!validExtensions.includes(fileExt)) {
+            AlertService.notify('Formato Inválido', `El archivo ${file.name} no es una imagen válida. Use JPG, PNG o WEBP.`, 'error');
+            continue;
+        }
         if (courseImageQueue.length >= 4) {
             AlertService.notify('Límite Alcanzado', 'Solo se permite un máximo de 4 imágenes por curso.', 'warning');
             break;
@@ -441,7 +467,96 @@ function tryDownloadMaterial(materialId, courseId) {
         return;
     }
 
+    const allCourses = getLocalCourses();
+    const course = allCourses.find(c => c.id == courseId);
+    if (course && course.fechaLiberacionMateriales) {
+        const releaseDate = new Date(course.fechaLiberacionMateriales);
+        const today = new Date();
+        releaseDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+        if (today < releaseDate) {
+            AlertService.notify('Material Programado', `Este bloque de materiales ha sido configurado por el Docente para estar disponible a partir del ${course.fechaLiberacionMateriales}.`, 'warning');
+            return;
+        }
+    }
+
     AlertService.notify('Material Liberado', `Descarga del registro pedagógico #${materialId} iniciada satisfactoriamente. (Identificador Criptográfico asignado p/Trazabilidad)`, 'success');
+}
+
+function handleCourseMaterialUpload(event) {
+    const files = event.target.files;
+    if (files.length === 0) return;
+
+    const validExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'zip'];
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop().toLowerCase();
+
+        if (!validExtensions.includes(fileExt)) {
+            AlertService.notify('Formato Inválido', `El archivo "${file.name}" posee una extensión no autorizada.`, 'error');
+            continue;
+        }
+
+        let iconClass = 'fa-file-alt';
+        let iconColor = '#64748b';
+
+        if (fileExt === 'pdf') { iconClass = 'fa-file-pdf'; iconColor = '#ef4444'; }
+        else if (['doc', 'docx'].includes(fileExt)) { iconClass = 'fa-file-word'; iconColor = '#3b82f6'; }
+        else if (['xls', 'xlsx'].includes(fileExt)) { iconClass = 'fa-file-excel'; iconColor = '#10b981'; }
+        else if (fileExt === 'zip') { iconClass = 'fa-file-archive'; iconColor = '#eab308'; }
+
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+
+        courseMaterialsQueue.push({
+            id: 'MAT-' + Date.now() + i,
+            name: file.name,
+            sizeMB,
+            iconClass,
+            iconColor
+        });
+    }
+
+    renderCourseMaterialsGallery();
+    AlertService.notify('Material Anexado', 'Documento agregado a la cola de encriptación exitosamente.', 'info');
+}
+
+function renderCourseMaterialsGallery() {
+    const materialsContainer = document.getElementById('materials-grid-container');
+    if (!materialsContainer) return;
+
+    let html = '';
+    courseMaterialsQueue.forEach((mat, index) => {
+        html += `
+        <div style="border: 1px solid var(--color-border); border-radius: 8px; padding: 15px; text-align: center; background: white; position: relative;">
+            <i class="fas fa-check-circle" style="color: #10b981; position: absolute; top: 10px; right: 10px;" title="Archivo Validado"></i>
+            <i class="fas ${mat.iconClass}" style="font-size: 2.5rem; color: ${mat.iconColor}; margin-bottom: 10px;"></i>
+            <h4 style="margin: 0 0 5px 0; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; display: inline-block;">${mat.name}</h4>
+            <p style="font-size: 0.75rem; color: var(--color-text-muted); margin: 0 0 10px 0;">${mat.sizeMB} MB - Local</p>
+            <div style="display: flex; gap: 5px;">
+                <button type="button" onclick="tryDownloadMaterial('${mat.id}', document.getElementById('edit-course-id').value)" style="flex: 1; padding: 8px; background: #f1f5f9; border: 1px solid var(--color-border); border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--color-primary); transition: 0.2s;" title="Simular Descarga Lícita"><i class="fas fa-download"></i></button>
+                <button type="button" onclick="removeCourseMaterial(${index})" style="flex: 1; padding: 8px; background: #fee2e2; border: 1px solid #fca5a5; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: #ef4444; transition: 0.2s;" title="Eliminar"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+        `;
+    });
+
+    html += `
+        <!-- SUBIR MATERIAL VÍA MODAL -->
+        <div style="position: relative; border: 2px dashed var(--color-border); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 160px; background: #fafafa; cursor: pointer; transition: 0.2s;">
+            <input type="file" id="admin-course-materials-file" accept="application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.zip,application/zip" multiple onchange="if(typeof handleCourseMaterialUpload==='function') handleCourseMaterialUpload(event)" style="opacity: 0; position: absolute; width: 100%; height: 100%; top: 0; left: 0; cursor: pointer; z-index: 10;">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: var(--color-primary); margin-bottom: 10px; pointer-events: none;"></i>
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-muted); pointer-events: none;">Repositorio Segurizado</span>
+            <span style="font-size: 0.7rem; color: var(--color-primary); font-weight: 600; pointer-events: none; margin-top: 5px; text-align: center;">Formatos: PDF, DOCX, XLSX, ZIP</span>
+        </div>
+    `;
+
+    materialsContainer.innerHTML = html;
+}
+
+function removeCourseMaterial(index) {
+    courseMaterialsQueue.splice(index, 1);
+    renderCourseMaterialsGallery();
 }
 
 

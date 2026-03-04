@@ -127,7 +127,7 @@ const CoursesView = {
                                                     <i class="fas fa-cloud-upload-alt placeholder-icon" style="font-size: 2.5rem; color: #94a3b8; pointer-events: none;"></i>
                                                 </div>
                                             </div>
-                                            <label id="course-gallery-title" style="display: block; margin-bottom: 10px; font-size: 0.85rem; color: var(--color-text-muted);">Imágenes subidas (Max 4)</label>
+                                            <label id="course-gallery-title" style="display: block; margin-bottom: 10px; font-size: 0.85rem; color: var(--color-text-muted);">Imágenes subidas (Max 4). Formatos: JPG, PNG, WEBP.</label>
                                             <div id="admin-course-gallery" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
                                                 <!-- Dynamic gallery injected here -->
                                             </div>
@@ -159,7 +159,8 @@ const CoursesView = {
                                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                                                 <div class="form-group">
                                                     <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;"><i class="fas fa-user-friends"></i> Cupo Máximo <span style="color: #ef4444;">*</span></label>
-                                                    <input type="number" id="admin-course-quota" min="1" placeholder="Ej: 30" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
+                                                    <input type="number" min="1" step="1" onkeypress="return event.charCode >= 48 && event.charCode <= 57" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="admin-course-quota" placeholder="Ej: 30" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
+                                                    <span style="font-size: 0.65rem; color: var(--color-text-muted); display: block; margin-top: 5px;"><i class="fas fa-info-circle"></i> Solo números enteros.</span>
                                                 </div>
                                                 <div class="form-group">
                                                     <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Estado de Apertura <span style="color: #ef4444;">*</span></label>
@@ -205,20 +206,32 @@ const CoursesView = {
                                     <p style="margin: 0; font-size: 0.85rem; color: #15803d; line-height: 1.4;">Los documentos, manuales y audiovisuales anexados están amparados por la Ley Sobre el Derecho de Autor. Sólo los participantes con el Status <strong style="background: #166534; color: white; padding: 1px 5px; border-radius: 3px;">Activo</strong> podrán acceder e invocar la función de <i>Solo Lectura / Préstamo Pedagógico</i>.</p>
                                 </div>
                                 
-                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                                <div style="margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between;">
+                                    <div>
+                                        <h4 style="margin: 0 0 5px 0; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;"><i class="far fa-calendar-alt" style="color: var(--color-primary);"></i> Fecha de Liberación de Materiales</h4>
+                                        <p style="margin: 0; font-size: 0.8rem; color: var(--color-text-muted);">Si se establece, los estudiantes no podrán visualizar ni descargar el material adjunto antes de esta fecha.</p>
+                                    </div>
+                                    <div style="width: 200px;">
+                                        <input type="date" id="admin-course-materials-date" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; font-weight: 500;">
+                                    </div>
+                                </div>
+                                
+                                <div id="materials-grid-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
                                     
                                     <!-- SIMULACRO MATERIALES EXISTENTES -->
                                     <div style="border: 1px solid var(--color-border); border-radius: 8px; padding: 15px; text-align: center; background: white;">
                                         <i class="fas fa-file-pdf" style="font-size: 2.5rem; color: #ef4444; margin-bottom: 10px;"></i>
                                         <h4 style="margin: 0 0 5px 0; font-size: 0.9rem;">Guía Tema 1.pdf</h4>
                                         <p style="font-size: 0.75rem; color: var(--color-text-muted); margin: 0 0 10px 0;">2.4 MB - Encriptado</p>
-                                        <button onclick="tryDownloadMaterial('MAT-9921', document.getElementById('edit-course-id').value)" style="width: 100%; padding: 8px; background: #f1f5f9; border: 1px solid var(--color-border); border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--color-primary); transition: 0.2s;"><i class="fas fa-download"></i> Simular Descarga Lícita</button>
+                                        <button type="button" onclick="tryDownloadMaterial('MAT-9921', document.getElementById('edit-course-id').value)" style="width: 100%; padding: 8px; background: #f1f5f9; border: 1px solid var(--color-border); border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--color-primary); transition: 0.2s;"><i class="fas fa-download"></i> Simular Descarga Lícita</button>
                                     </div>
                                     
                                     <!-- SUBIR MATERIAL VÍA MODAL -->
-                                    <div style="border: 2px dashed var(--color-border); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 160px; background: #fafafa; cursor: pointer; transition: 0.2s;">
-                                        <i class="fas fa-plus-circle" style="font-size: 2rem; color: var(--color-primary); margin-bottom: 10px;"></i>
-                                        <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-muted);">Repositorio Segurizado</span>
+                                    <div style="position: relative; border: 2px dashed var(--color-border); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 160px; background: #fafafa; cursor: pointer; transition: 0.2s;">
+                                        <input type="file" id="admin-course-materials-file" accept="application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.zip,application/zip" multiple onchange="if(typeof handleCourseMaterialUpload==='function') handleCourseMaterialUpload(event)" style="opacity: 0; position: absolute; width: 100%; height: 100%; top: 0; left: 0; cursor: pointer; z-index: 10;">
+                                        <i class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: var(--color-primary); margin-bottom: 10px; pointer-events: none;"></i>
+                                        <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-muted); pointer-events: none;">Repositorio Segurizado</span>
+                                        <span style="font-size: 0.7rem; color: var(--color-primary); font-weight: 600; pointer-events: none; margin-top: 5px; text-align: center;">Formatos: PDF, DOCX, XLSX, ZIP</span>
                                     </div>
                                     
                                 </div>

@@ -4,10 +4,10 @@
 document.addEventListener("DOMContentLoaded", () => {
     /* 1. CAROUSEL PRINCIPAL */
     const principalSlider = {
-        btnLeft: document.querySelector(".btn-left"),
-        btnRight: document.querySelector(".btn-right"),
+        btnLeft: document.querySelector("#view-inicio .btn-left"),
+        btnRight: document.querySelector("#view-inicio .btn-right"),
         slider: document.querySelector("#principal"),
-        slides: document.querySelectorAll(".imgc"),
+        slides: document.querySelectorAll("#principal .imgc"),
         operacion: 0,
         counter: 0,
 

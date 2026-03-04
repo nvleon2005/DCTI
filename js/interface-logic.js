@@ -2,7 +2,8 @@ const PAGINATION_STATE = {
     users: { currentPage: 1, itemsPerPage: 5 },
     news: { currentPage: 1, itemsPerPage: 6 },
     projects: { currentPage: 1, itemsPerPage: 6 },
-    strategic: { currentPage: 1, itemsPerPage: 6 }
+    strategic: { currentPage: 1, itemsPerPage: 6 },
+    courses: { currentPage: 1, itemsPerPage: 6 }
 };
 
 /**
@@ -188,6 +189,16 @@ function switchView(viewId) {
 }
 
 function renderModule(id) {
+    // HARD STOP: Seguridad Anti-Inyección de DOM para Módulos Exclusivos de Admin
+    if (id === 'reports' || id === 'users') {
+        const session = JSON.parse(localStorage.getItem('dcti_session')) || {};
+        if (session.role !== 'admin') {
+            if (typeof AlertService !== 'undefined') AlertService.notify('Acceso Restringido', 'Incidente de Seguridad: Módulo exclusivo para Administradores de la Plataforma.', 'error');
+            switchView('dashboard');
+            return;
+        }
+    }
+
     let content = '';
 
     const viewData = { ...MOCK_DATA };
