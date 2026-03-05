@@ -114,16 +114,20 @@ const DASHBOARD_UI = {
     userName: document.getElementById('user-display-name'),
     userRole: document.getElementById('user-display-role'),
     logoutBtn: document.getElementById('logout-btn'),
-    goHomeBtn: document.getElementById('go-home-btn')
+    goHomeBtn: document.getElementById('go-home-btn'),
+
+    // Nodos del nuevo Header Pill
+    headerUserBtn: document.getElementById('header-user-btn'),
+    headerUserInitials: document.getElementById('header-user-initials'),
+    headerUserName: document.getElementById('header-user-name'),
+    headerUserRole: document.getElementById('header-user-role')
 };
 
 // 3. CONTROLADOR DEL DASHBOARD
 
 function startDashboardSession(user) {
-    if (user.role === 'visitante') {
-        window.location.href = 'index.html';
-        return;
-    }
+    // Visitantes ahora pueden ingresar, ya no redirigimos forzadamente a index.html
+    // si llegaron acá al Dashboard. Sin embargo, su vista por defecto puede ser 'profile'.
 
     DASHBOARD_UI.loginScreen.classList.add('hidden');
     DASHBOARD_UI.dashboardView.classList.remove('hidden');
@@ -138,13 +142,25 @@ function startDashboardSession(user) {
         DASHBOARD_UI.userInitials.textContent = user.initials;
         DASHBOARD_UI.userInitials.style.backgroundImage = 'none';
         DASHBOARD_UI.userInitials.style.border = 'none';
+
+        if (DASHBOARD_UI.headerUserInitials) {
+            DASHBOARD_UI.headerUserInitials.textContent = user.initials;
+            DASHBOARD_UI.headerUserInitials.style.backgroundImage = 'none';
+            DASHBOARD_UI.headerUserInitials.style.border = 'none';
+        }
     }
 
-    DASHBOARD_UI.userName.textContent = user.name || user.username || 'Usuario';
-    DASHBOARD_UI.userRole.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+    const displayName = user.name || user.username || 'Usuario';
+    const displayRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+
+    DASHBOARD_UI.userName.textContent = displayName;
+    DASHBOARD_UI.userRole.textContent = displayRole;
+
+    if (DASHBOARD_UI.headerUserName) DASHBOARD_UI.headerUserName.textContent = displayName;
+    if (DASHBOARD_UI.headerUserRole) DASHBOARD_UI.headerUserRole.textContent = displayRole;
 
     applyDashboardPermissions(user.role);
-    switchView('dashboard');
+    switchView(user.role === 'visitante' ? 'profile' : 'dashboard');
 }
 
 function handleDashboardLogout() {
@@ -156,19 +172,60 @@ function applyDashboardPermissions(role) {
     const navUsers = document.getElementById('nav-users');
     const navReports = document.getElementById('nav-reports');
     const navReportsTitle = document.getElementById('nav-reports-title');
+    const navProjects = document.getElementById('nav-projects');
 
-    const navProjects = document.getElementById('nav-projects'); // Asumiendo que existe el ID
+    const navAdminTitle = document.getElementById('nav-admin-title');
+    const navContentTitle = document.getElementById('nav-content-title');
+
+    const contentItems = ['dcti', 'strategic', 'projects', 'news', 'courses'];
+
+    // Ocultar la sección "Mis Cursos" por defecto para admins/editores, mostrar para visitantes
+    const navMyCourses = document.getElementById('nav-my-courses');
+    const navDashboard = document.querySelector('[data-view="dashboard"]');
 
     if (role === 'admin') {
-        navUsers.style.display = 'flex';
-        navProjects.style.display = 'flex';
-        navReports.style.display = 'flex';
-        navReportsTitle.style.display = 'block';
+        if (navUsers) navUsers.style.display = 'flex';
+        if (navProjects) navProjects.style.display = 'flex';
+        if (navReports) navReports.style.display = 'flex';
+        if (navReportsTitle) navReportsTitle.style.display = 'block';
+        if (navAdminTitle) navAdminTitle.style.display = 'block';
+        if (navContentTitle) navContentTitle.style.display = 'block';
+        if (navDashboard) navDashboard.style.display = 'flex';
+        if (navMyCourses) navMyCourses.style.display = 'none';
+
+        contentItems.forEach(id => {
+            const item = document.querySelector(`[data-view="${id}"]`);
+            if (item) item.style.display = 'flex';
+        });
     } else if (role === 'editor') {
-        navUsers.style.display = 'none';
-        navProjects.style.display = 'none'; // Restricción exclusiva Administrador
-        navReports.style.display = 'none';
-        navReportsTitle.style.display = 'none';
+        if (navUsers) navUsers.style.display = 'none';
+        if (navProjects) navProjects.style.display = 'none'; // Restricción exclusiva Administrador
+        if (navReports) navReports.style.display = 'none';
+        if (navReportsTitle) navReportsTitle.style.display = 'none';
+        if (navAdminTitle) navAdminTitle.style.display = 'none';
+        if (navContentTitle) navContentTitle.style.display = 'block';
+        if (navDashboard) navDashboard.style.display = 'flex';
+        if (navMyCourses) navMyCourses.style.display = 'none';
+
+        ['dcti', 'strategic', 'news', 'courses'].forEach(id => {
+            const item = document.querySelector(`[data-view="${id}"]`);
+            if (item) item.style.display = 'flex';
+        });
+    } else if (role === 'visitante') {
+        // Visitante solo ve "Mi perfil" y "Mis cursos"
+        if (navUsers) navUsers.style.display = 'none';
+        if (navProjects) navProjects.style.display = 'none';
+        if (navReports) navReports.style.display = 'none';
+        if (navReportsTitle) navReportsTitle.style.display = 'none';
+        if (navAdminTitle) navAdminTitle.style.display = 'none';
+        if (navContentTitle) navContentTitle.style.display = 'none';
+        if (navDashboard) navDashboard.style.display = 'none';
+        if (navMyCourses) navMyCourses.style.display = 'flex';
+
+        contentItems.forEach(id => {
+            const item = document.querySelector(`[data-view="${id}"]`);
+            if (item) item.style.display = 'none';
+        });
     }
 }
 
@@ -203,7 +260,7 @@ function renderModule(id) {
 
     const viewData = { ...MOCK_DATA };
 
-    if (id === 'dashboard' || id === 'users' || id === 'news' || id === 'projects') {
+    if (id === 'dashboard' || id === 'users' || id === 'news' || id === 'projects' || id === 'profile' || id === 'my-courses') {
         const adminUsers = typeof AUTH_CONFIG !== 'undefined' ? AUTH_CONFIG.hardcodedUsers : [];
         const localUsers = typeof getLocalUsers === 'function' ? getLocalUsers() : [];
         const allUsers = [...adminUsers, ...localUsers];
@@ -211,6 +268,16 @@ function renderModule(id) {
         viewData.adminUsers = adminUsers;
         viewData.localUsers = localUsers;
         viewData.stats.users = allUsers.length;
+
+        if (id === 'profile' || id === 'my-courses') {
+            const session = JSON.parse(localStorage.getItem('dcti_session')) || {};
+            const currentUser = allUsers.find(u => u.email === session.email) || session;
+            viewData.currentUser = currentUser;
+
+            if (id === 'my-courses' && typeof getLocalCourses === 'function') {
+                viewData.courses = getLocalCourses(); // Cargar los cursos globales para filtrar
+            }
+        }
 
         // Sincronizar noticias para stats del dashboard y vista de noticias
         const allNews = typeof getLocalNews === 'function' ? getLocalNews() : (MOCK_DATA.news || []);
@@ -267,6 +334,8 @@ function renderModule(id) {
 
     switch (id) {
         case 'dashboard': content = DashboardView.render(viewData); break;
+        case 'profile': content = ProfileView.render(viewData); break;
+        case 'my-courses': content = typeof MyCoursesView !== 'undefined' ? MyCoursesView.render(viewData) : '<h2>Vista en desarrollo</h2>'; break;
         case 'users': content = UsersView.render(viewData); break;
         case 'dcti':
             if (typeof getLocalDcti === 'function') MOCK_DATA.dcti = getLocalDcti();
@@ -293,6 +362,18 @@ function renderModule(id) {
     DASHBOARD_UI.contentArea.innerHTML = content;
 
     // Conexión con Lógica de Vistas (Event Listeners)
+    if (id === 'profile') {
+        const form = document.getElementById('profile-user-form');
+        if (form && typeof handleProfileSubmit === 'function') {
+            form.addEventListener('submit', handleProfileSubmit);
+        }
+
+        const avatarInput = document.getElementById('profile-avatar-input');
+        if (avatarInput && typeof previewProfileAvatar === 'function') {
+            avatarInput.addEventListener('change', previewProfileAvatar);
+        }
+    }
+
     if (id === 'users') {
         const form = document.getElementById('user-admin-form');
         if (form && typeof handleUserAdminSubmit === 'function') {
@@ -338,6 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (DASHBOARD_UI.logoutBtn) DASHBOARD_UI.logoutBtn.addEventListener('click', handleDashboardLogout);
     if (DASHBOARD_UI.goHomeBtn) DASHBOARD_UI.goHomeBtn.addEventListener('click', () => switchView('dashboard'));
+    if (DASHBOARD_UI.headerUserBtn) DASHBOARD_UI.headerUserBtn.addEventListener('click', () => switchView('profile'));
 
     DASHBOARD_UI.sidebarItems.forEach(item => {
         item.addEventListener('click', () => {
@@ -366,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        if (session.role === 'admin' || session.role === 'editor') {
+        if (session.role === 'admin' || session.role === 'editor' || session.role === 'visitante') {
             startDashboardSession(session);
         }
     }

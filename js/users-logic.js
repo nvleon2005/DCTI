@@ -362,3 +362,138 @@ function toggleUserStatus(email) {
         AlertService.notify('Restricción', 'Este usuario es de sistema y no puede ser inhabilitado.', 'warning');
     }
 }
+
+// --- LÓGICA DE PERFIL (Para todos los roles) ---
+
+function previewProfileAvatar(event) {
+    const file = event.target.files[0];
+    if (file) {
+        if (!file.type.startsWith('image/')) {
+            AlertService.notify('Error', 'Solo se permiten subir imágenes.', 'error');
+            event.target.value = '';
+            document.getElementById('profile-avatar-preview').style.display = 'none';
+            const placeholder = document.getElementById('profile-avatar-placeholder');
+            if (placeholder) placeholder.style.display = 'block';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 150;
+                const MAX_HEIGHT = 150;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const dataUrl = canvas.toDataURL('image/webp', 0.85);
+                const preview = document.getElementById('profile-avatar-preview');
+                preview.src = dataUrl;
+                preview.style.display = 'block';
+                const placeholder = document.getElementById('profile-avatar-placeholder');
+                if (placeholder) placeholder.style.display = 'none';
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+async function handleProfileSubmit(e) {
+    e.preventDefault();
+
+    const sessionStr = localStorage.getItem('dcti_session');
+    if (!sessionStr) return;
+
+    const session = JSON.parse(sessionStr);
+
+    if (session.email === 'admin@dcti.gob' || session.email === 'editor@dcti.gob') {
+        AlertService.notify('Acción Denegada', 'Los usuarios del sistema no pueden modificar su perfil desde aquí.', 'error');
+        return;
+    }
+
+    const name = document.getElementById('profile-name').value;
+    const lastname = document.getElementById('profile-lastname').value;
+    const cedula = document.getElementById('profile-cedula').value;
+    const username = document.getElementById('profile-username').value;
+    const pass = document.getElementById('profile-pass').value;
+    const avatarPreview = document.getElementById('profile-avatar-preview');
+    const avatar = avatarPreview.style.display === 'block' ? avatarPreview.src : null;
+
+    if (pass && typeof validatePasswordComplexity === 'function' && !validatePasswordComplexity(pass)) {
+        AlertService.notify('Contraseña Insegura', 'La contraseña debe tener 8+ caracteres, mayúscula, número y carácter especial.', 'error');
+        return;
+    }
+
+    const localUsers = getLocalUsers();
+
+    if (username) {
+        const existingUsername = localUsers.find(u => u.username && u.username.toLowerCase() === username.toLowerCase() && u.email !== session.email);
+        if (existingUsername) {
+            AlertService.notify('Usuario No Disponible', 'Este nombre de usuario ya está en uso por otra persona.', 'error');
+            return;
+        }
+    }
+
+    const index = localUsers.findIndex(u => u.email === session.email);
+    if (index !== -1) {
+        const currentUser = localUsers[index];
+        const initials = (name || username || 'U').substring(0, 2).toUpperCase();
+
+        const updatedUser = {
+            ...currentUser,
+            name,
+            lastname,
+            cedula,
+            username,
+            avatar,
+            initials
+        };
+
+        if (pass && typeof hashSHA256 === 'function') {
+            updatedUser.password = await hashSHA256(pass);
+        }
+
+        localUsers[index] = updatedUser;
+        localStorage.setItem('dcti_users', JSON.stringify(localUsers));
+
+        const updatedSession = { ...session, name, username, avatar, initials };
+        localStorage.setItem('dcti_session', JSON.stringify(updatedSession));
+
+        AlertService.notify('Perfil Actualizado', 'Tus datos han sido guardados correctamente.', 'success');
+
+        if (typeof DASHBOARD_UI !== 'undefined') {
+            if (avatar) {
+                DASHBOARD_UI.userInitials.textContent = '';
+                DASHBOARD_UI.userInitials.style.backgroundImage = `url(${avatar})`;
+                DASHBOARD_UI.userInitials.style.backgroundSize = 'cover';
+                DASHBOARD_UI.userInitials.style.backgroundPosition = 'center';
+                DASHBOARD_UI.userInitials.style.border = '2px solid rgba(255,255,255,0.2)';
+            } else {
+                DASHBOARD_UI.userInitials.textContent = initials;
+                DASHBOARD_UI.userInitials.style.backgroundImage = 'none';
+                DASHBOARD_UI.userInitials.style.border = 'none';
+            }
+            DASHBOARD_UI.userName.textContent = name || username || 'Usuario';
+        }
+
+        if (typeof renderModule === 'function') renderModule('profile');
+    }
+}

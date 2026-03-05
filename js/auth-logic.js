@@ -236,14 +236,12 @@ async function handleRecovery(e) {
 }
 
 function checkRoleAndRedirect(user) {
-    if (user.role === 'admin' || user.role === 'editor') {
+    if (user.role === 'admin' || user.role === 'editor' || user.role === 'visitante') {
         if (typeof startDashboardSession === 'function') {
             startDashboardSession(user);
         } else {
             window.location.href = 'login.html';
         }
-    } else if (user.role === 'visitante') {
-        window.location.href = 'index.html';
     }
 }
 
@@ -328,8 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedSession = localStorage.getItem('dcti_session');
     if (savedSession) {
         const user = JSON.parse(savedSession);
-        if (user.role === 'visitante' && window.location.pathname.includes('login.html')) {
-            window.location.href = 'index.html';
-        }
+        // Quitamos la redirección que botaba a los visitantes de login.html.
+        // Ahora si tienen sesión válida se quedan en login.html y el interfaz-logic.js se encarga de mostrar su dashboard.
     }
 });
