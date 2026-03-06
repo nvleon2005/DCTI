@@ -18,27 +18,39 @@ function getReportData(domain, filters = {}) {
                 Nombre: u.name || u.username || 'Usuario Sistema',
                 Email: u.email,
                 Rol: u.role,
+                Estado: u.status || (u.active === false ? 'Inactivo' : 'Activo'),
                 'Fecha Ingreso': u.id && typeof u.id === 'number' && u.id > 1000000 ? new Date(u.id).toISOString().split('T')[0] : 'Por defecto'
             }));
             break;
         case 'news':
-            const news = typeof getLocalNews === 'function' ? getLocalNews() : [];
+            const allNews = typeof getLocalNews === 'function' ? getLocalNews() : [];
+            const news = allNews.filter(n => {
+                const stat = Array.isArray(n.status) ? n.status : [n.status || ''];
+                return stat.includes('Publicado') && stat.includes('Validado');
+            });
             rawData = news.map(n => ({
                 ID: n.id,
                 Titular: n.headline,
+                Categoría: n.category || 'General',
                 Autor: n.author || 'Desconocido',
                 Publicación: n.published || 'N/A',
                 Status: Array.isArray(n.status) ? n.status.join(' | ') : (n.status || 'Borrador')
             }));
             break;
         case 'projects':
-            const projects = typeof getLocalProjects === 'function' ? getLocalProjects() : [];
+            const allProjects = typeof getLocalProjects === 'function' ? getLocalProjects() : [];
+            const projects = allProjects.filter(p => {
+                const stat = Array.isArray(p.status) ? p.status : [p.status || ''];
+                return stat.includes('Publicado') && stat.includes('Validado');
+            });
             rawData = projects.map(p => ({
                 Código: p.id,
                 Iniciativa: p.title,
+                Responsable: p.manager || p.author || 'No asignado',
                 Apertura: p.date,
                 Relevancia: p.featured ? 'Alta (Destacado)' : 'Estándar',
-                Objetivos: p.objectives ? p.objectives.substring(0, 50) + '...' : 'N/A'
+                Objetivos: p.objectives ? p.objectives.substring(0, 50) + '...' : 'N/A',
+                Status: Array.isArray(p.status) ? p.status.join(' | ') : (p.status || 'Borrador')
             }));
             break;
         case 'courses':
@@ -66,6 +78,43 @@ function getReportData(domain, filters = {}) {
             const dateVal = item['Fecha Ingreso'] || item.Publicación || item.Apertura || item.Convocatoria;
             if (!dateVal || dateVal === 'N/A' || dateVal === 'Por defecto' || dateVal === 'Pendiente') return true;
             return new Date(dateVal) <= new Date(filters.dateTo);
+        });
+    }
+
+    if (filters.customFilter1) {
+        rawData = rawData.filter(item => {
+            if (domain === 'users') return item.Rol === filters.customFilter1;
+            if (domain === 'news') return item.Autor === filters.customFilter1;
+            if (domain === 'projects') return item.Status.includes(filters.customFilter1);
+            if (domain === 'courses') return item.Estatus_Académico === filters.customFilter1;
+            return true;
+        });
+    }
+
+    if (filters.customFilter2) {
+        rawData = rawData.filter(item => {
+            if (domain === 'users') return item.Estado === filters.customFilter2;
+            if (domain === 'news') return item.Categoría === filters.customFilter2;
+            if (domain === 'projects') return item.Responsable === filters.customFilter2;
+            if (domain === 'courses') return item.Máxima_Capacidad === filters.customFilter2;
+            return true;
+        });
+    }
+
+    if (filters.customFilter3) {
+        rawData = rawData.filter(item => {
+            if (domain === 'projects') return item.Relevancia.includes(filters.customFilter3);
+            return true;
+        });
+    }
+
+    // Aplicar Motor General de Búsqueda de Texto
+    if (filters.globalSearch) {
+        const searchLower = filters.globalSearch.toLowerCase();
+        rawData = rawData.filter(item => {
+            return Object.values(item).some(val =>
+                String(val).toLowerCase().includes(searchLower)
+            );
         });
     }
 
@@ -97,12 +146,35 @@ function renderReportDashboard() {
         else dateFromInput.max = '';
     }
 
+    const customFilter1Input = document.getElementById('report-custom-filter-1');
+    const customFilter2Input = document.getElementById('report-custom-filter-2');
+    const customFilter3Input = document.getElementById('report-custom-filter-3');
+
+    // Global Search Input
+    const globalSearchInput = document.getElementById('dashboard-search-input');
+
     const filters = {
         dateFrom: dateFromInput ? dateFromInput.value : null,
-        dateTo: dateToInput ? dateToInput.value : null
+        dateTo: dateToInput ? dateToInput.value : null,
+        customFilter1: customFilter1Input && customFilter1Input.value !== 'all' ? customFilter1Input.value : null,
+        customFilter2: customFilter2Input && customFilter2Input.value !== 'all' ? customFilter2Input.value : null,
+        customFilter3: customFilter3Input && customFilter3Input.value !== 'all' ? customFilter3Input.value : null,
+        globalSearch: globalSearchInput ? globalSearchInput.value.trim() : null
     };
 
     const data = getReportData(currentReportDomain, filters);
+
+    // Adjuntar evento de búsqueda global (solo lo hacemos una vez la primera vez que invocamos)
+    if (globalSearchInput && !globalSearchInput.hasAttribute('data-report-listener')) {
+        globalSearchInput.setAttribute('data-report-listener', 'true');
+        globalSearchInput.addEventListener('input', () => {
+            // Solo redibujamos si estamos en la vista de reportes
+            const mainView = document.getElementById('main-content');
+            if (mainView && mainView.innerHTML.includes('Explorador de Datos Estructurados')) {
+                renderReportDashboard();
+            }
+        });
+    }
 
     // Update Header Operator Name
     const session = JSON.parse(localStorage.getItem('dcti_session')) || {};
@@ -111,8 +183,9 @@ function renderReportDashboard() {
         opName.textContent = session.name || session.username || 'Administrador del Sistema';
     }
 
-    // Update KPI Card
-    document.getElementById('report-kpi-total').textContent = data.length;
+    // Update KPI Card Fallback
+    const kpiTotal = document.getElementById('report-kpi-total');
+    if (kpiTotal) kpiTotal.textContent = data.length;
 
     // Update Table
     const tableHead = document.getElementById('report-table-head');
@@ -136,6 +209,180 @@ function renderReportDashboard() {
 
     tableHead.innerHTML = headHTML;
     tableBody.innerHTML = bodyHTML;
+
+    renderReportExtraFilters(currentReportDomain);
+    renderReportStats(currentReportDomain, data);
+}
+
+function renderReportExtraFilters(domain) {
+    const container = document.getElementById('report-extra-filters');
+    if (!container) return;
+
+    // Solo renderizar si no existe ya el filtro, o si cambió el dominio
+    const existingFilter = document.getElementById('report-custom-filter-1');
+    if (existingFilter && container.dataset.domain === domain) {
+        return;
+    }
+    container.dataset.domain = domain;
+
+    let filterHTML = '';
+    const selectStyle = "width: 100%; padding: 10px 15px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; font-weight: 500; font-size: 0.9rem; outline: none; transition: border-color 0.2s; color: #1e293b;";
+    const labelStyle = "display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: #475569;";
+    const focusEvt = "onfocus=\"this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(37,99,235,0.1)'\" onblur=\"this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'\"";
+
+    if (domain === 'users') {
+        const uniqueStates = [...new Set(currentReportData.map(u => u.Estado))].filter(Boolean);
+        filterHTML = `
+            <div>
+                <label style="${labelStyle}">Rol</label>
+                <select id="report-custom-filter-1" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
+                    <option value="all">Todos los Roles</option>
+                    <option value="admin">Administrador</option>
+                    <option value="editor">Editor</option>
+                    <option value="visitor">Visitante</option>
+                </select>
+            </div>
+            <div>
+                <label style="${labelStyle}">Estado</label>
+                <select id="report-custom-filter-2" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
+                    <option value="all">Todos los Estados</option>
+                    ${uniqueStates.map(s => `<option value="${s}">${s}</option>`).join('')}
+                </select>
+            </div>
+        `;
+    } else if (domain === 'news') {
+        const uniqueAuthors = [...new Set(currentReportData.map(n => n.Autor))].filter(Boolean);
+        const uniqueCategories = [...new Set(currentReportData.map(n => n.Categoría))].filter(Boolean);
+        filterHTML = `
+            <div>
+                <label style="${labelStyle}">Autor(a)</label>
+                <select id="report-custom-filter-1" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
+                    <option value="all">Todos los Autores</option>
+                    ${uniqueAuthors.map(a => `<option value="${a}">${a}</option>`).join('')}
+                </select>
+            </div>
+            <div>
+                <label style="${labelStyle}">Categoría</label>
+                <select id="report-custom-filter-2" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
+                    <option value="all">Todas las Categorías</option>
+                    ${uniqueCategories.map(c => `<option value="${c}">${c}</option>`).join('')}
+                </select>
+            </div>
+        `;
+    } else if (domain === 'projects') {
+        const uniqueStatuses = [...new Set(currentReportData.flatMap(p => p.Status.split(' | ')))].filter(Boolean);
+        const uniqueManagers = [...new Set(currentReportData.map(p => p.Responsable))].filter(Boolean);
+        filterHTML = `
+            <div>
+                <label style="${labelStyle}">Estatus Proyecto</label>
+                <select id="report-custom-filter-1" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
+                    <option value="all">Todos los Estados</option>
+                    ${uniqueStatuses.map(s => `<option value="${s}">${s}</option>`).join('')}
+                </select>
+            </div>
+            <div>
+                <label style="${labelStyle}">Responsable</label>
+                <select id="report-custom-filter-2" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
+                    <option value="all">Todos los Responsables</option>
+                    ${uniqueManagers.map(m => `<option value="${m}">${m}</option>`).join('')}
+                </select>
+            </div>
+            <div>
+                <label style="${labelStyle}">Relevancia</label>
+                <select id="report-custom-filter-3" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
+                    <option value="all">Todas</option>
+                    <option value="Alta">Alta (Destacados)</option>
+                    <option value="Estándar">Estándar</option>
+                </select>
+            </div>
+        `;
+    } else if (domain === 'courses') {
+        const uniqueEstatus = [...new Set(currentReportData.map(c => c.Estatus_Académico))].filter(Boolean);
+        const uniqueCapacidad = [...new Set(currentReportData.map(c => c.Máxima_Capacidad))].filter(c => c !== 'N/A');
+
+        filterHTML = `
+            <div>
+                <label style="${labelStyle}">Estatus Académico</label>
+                <select id="report-custom-filter-1" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
+                    <option value="all">Todos los Estatus</option>
+                    ${uniqueEstatus.map(e => `<option value="${e}">${e}</option>`).join('')}
+                </select>
+            </div>
+            <div>
+                <label style="${labelStyle}">Capacidad Máxima</label>
+                <select id="report-custom-filter-2" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
+                    <option value="all">Cualquier Capacidad</option>
+                    ${uniqueCapacidad.map(c => `<option value="${c}">${c} cupos</option>`).join('')}
+                </select>
+            </div>
+        `;
+    }
+
+    container.innerHTML = filterHTML;
+}
+
+function renderReportStats(domain, data) {
+    const container = document.getElementById('report-stats-container');
+    if (!container) return;
+
+    if (data.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'flex';
+
+    // Standard Grid Card Design
+    const statItem = (label, value, icon, color) => `
+        <div style="display: flex; align-items: center; gap: 15px; padding-right: 25px; border-right: 1px solid #e2e8f0;">
+            <div style="background: ${color}15; width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <i class="${icon}" style="color: ${color}; font-size: 1.25rem;"></i>
+            </div>
+            <div>
+                <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">${label}</p>
+                <h3 style="margin: 2px 0 0 0; font-size: 1.4rem; color: #0f172a; font-weight: 700;">${value}</h3>
+            </div>
+        </div>
+    `;
+
+    // Standard Clean Hit Counter
+    let statsHTML = `
+        <div style="display: flex; align-items: center; gap: 15px; padding-right: 25px; border-right: 1px solid #e2e8f0;">
+            <div style="background: rgba(37,99,235,0.1); width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-list-ul" style="color: var(--color-primary); font-size: 1.25rem;"></i>
+            </div>
+            <div>
+                <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Total Muestra</p>
+                <h3 style="margin: 2px 0 0 0; font-size: 1.4rem; color: #0f172a; font-weight: 700;" id="report-kpi-total">${data.length}</h3>
+            </div>
+        </div>
+    `;
+
+    if (domain === 'users') {
+        const adminCount = data.filter(u => u.Rol === 'admin').length;
+        const editorCount = data.filter(u => u.Rol === 'editor').length;
+        const activeCount = data.filter(u => u.Estado === 'Activo').length;
+        const inactiveCount = data.filter(u => u.Estado === 'Inactivo').length;
+        statsHTML += statItem('Totales', data.length, 'fas fa-users', '#3b82f6');
+        statsHTML += statItem('Activos', activeCount, 'fas fa-check-circle', '#10b981');
+        statsHTML += statItem('Inactivos', inactiveCount, 'fas fa-times-circle', '#ef4444');
+        statsHTML += statItem('Admin', adminCount, 'fas fa-user-shield', '#8b5cf6');
+        statsHTML += statItem('Editor', editorCount, 'fas fa-user-edit', '#f59e0b');
+    } else if (domain === 'news') {
+        const today = new Date().toISOString().split('T')[0];
+        const todayCount = data.filter(n => n.Publicación === today).length;
+        const autorCount = [...new Set(data.map(n => n.Autor))].length;
+        statsHTML += statItem('Total Pub.', data.length, 'fas fa-newspaper', '#3b82f6');
+        statsHTML += statItem('Pub. Hoy', todayCount, 'fas fa-calendar-day', '#10b981');
+        statsHTML += statItem('Autores', autorCount, 'fas fa-pen-nib', '#f59e0b');
+    } else if (domain === 'projects') {
+        const featuredCount = data.filter(p => p.Relevancia.includes('Alta')).length;
+        const managerCount = [...new Set(data.map(p => p.Responsable))].length;
+        statsHTML += statItem('Validados', data.length, 'fas fa-project-diagram', '#3b82f6');
+        statsHTML += statItem('Destacados', featuredCount, 'fas fa-star', '#f59e0b');
+        statsHTML += statItem('Resp.', managerCount, 'fas fa-user-tie', '#10b981');
+    }
+
+    container.innerHTML = statsHTML;
 }
 
 function logExportAudit(domain, format, count) {
@@ -232,6 +479,10 @@ function previewReportPDF() {
                 <strong>Generado Por:</strong> ${session.name || session.username || session.email || 'Sistema'}<br>
                 <strong>Motor Institucional:</strong> Dashware Export v4.0 (DCTI)<br>
                 <strong>Registros Consolidados:</strong> ${currentReportData.length}
+            </div>
+            
+            <div style="font-size: 11px; margin-bottom: 20px; color: #475569; border-left: 3px solid var(--color-primary); padding-left: 10px;">
+                <strong>Nota:</strong> Los datos exportados reflejan estrictamente el filtro actual y en el caso de Noticias/Proyectos, cumplen con la validación de publicación.
             </div>
             
             <table class="doc-table">

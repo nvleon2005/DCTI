@@ -109,11 +109,12 @@ body {
         max-width: 450px;
         min-height: auto;
     }
-    
+
     .login-card__right {
-        display: none; /* Ocultar el decorativo en móviles para ahorrar espacio */
+        display: none;
+        /* Ocultar el decorativo en móviles para ahorrar espacio */
     }
-    
+
     .login-card__left {
         padding: var(--space-lg);
     }
@@ -187,11 +188,26 @@ body {
 
 .form-field input {
     width: 100%;
-    padding: 15px 20px;
-    border: 1.5px solid var(--color-border);
-    border-radius: var(--radius-md);
-    font-size: 1rem;
-    transition: var(--transition);
+    padding: 0.5rem 0.85rem;
+    border-width: 0 0 2px 0;
+    border-style: solid;
+    border-color: #a19f9d;
+    /* Hospital Default Neutral Tertiary */
+    border-radius: 0;
+    background: #ffffff;
+    font-size: 0.9rem;
+    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.form-field input::placeholder {
+    color: #94a89c;
+    /* Hospital Placeholder Green Muted */
+    font-weight: 400;
+}
+
+.form-field input:hover {
+    background-color: #f3f2f1;
+    /* Hospital Hover Neutral Lighter */
 }
 
 .password-wrapper input {
@@ -221,9 +237,11 @@ body {
 
 .form-field input:focus {
     outline: none;
-    border-color: #540E90;
-    /* Púrpura al enfocar */
-    box-shadow: 0 0 0 4px rgba(84, 14, 144, 0.1);
+    border-color: var(--color-primary);
+    /* DCTI Branding */
+    box-shadow: 0 0 0 1px rgba(94, 27, 174, 0.12);
+    /* Hospital shadow adaptation */
+    background-color: #ffffff;
 }
 
 .btn-login {
@@ -444,7 +462,7 @@ body {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.5);
         z-index: 999;
         display: none;
     }
@@ -650,18 +668,25 @@ body {
 
 .search-bar input {
     padding: var(--space-sm) var(--space-md) var(--space-sm) var(--space-xl);
-    border: 1.5px solid var(--color-border);
-    border-radius: var(--radius-full);
+    border: 1px solid #c8c6c4;
+    border-radius: 50px;
     width: clamp(200px, 15vw, 400px);
-    background-color: var(--color-surface-muted);
-    transition: var(--transition);
+    background-color: #f3f2f1;
+    font-size: 0.9rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-bar input::placeholder {
+    color: #94a89c;
+    /* Hospital Placeholder Green Muted */
+    font-weight: 400;
 }
 
 .search-bar input:focus {
     outline: none;
     border-color: var(--color-primary);
-    background-color: var(--color-surface);
-    box-shadow: 0 0 0 4px rgba(94, 27, 174, 0.1);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 1px rgba(94, 27, 174, 0.12);
 }
 
 .view-dashboard-btn {
@@ -902,15 +927,37 @@ body {
 .form-group textarea,
 .form-group select {
     width: 100%;
-    padding: 10px;
-    border: 1.5px solid var(--color-border);
-    border-radius: 8px;
+    padding: 0.5rem 0.85rem;
+    border-width: 0 0 2px 0;
+    border-style: solid;
+    border-color: #a19f9d;
+    border-radius: 0;
+    background: #ffffff;
     font-size: 0.9rem;
-    transition: var(--transition);
+    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+    font-family: inherit;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #94a89c;
+    /* Hospital Placeholder Green Muted */
+    font-weight: 400;
+}
+
+.form-group input:hover,
+.form-group textarea:hover,
+.form-group select:hover {
+    background-color: #f3f2f1;
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
     outline: none;
     border-color: var(--color-primary);
+    /* DCTI Theme */
+    box-shadow: 0 0 0 1px rgba(94, 27, 174, 0.12);
+    /* Hospital shadow adaptation */
+    background-color: #ffffff;
 }

@@ -226,8 +226,8 @@ function renderStrategicGallery() {
                         </div>
                     </div>
                     <div style="padding: 8px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
-                        <input type="text" placeholder="Título para la imagen..." style="width: 100%; border: 1px solid #e2e8f0; border-radius: 4px; padding: 6px; font-size: 0.75rem;" value="${item.title || ''}" oninput="updateStrategicImageMetadata(${i}, 'title', this.value)">
-                        <textarea placeholder="Descripción del carrusel..." style="width: 100%; border: 1px solid #e2e8f0; border-radius: 4px; padding: 6px; font-size: 0.75rem; height: 50px; resize: none;" oninput="updateStrategicImageMetadata(${i}, 'description', this.value)">${item.description || ''}</textarea>
+                        <input type="text" id="carousel-title-${item.id}" placeholder="Título para la imagen..." style="width: 100%; border: 1px solid #e2e8f0; border-radius: 4px; padding: 6px; font-size: 0.75rem;" value="${item.title || ''}" oninput="updateStrategicImageMetadata(${i}, 'title', this.value)">
+                        <textarea id="carousel-desc-${item.id}" placeholder="Descripción del carrusel..." style="width: 100%; border: 1px solid #e2e8f0; border-radius: 4px; padding: 6px; font-size: 0.75rem; height: 50px; resize: none;" oninput="updateStrategicImageMetadata(${i}, 'description', this.value)">${item.description || ''}</textarea>
                     </div>
                 </div>
             `;

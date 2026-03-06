@@ -39,7 +39,7 @@
                         <button type="submit" class="btn-login">INICIAR SESIÓN</button>
                         <div class="login-links">
                             <a href="#" id="to-recovery">¿Perdiste tu contraseña?</a>
-                            <a href="#" id="to-register">¿No tienes cuenta? Regístrate</a>
+                            <!-- <a href="#" id="to-register">¿No tienes cuenta? Regístrate</a> -->
                             <a href="index.html"
                                 style="display: block; margin-top: 15px; color: var(--color-text-muted); font-size: 0.8rem;"><i
                                     class="fas fa-arrow-left"></i> Regresar al Portal</a>
@@ -75,8 +75,8 @@
                     </form>
                 </div>
 
-                <!-- FORMULARIO DE REGISTRO -->
-                <div id="register-view" class="hidden">
+                <!-- FORMULARIO DE REGISTRO (Oculto permanentemente por requerimiento) -->
+                <div id="register-view" class="hidden" style="display: none !important;">
                     <div class="login-header">
                         <h1>CREAR CUENTA</h1>
                         <h2>PORTAL DCTI</h2>
@@ -120,16 +120,22 @@
                     </form>
                 </div>
             </div>
-            <div class="login-card__right">
-                <div class="brand-display">
-                    <div class="brand-icon">
-                        <i class="fas fa-code"></i>
+            <div class="login-card__right"
+                style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <div class="brand-display"
+                    style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 15px;">
+                    <h1
+                        style="font-size: 3.5rem; color: white; font-weight: 800; margin: 0; letter-spacing: 2px; line-height: 1;">
+                        DCTI</h1>
+                    <div class="brand-icon"
+                        style="background: transparent; box-shadow: none; width: 140px; height: 140px; margin: 0; border: none; border-radius: 0; display: flex; align-items: center; justify-content: center;">
+                        <img src="img/logo.png" alt="DCTI Logo"
+                            style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));">
                     </div>
-                    <div class="brand-text">
-                        <h3 style="font-size: 1.2rem; line-height: 1.2;">DIRECCIÓN DE CIENCIA, TECNOLOGÍA E INNOVACIÓN
-                            DEL ESTADO MONAGAS</h3>
-                        <p>Ciencia, Tecnología e Innovación.</p>
-                        <span>Plataforma de Gestión</span>
+                    <div class="brand-text" style="display: block; margin-top: 10px;">
+                        <p
+                            style="font-size: 1.05rem; line-height: 1.4; color: white; font-weight: 500; margin: 0; max-width: 280px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                            Dirección de Ciencia, Tecnología e Innovación del estado Monagas.</p>
                     </div>
                 </div>
             </div>
@@ -193,6 +199,12 @@
                         <i class="fas fa-chart-pie"></i>
                         <span>Reportes</span>
                     </li>
+                    <li class="sidebar__section-title">NAVEGACIÓN</li>
+                    <li class="sidebar__item" onclick="window.location.href='index.html'"
+                        style="color: var(--color-primary); font-weight: 600;">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>Ir al Portal</span>
+                    </li>
                 </ul>
             </nav>
 
@@ -221,7 +233,7 @@
                 <div class="main-header__right">
                     <div class="search-bar">
                         <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Buscar en el panel...">
+                        <input type="text" id="dashboard-search-input" placeholder="Buscar en el panel...">
                     </div>
                     <div class="user-pill user-pill--header" title="Mi Perfil" style="cursor: pointer;"
                         id="header-user-btn">
@@ -240,6 +252,9 @@
             </section>
         </main>
     </div>
+
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Vistas Modulares (Modular Monolithic Architecture) -->
     <script src="js/views/dashboard.js"></script>

@@ -361,6 +361,11 @@ function renderModule(id) {
 
     DASHBOARD_UI.contentArea.innerHTML = content;
 
+    // Inicializar gráficos si estamos en el dashboard
+    if (id === 'dashboard') {
+        initDashboardChart();
+    }
+
     // Conexión con Lógica de Vistas (Event Listeners)
     if (id === 'profile') {
         const form = document.getElementById('profile-user-form');
@@ -453,3 +458,110 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+// 6. GRÁFICOS DEL DASHBOARD
+function initDashboardChart() {
+    const canvas = document.getElementById('courseRegistrationChart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+
+    // Destruir gráfico previo si existe para evitar superposiciones al re-renderizar la vista
+    if (window.dashboardChartInstance) {
+        window.dashboardChartInstance.destroy();
+    }
+
+    // Calcular datos dinámicos basados en inscripciones (Participations)
+    const participations = typeof getLocalParticipations === 'function' ? getLocalParticipations() : [];
+
+    // Generar últimos 6 meses (incluyendo actual) para las etiquetas (labels)
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const labels = [];
+    const counts = [0, 0, 0, 0, 0, 0];
+
+    const hoy = new Date();
+    for (let i = 5; i >= 0; i--) {
+        const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+        labels.push(meses[d.getMonth()]);
+    }
+
+    // Contabilizar inscripciones por mes (ej: '2024-03-05' => extraer mes y comparar)
+    participations.forEach(p => {
+        if (!p.fechaInscripcion) return;
+        const fechaInsc = new Date(p.fechaInscripcion);
+
+        // Determinar qué tan viejo es el registro respecto al mes actual
+        const diffMonths = (hoy.getFullYear() - fechaInsc.getFullYear()) * 12 + (hoy.getMonth() - fechaInsc.getMonth());
+
+        // Si pertenece a uno de los últimos 6 meses (0 = este mes, 5 = hace 5 meses)
+        if (diffMonths >= 0 && diffMonths <= 5) {
+            const indexOnArray = 5 - diffMonths; // 5 es el mes actual al final del array [0,1,2,3,4,5]
+            counts[indexOnArray]++;
+        }
+    });
+
+    // Configuración del gráfico según diseño de referencia (ahora dinámico)
+    window.dashboardChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Registros',
+                data: counts,
+                borderColor: '#6b21a8', // Color morado DCTI
+                backgroundColor: 'rgba(107, 33, 168, 0.1)', // Fondo semi-transparente
+                borderWidth: 2,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#6b21a8',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: true, // Habilitar el área rellenada debajo de la línea
+                tension: 0.4 // Curvas suaves
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false // Ocultar leyenda según diseño
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    titleColor: '#1e293b',
+                    bodyColor: '#475569',
+                    borderColor: '#cbd5e1',
+                    borderWidth: 1,
+                    padding: 10,
+                    displayColors: false
+                }
+            },
+            scales: {
+                y: {
+                    min: 0,
+                    max: 140,
+                    ticks: {
+                        stepSize: 20,
+                        color: '#94a3b8',
+                        font: { size: 11 }
+                    },
+                    grid: {
+                        color: '#f1f5f9',
+                        drawBorder: false
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#94a3b8',
+                        font: { size: 11 }
+                    },
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    }
+                }
+            }
+        }
+    });
+}

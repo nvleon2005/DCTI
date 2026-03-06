@@ -199,6 +199,15 @@ function changeCourseStatusToReactivate() {
 // Navegación de Pestañas dentro del Modal
 function switchCourseTab(tabName) {
     const tabs = ['technical', 'students', 'materials'];
+    const modalCard = document.querySelector('#course-modal .modal-card');
+
+    if (modalCard) {
+        // Aseguramos que el modal mantenga el tamaño de la Ficha Pedagógica
+        modalCard.style.maxWidth = '950px';
+        modalCard.style.width = '95%';
+        modalCard.style.transition = 'max-width 0.3s ease';
+    }
+
     tabs.forEach(t => {
         const btn = document.getElementById(`tab-${t}-btn`);
         const content = document.getElementById(`tab-${t}-content`);

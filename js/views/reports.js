@@ -8,75 +8,65 @@ const ReportsView = {
 
         return `
             <div class="view-container" style="display: flex; flex-direction: column; gap: 25px;">
-                <!-- Cabecera Premium -->
-                <div style="background: linear-gradient(135deg, var(--color-primary), #3b82f6); border-radius: 16px; padding: 30px; color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.15); display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h2 style="margin: 0; display: flex; align-items: center; gap: 12px; font-size: 1.8rem; padding-bottom: 2px;">
-                            <i class="fas fa-chart-pie" style="opacity: 0.9;"></i> Centro de Trazabilidad y Reportes
-                        </h2>
+                <!-- Cabecera Limpia con Acciones -->
+                <div style="background: white; border-radius: 16px; padding: 25px 30px; border: 1px solid var(--color-border); box-shadow: 0 2px 10px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="background: var(--color-primary); color: white; width: 45px; height: 45px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 1.3rem;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h2 style="margin: 0; font-size: 1.6rem; color: #0f172a; font-weight: 700;">Reportes del Sistema</h2>
                     </div>
-                    <div style="background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); text-align: right;">
-                        <p style="margin: 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8;">Firmado por</p>
-                        <strong style="font-size: 1.1rem;" id="report-operator-name">Administrativo</strong>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <button onclick="if(typeof exportReportToCSV === 'function') exportReportToCSV()" style="padding: 10px 18px; background: white; border: 1px solid #cbd5e1; border-radius: 8px; color: #166534; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#94a3b8'" onmouseout="this.style.background='white'; this.style.borderColor='#cbd5e1'">
+                            <i class="fas fa-file-excel"></i> Exportar Excel
+                        </button>
+                        <button onclick="if(typeof previewReportPDF === 'function') previewReportPDF()" style="padding: 10px 18px; background: #dc2626; border: 1px solid #b91c1c; border-radius: 8px; color: white; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);" onmouseover="this.style.background='#b91c1c'; this.style.borderColor='#991b1b'" onmouseout="this.style.background='#dc2626'; this.style.borderColor='#b91c1c'">
+                            <i class="fas fa-file-pdf"></i> Generar PDF
+                        </button>
                     </div>
                 </div>
 
-                <!-- Barra de Filtros (Horizontal y Espaciosa) -->
-                <div style="background: white; border-radius: 16px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; border: 1px solid var(--color-border);">
-                    <div style="flex: 1; min-width: 200px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: var(--color-text-muted);">Dominio Lógico (Entidad)</label>
-                        <select id="report-domain" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="width: 100%; padding: 12px 15px; border-radius: 8px; border: 2px solid #e2e8f0; background: #f8fafc; font-weight: 500; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='#e2e8f0'">
-                            <option value="users">Directorio de Usuarios</option>
-                            <option value="news">Registro de Publicaciones</option>
-                            <option value="projects">Portafolio de Proyectos</option>
-                            <option value="courses">Gestión Académica</option>
-                        </select>
+                <!-- Panel Principal de Configuración de Reporte -->
+                <div style="background: white; border-radius: 16px; border: 1px solid var(--color-border); box-shadow: 0 2px 10px rgba(0,0,0,0.02); overflow: hidden;">
+                    <div style="padding: 15px 25px; border-bottom: 1px solid var(--color-border); background: #f8fafc;">
+                        <h3 style="margin: 0; font-size: 0.95rem; color: var(--color-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fas fa-sliders-h" style="margin-right: 6px;"></i> Parámetros de Extracción</h3>
                     </div>
+                    <div style="padding: 25px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; align-items: end;">
+                        
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: #475569;">Módulo</label>
+                            <select id="report-domain" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="width: 100%; padding: 11px 15px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; font-weight: 500; font-size: 0.9rem; outline: none; transition: border-color 0.2s; color: #1e293b;" onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(37,99,235,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'">
+                                <option value="users">Directorio de Usuarios</option>
+                                <option value="news">Registro de Publicaciones</option>
+                                <option value="projects">Portafolio de Proyectos</option>
+                                <option value="courses">Gestión Académica</option>
+                            </select>
+                        </div>
 
-                    <div style="width: 180px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: var(--color-text-muted);">Fecha Desde</label>
-                        <input type="date" id="report-date-from" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="width: 100%; padding: 11px 15px; border-radius: 8px; border: 2px solid #e2e8f0; font-weight: 500; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='#e2e8f0'">
+                        <!-- Filtros Dinámicos Inyectables (Inline css grid cells) -->
+                        <div id="report-extra-filters-inline" style="display: contents;"></div>
+
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: #475569;">Fecha Desde</label>
+                            <input type="date" id="report-date-from" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="width: 100%; padding: 10px 15px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 500; font-size: 0.9rem; outline: none; transition: border-color 0.2s; color: #1e293b;" onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(37,99,235,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'">
+                        </div>
+
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: #475569;">Fecha Hasta</label>
+                            <input type="date" id="report-date-to" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="width: 100%; padding: 10px 15px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 500; font-size: 0.9rem; outline: none; transition: border-color 0.2s; color: #1e293b;" onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(37,99,235,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'">
+                        </div>
+
+                        <div>
+                            <button class="btn-primary" onclick="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="width: 100%; padding: 11px 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); white-space: nowrap; height: 43px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-filter" style="margin-right: 8px;"></i> Aplicar Filtros
+                            </button>
+                        </div>
                     </div>
-
-                    <div style="width: 180px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: var(--color-text-muted);">Fecha Hasta</label>
-                        <input type="date" id="report-date-to" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="width: 100%; padding: 11px 15px; border-radius: 8px; border: 2px solid #e2e8f0; font-weight: 500; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='#e2e8f0'">
-                    </div>
-
-                    <button class="btn-primary" onclick="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="padding: 13px 25px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);">
-                        <i class="fas fa-search-plus" style="margin-right: 8px;"></i> Procesar
-                    </button>
                 </div>
 
-                <!-- Zona de Tarjetas KPI -->
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                    <div style="background: white; border-radius: 16px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between; overflow: hidden; position: relative;">
-                        <div style="position: relative; z-index: 2;">
-                            <p style="margin: 0; font-size: 0.85rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Coincidencias (Hits)</p>
-                            <h2 style="margin: 8px 0 0 0; font-size: 2.5rem; color: #0f172a; font-weight: 800;" id="report-kpi-total">0</h2>
-                        </div>
-                        <i class="fas fa-database" style="font-size: 5rem; color: var(--color-primary); opacity: 0.05; position: absolute; right: -10px; bottom: -10px; z-index: 1;"></i>
-                    </div>
-
-                    <div style="background: white; border-radius: 16px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid var(--color-border); display: flex; gap: 15px; align-items: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(22, 101, 52, 0.1)'; this.style.borderColor='#86efac'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.02)'; this.style.borderColor='var(--color-border)'" onclick="if(typeof exportReportToCSV === 'function') exportReportToCSV()">
-                        <div style="background: #dcfce7; padding: 18px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-file-excel" style="font-size: 1.8rem; color: #166534;"></i>
-                        </div>
-                        <div>
-                            <h3 style="margin: 0 0 4px 0; font-size: 1.1rem; color: #166534;">Descargar Excel</h3>
-                            <p style="margin: 0; font-size: 0.85rem; color: var(--color-text-muted);">Formato CSV/Excel Auditado</p>
-                        </div>
-                    </div>
-
-                    <div style="background: white; border-radius: 16px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid var(--color-border); display: flex; gap: 15px; align-items: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(185, 28, 28, 0.1)'; this.style.borderColor='#fca5a5'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.02)'; this.style.borderColor='var(--color-border)'" onclick="if(typeof previewReportPDF === 'function') previewReportPDF()">
-                        <div style="background: #fee2e2; padding: 18px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-file-pdf" style="font-size: 1.8rem; color: #b91c1c;"></i>
-                        </div>
-                        <div>
-                            <h3 style="margin: 0 0 4px 0; font-size: 1.1rem; color: #b91c1c;">PDF Oficial</h3>
-                            <p style="margin: 0; font-size: 0.85rem; color: var(--color-text-muted);">Documento Institucional Impreso</p>
-                        </div>
-                    </div>
+                <!-- Stats Container (Injected inside a slim card) -->
+                <div id="report-stats-container" style="display: none; background: white; border-radius: 12px; padding: 20px 25px; border: 1px solid var(--color-border); box-shadow: 0 2px 10px rgba(0,0,0,0.02); gap: 30px; align-items: center; flex-wrap: wrap;">
+                    <!-- Aquí se inyectarán stats con estilo simple -->
                 </div>
 
                 <!-- Tabla Magnificada -->

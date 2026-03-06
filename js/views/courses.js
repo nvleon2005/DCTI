@@ -94,7 +94,7 @@ const CoursesView = {
 
                 <!-- Modal Multifase de Cursos -->
                 <div id="course-modal" class="modal-overlay hidden">
-                    <div class="modal-card" style="max-width: 950px; width: 95%; padding: 0; display: flex; flex-direction: column; max-height: 90vh;">
+                    <div class="modal-card" style="max-width: 950px; width: 95%; padding: 0; display: flex; flex-direction: column; height: 85vh; max-height: 900px;">
                         <div class="modal-header" style="background: var(--color-sidebar); color: white; padding: 15px 25px; margin-bottom: 0;">
                             <div>
                                 <h2 id="course-modal-title" style="margin: 0; font-size: 1.15rem;">Creación Académica</h2>

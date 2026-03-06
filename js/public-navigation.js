@@ -59,10 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 authMenuContainer.innerHTML = `
                     <div class="public-user-pill-container" style="position: relative;">
-                        <div class="public-user-pill" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 5px 10px; border-radius: 20px; background: rgba(255, 255, 255, 0.1); transition: background 0.3s;" id="public-user-pill-btn">
+                        <div class="public-user-pill" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 5px 12px; border-radius: 20px; background: #eef2ff; border: 1px solid #c7d2fe; transition: all 0.3s;" id="public-user-pill-btn">
                             ${avatarHTML}
-                            <span style="color: white; font-weight: 500; font-size: 0.9rem; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</span>
-                            <i class="fas fa-chevron-down" style="color: rgba(255,255,255,0.7); font-size: 0.8rem; margin-left: 2px;"></i>
+                            <span style="color: #4338ca; font-weight: 600; font-size: 0.9rem; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</span>
+                            <i class="fas fa-chevron-down" style="color: #6366f1; font-size: 0.8rem; margin-left: 2px;"></i>
                         </div>
                         <div class="public-dropdown hidden" id="public-user-dropdown" style="position: absolute; top: calc(100% + 10px); right: 0; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-width: 180px; overflow: hidden; z-index: 1000; display: none;">
                             <div style="padding: 10px 15px; border-bottom: 1px solid #f1f5f9; background: #fafafa;">

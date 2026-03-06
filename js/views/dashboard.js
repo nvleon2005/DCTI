@@ -21,9 +21,9 @@ const DashboardView = {
                     </div>
                 </div>
                 <div class="recent-activity">
-                    <h2 style="margin-bottom: var(--space-md); color: #1e293b;">Resumen de Gestión</h2>
-                    <div style="background: white; padding: var(--space-lg); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                        <p style="color: var(--color-text-muted);">Bienvenido al Panel de Gestión Administrativo. Use el menú lateral para acceder a los diferentes módulos de control.</p>
+                    <h2 style="margin-bottom: var(--space-md); color: #1e293b;">Evolución de Registros a Cursos</h2>
+                    <div style="background: white; padding: var(--space-lg); border-radius: var(--radius-md); border: 1px solid var(--color-border); position: relative; height: 400px; width: 100%;">
+                        <canvas id="courseRegistrationChart"></canvas>
                     </div>
                 </div>
             </div>
