@@ -25,8 +25,8 @@ function getReportData(domain, filters = {}) {
         case 'news':
             const allNews = typeof getLocalNews === 'function' ? getLocalNews() : [];
             const news = allNews.filter(n => {
-                const stat = Array.isArray(n.status) ? n.status : [n.status || ''];
-                return stat.includes('Publicado') && stat.includes('Validado');
+                const statStr = Array.isArray(n.status) ? n.status.join(' ').toLowerCase() : (n.status || '').toLowerCase();
+                return statStr.includes('publicad') && statStr.includes('validad');
             });
             rawData = news.map(n => ({
                 ID: n.id,
@@ -39,10 +39,7 @@ function getReportData(domain, filters = {}) {
             break;
         case 'projects':
             const allProjects = typeof getLocalProjects === 'function' ? getLocalProjects() : [];
-            const projects = allProjects.filter(p => {
-                const stat = Array.isArray(p.status) ? p.status : [p.status || ''];
-                return stat.includes('Publicado') && stat.includes('Validado');
-            });
+            const projects = allProjects;
             rawData = projects.map(p => ({
                 Código: p.id,
                 Iniciativa: p.title,

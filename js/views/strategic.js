@@ -15,6 +15,7 @@ const StrategicView = {
                         <i class="fas fa-plus" style="font-size: 1.1rem; margin: 0;"></i>
                     </button>
                 </div>
+                <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-md);">
                     ${areas.map(s => `

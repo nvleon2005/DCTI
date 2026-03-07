@@ -130,4 +130,123 @@ document.addEventListener('DOMContentLoaded', () => {
             </a>
         `;
     }
+
+    // --- LÓGICA DEL MÓDULO DE CURSOS (REJILLA -> DETALLE) ---
+    const gridCursos = document.getElementById('view-cursos');
+    const detalleCurso = document.getElementById('view-curso-detalle');
+    const btnVolverCursos = document.getElementById('btn-volver-cursos');
+    const enlacesCursos = document.querySelectorAll('.enlaceCurso');
+
+    if (gridCursos && detalleCurso && btnVolverCursos) {
+        // Abrir detalle al hacer clic en un curso
+        enlacesCursos.forEach(enlace => {
+            enlace.addEventListener('click', (e) => {
+                e.preventDefault();
+                gridCursos.classList.remove('public-active');
+                gridCursos.classList.add('public-hidden');
+
+                detalleCurso.classList.remove('public-hidden');
+                detalleCurso.classList.add('public-active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // Volver a la rejilla de cursos
+        btnVolverCursos.addEventListener('click', () => {
+            detalleCurso.classList.remove('public-active');
+            detalleCurso.classList.add('public-hidden');
+
+            gridCursos.classList.remove('public-hidden');
+            gridCursos.classList.add('public-active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    // --- LÓGICA DEL MÓDULO DE CURSOS (MODAL INSCRIPCIÓN) ---
+    const btnInscribirseCurso = document.getElementById('btn-inscribirse-curso');
+    const modalInscripcion = document.getElementById('modal-inscripcion');
+    const btnConfirmarInscripcion = document.getElementById('btn-confirmar-inscripcion');
+    const btnExitosaMsg = document.getElementById('btn-exitosa-msg');
+
+    if (btnInscribirseCurso && modalInscripcion) {
+        // Abrir Modal
+        btnInscribirseCurso.addEventListener('click', () => {
+            modalInscripcion.classList.remove('public-hidden-modal');
+        });
+
+        // Cerrar Modal al hacer clic fuera del contenido
+        modalInscripcion.addEventListener('click', (e) => {
+            if (e.target === modalInscripcion) {
+                modalInscripcion.classList.add('public-hidden-modal');
+                // Resetear estado botones al cerrar
+                if (btnConfirmarInscripcion && btnExitosaMsg) {
+                    btnConfirmarInscripcion.classList.remove('public-hidden-modal');
+                    btnExitosaMsg.classList.add('public-hidden-modal');
+                }
+            }
+        });
+
+        // Simular inscripción exitosa
+        if (btnConfirmarInscripcion && btnExitosaMsg) {
+            btnConfirmarInscripcion.addEventListener('click', () => {
+                // Validación básica (simulada, en la realidad comprobaríamos el form)
+                btnConfirmarInscripcion.classList.add('public-hidden-modal');
+                btnExitosaMsg.classList.remove('public-hidden-modal');
+
+                // Opcional: auto-cerrar el modal después de 3 segundos
+                setTimeout(() => {
+                }, 3000);
+            });
+        }
+    }
+
+    // --- INTEGRACIÓN DE DATOS DE CONTACTO DINÁMICOS (DCTI) ---
+    const dctiStorage = localStorage.getItem('dcti_info');
+    let dctiData = null;
+    if (dctiStorage) {
+        try {
+            dctiData = JSON.parse(dctiStorage);
+        } catch (e) { console.error('Error parsing dcti_info', e); }
+    } else if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.dcti) {
+        dctiData = MOCK_DATA.dcti;
+    }
+
+    if (dctiData) {
+        // Facebook
+        const fbLink = document.getElementById('contacto-facebook-link');
+        const fbText = document.getElementById('contacto-facebook-text');
+        if (fbLink && fbText && dctiData.facebook) {
+            fbText.textContent = dctiData.facebook;
+            fbLink.href = dctiData.facebook.startsWith('http') ? dctiData.facebook : `https://www.facebook.com/${dctiData.facebook.replace('@', '')}`;
+        }
+
+        // Instagram
+        const igLink = document.getElementById('contacto-instagram-link');
+        const igText = document.getElementById('contacto-instagram-text');
+        if (igLink && igText && dctiData.instagram) {
+            igText.textContent = dctiData.instagram;
+            igLink.href = dctiData.instagram.startsWith('http') ? dctiData.instagram : `https://www.instagram.com/${dctiData.instagram.replace('@', '')}`;
+        }
+
+        // Teléfono
+        const phoneLink = document.getElementById('contacto-telefono-link');
+        const phoneText = document.getElementById('contacto-telefono-text');
+        if (phoneLink && phoneText && dctiData.phone) {
+            phoneText.textContent = dctiData.phone;
+            phoneLink.href = `tel:${dctiData.phone.replace(/[^0-9+]/g, '')}`;
+        }
+
+        // La dirección interactiva puede requerir geocodificación o simplemente mostrar texto en un modal/tooltip,
+        // pero por ahora actualizamos el título o el enlace si aplicara.
+        const dirLink = document.getElementById('contacto-direccion-link');
+        const dirText = document.getElementById('contacto-direccion-text');
+        if (dirLink && dirText && dctiData.address) {
+            // Se mantiene "Ubicación" como texto pero se actualiza el tooltip o label
+            dirLink.title = dctiData.address;
+            dirLink.setAttribute('aria-label', `Ver nuestra ubicación: ${dctiData.address}`);
+            // Alternativamente, se podría cambiar el texto directamente:
+            // dirText.textContent = dctiData.address.substring(0, 15) + (dctiData.address.length > 15 ? '...' : ''); 
+        }
+    }
+
 });

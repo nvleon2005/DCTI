@@ -53,6 +53,9 @@ function changePage(module, page) {
  */
 
 // 1. FUENTE DE VERDAD (Compendiado de Datos)
+window.globalSearchQuery = '';
+window.currentActiveModule = 'dashboard';
+
 const MOCK_DATA = {
     stats: {
         users: 154,
@@ -231,6 +234,7 @@ function applyDashboardPermissions(role) {
 
 // 4. MOTOR DE NAVEGACIÓN Y RENDERIZADO
 function switchView(viewId) {
+    window.currentActiveModule = viewId;
     DASHBOARD_UI.sidebarItems.forEach(item => {
         if (item.dataset.view === viewId) {
             item.classList.add('sidebar__item--active');
@@ -311,24 +315,115 @@ function renderModule(id) {
             }
         }
 
+        // === APPLY GLOBAL SEARCH ===
+        const q = (window.globalSearchQuery || '').toLowerCase();
+
         if (id === 'users') {
-            viewData.pagination = getPaginatedData(allUsers, 'users');
+            let filteredUsers = allUsers;
+
+            if (typeof window.globalUserRoleFilter !== 'undefined' && window.globalUserRoleFilter !== 'Todos') {
+                filteredUsers = filteredUsers.filter(u => u.role === window.globalUserRoleFilter);
+            }
+            if (typeof window.globalUserStatusFilter !== 'undefined' && window.globalUserStatusFilter !== 'Todos') {
+                filteredUsers = filteredUsers.filter(u => u.status === window.globalUserStatusFilter);
+            }
+
+            if (window.globalUserColName) {
+                const searchName = window.globalUserColName.toLowerCase();
+                filteredUsers = filteredUsers.filter(u =>
+                    (u.name && u.name.toLowerCase().includes(searchName)) ||
+                    (u.username && u.username.toLowerCase().includes(searchName))
+                );
+            }
+
+            if (window.globalUserColEmail) {
+                const searchEmail = window.globalUserColEmail.toLowerCase();
+                filteredUsers = filteredUsers.filter(u =>
+                    (u.email && u.email.toLowerCase().includes(searchEmail))
+                );
+            }
+
+            if (q) {
+                filteredUsers = filteredUsers.filter(u =>
+                    Object.values(u).some(val =>
+                        val !== null && val !== undefined && val.toString().toLowerCase().includes(q)
+                    )
+                );
+            }
+            viewData.pagination = getPaginatedData(filteredUsers, 'users');
         }
         if (id === 'news') {
-            viewData.pagination = getPaginatedData(allNews, 'news');
+            let filteredNews = allNews;
+
+            if (typeof window.globalNewsCategoryFilter !== 'undefined' && window.globalNewsCategoryFilter !== 'Todas') {
+                filteredNews = filteredNews.filter(n => n.category === window.globalNewsCategoryFilter);
+            }
+            if (typeof window.globalNewsStatusFilter !== 'undefined' && window.globalNewsStatusFilter !== 'Todos') {
+                filteredNews = filteredNews.filter(n => {
+                    const statusArr = Array.isArray(n.status) ? n.status : [n.status];
+                    const searchStatus = window.globalNewsStatusFilter.replace('a', 'o').replace('o', 'a'); // Match Publicado/a
+                    return statusArr.some(s => s === window.globalNewsStatusFilter || s === searchStatus || (s && s.includes(window.globalNewsStatusFilter.substring(0, window.globalNewsStatusFilter.length - 1))));
+                });
+            }
+
+            if (q) {
+                filteredNews = filteredNews.filter(n =>
+                    Object.values(n).some(val =>
+                        val !== null && val !== undefined && val.toString().toLowerCase().includes(q)
+                    )
+                );
+            }
+            viewData.pagination = getPaginatedData(filteredNews, 'news');
         }
         if (id === 'projects') {
-            viewData.pagination = getPaginatedData(viewData.projects, 'projects');
+            let filteredProjects = viewData.projects;
+
+            if (typeof window.globalProjectStatusFilter !== 'undefined' && window.globalProjectStatusFilter !== 'Todos') {
+                filteredProjects = filteredProjects.filter(p => p.status === window.globalProjectStatusFilter);
+            }
+            if (typeof window.globalProjectFeaturedFilter !== 'undefined' && window.globalProjectFeaturedFilter !== 'Todos') {
+                const isFeatured = window.globalProjectFeaturedFilter === 'Destacados';
+                filteredProjects = filteredProjects.filter(p => Boolean(p.featured) === isFeatured);
+            }
+
+            if (q) {
+                filteredProjects = filteredProjects.filter(p =>
+                    Object.values(p).some(val =>
+                        val !== null && val !== undefined && val.toString().toLowerCase().includes(q)
+                    )
+                );
+            }
+            viewData.pagination = getPaginatedData(filteredProjects, 'projects');
         }
         if (id === 'strategic') {
-            viewData.pagination = getPaginatedData(viewData.strategic, 'strategic');
+            let filteredStrategic = viewData.strategic;
+            if (q) {
+                filteredStrategic = filteredStrategic.filter(s =>
+                    (s.area && s.area.toLowerCase().includes(q)) ||
+                    (s.responsible && s.responsible.toLowerCase().includes(q))
+                );
+            }
+            viewData.pagination = getPaginatedData(filteredStrategic, 'strategic');
         }
         if (id === 'courses') {
             // Support Live Pill Filter for Courses too
             if (typeof globalCourseFilter !== 'undefined' && globalCourseFilter !== 'Todos') {
-                viewData.courses = viewData.courses.filter(c => c.estadoCurso === globalCourseFilter);
+                viewData.courses = viewData.courses.filter(c => c.estadoCurso === globalCourseFilter || c.type === globalCourseFilter);
             }
-            viewData.pagination = getPaginatedData(viewData.courses, 'courses');
+            let filteredCourses = viewData.courses;
+
+            if (typeof window.globalCourseModalityFilter !== 'undefined' && window.globalCourseModalityFilter !== 'Todas') {
+                filteredCourses = filteredCourses.filter(c => c.type === window.globalCourseModalityFilter);
+            }
+
+            if (q) {
+                filteredCourses = filteredCourses.filter(c =>
+                    Object.values(c).some(val =>
+                        val !== null && val !== undefined && val.toString().toLowerCase().includes(q)
+                    )
+                );
+            }
+            viewData.pagination = getPaginatedData(filteredCourses, 'courses');
         }
     }
 
@@ -358,10 +453,19 @@ function renderModule(id) {
         case 'reports': content = ReportsView.render(viewData); break;
         default: content = `<div class="view-container"><h2>Módulo en desarrollo</h2></div>`;
     }
-
     DASHBOARD_UI.contentArea.innerHTML = content;
 
-    // Inicializar gráficos si estamos en el dashboard
+    // Restaurar foco si un input de texto causó el re-render (ej. filtros de texto)
+    if (window.lastFocusedInput) {
+        const inputToFocus = document.getElementById(window.lastFocusedInput);
+        if (inputToFocus) {
+            inputToFocus.focus();
+            // Mover el cursor al final del texto
+            const val = inputToFocus.value;
+            inputToFocus.value = '';
+            inputToFocus.value = val;
+        }
+    }    // Inicializar gráficos si estamos en el dashboard
     if (id === 'dashboard') {
         initDashboardChart();
     }
@@ -429,9 +533,29 @@ document.addEventListener('DOMContentLoaded', () => {
     DASHBOARD_UI.sidebarItems.forEach(item => {
         item.addEventListener('click', () => {
             const view = item.dataset.view;
-            if (view) switchView(view);
+            if (view) {
+                // Clear global search when navigating to a new section manually
+                window.globalSearchQuery = '';
+                const searchInput = document.getElementById('dashboard-search-input');
+                if (searchInput) searchInput.value = '';
+                switchView(view);
+            }
         });
     });
+
+    // Global Search Event Listener
+    const dashboardSearchInput = document.getElementById('dashboard-search-input');
+    if (dashboardSearchInput) {
+        dashboardSearchInput.addEventListener('input', (e) => {
+            window.globalSearchQuery = e.target.value.trim();
+            // Go to page 1 implicitly when filtering
+            if (typeof changePage === 'function') {
+                changePage(window.currentActiveModule, 1);
+            } else {
+                renderModule(window.currentActiveModule);
+            }
+        });
+    }
 
     const savedSession = localStorage.getItem('dcti_session');
     if (savedSession) {

@@ -8,18 +8,34 @@ const ProjectsView = {
 
         return `
             <div class="view-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <h2>Iniciativas Estratégicas</h2>
-                        <span style="font-size: 0.85rem; background: var(--color-surface-muted); padding: 4px 12px; border-radius: 20px; color: var(--color-text-muted); font-weight: 600;">
-                            Total: ${projects.length}
-                        </span>
+                <div style="display: flex; flex-direction: column; gap: var(--space-md); margin-bottom: var(--space-md);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <h2>Iniciativas Estratégicas</h2>
+                            <span style="font-size: 0.85rem; background: var(--color-surface-muted); padding: 4px 12px; border-radius: 20px; color: var(--color-text-muted); font-weight: 600;">
+                                Total: ${projects.length}
+                            </span>
+                        </div>
+                        ${isAdmin ? `
+                            <button class="btn-action" onclick="openProjectModal()" title="Nuevo Proyecto" style="padding: 10px 20px; border-radius: var(--radius-md); background: var(--color-primary); color: white; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(100, 50, 255, 0.2);">
+                                <i class="fas fa-folder-plus"></i>
+                                <span>Nuevo Proyecto</span>
+                            </button>
+                        ` : ''}
                     </div>
-                    ${isAdmin ? `
-                        <button class="btn-action" onclick="openProjectModal()" title="Nuevo Proyecto" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-folder-plus" style="font-size: 1.2rem; margin: 0;"></i>
-                        </button>
-                    ` : ''}
+                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <select onchange="window.globalProjectStatusFilter = this.value; if(typeof changePage === 'function'){changePage('projects', 1)} else {renderModule('projects')}" style="padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
+                            <option value="Todos" ${window.globalProjectStatusFilter === 'Todos' || !window.globalProjectStatusFilter ? 'selected' : ''}>Todos los Estados</option>
+                            <option value="En Proceso" ${window.globalProjectStatusFilter === 'En Proceso' ? 'selected' : ''}>En Proceso</option>
+                            <option value="Validado" ${window.globalProjectStatusFilter === 'Validado' ? 'selected' : ''}>Validados</option>
+                            <option value="Borrador" ${window.globalProjectStatusFilter === 'Borrador' ? 'selected' : ''}>Borradores</option>
+                        </select>
+                        <select onchange="window.globalProjectFeaturedFilter = this.value; if(typeof changePage === 'function'){changePage('projects', 1)} else {renderModule('projects')}" style="padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
+                            <option value="Todos" ${window.globalProjectFeaturedFilter === 'Todos' || !window.globalProjectFeaturedFilter ? 'selected' : ''}>Cualquier Relevancia</option>
+                            <option value="Destacados" ${window.globalProjectFeaturedFilter === 'Destacados' ? 'selected' : ''}>Solo Destacados</option>
+                            <option value="Regulares" ${window.globalProjectFeaturedFilter === 'Regulares' ? 'selected' : ''}>Solo Regulares</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">

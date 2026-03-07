@@ -617,41 +617,87 @@
             <section class="course-container">
                 <div class="course-item">
                     <img src="img/img5.jpg" alt="Curso 1">
-                    <a href="#" class="enlaceCurso">
+                    <a href="#" class="enlaceCurso" data-curso-id="1">
                         <h2>Transporte de capacidades de voz y datos</h2>
                     </a>
                 </div>
                 <div class="course-item">
                     <img src="img/img4.jpg" alt="Curso 2">
-                    <a href="#" class="enlaceCurso">
+                    <a href="#" class="enlaceCurso" data-curso-id="2">
                         <h2>Transporte de capacidades de voz y datos</h2>
                     </a>
                 </div>
                 <div class="course-item">
-                    <img src="img/img9.jpg" alt="Curso 2">
-                    <a href="#" class="enlaceCurso">
+                    <img src="img/img9.jpg" alt="Curso 3">
+                    <a href="#" class="enlaceCurso" data-curso-id="3">
                         <h2>Transporte de capacidades de voz y datos</h2>
                     </a>
                 </div>
             </section>
             <section class="course-container">
                 <div class="course-item">
-                    <img src="img/img10.jpg" alt="Curso 2">
-                    <a href="#" class="enlaceCurso">
+                    <img src="img/img10.jpg" alt="Curso 4">
+                    <a href="#" class="enlaceCurso" data-curso-id="4">
                         <h2>Transporte de capacidades de voz y datos</h2>
                     </a>
                 </div>
                 <div class="course-item">
-                    <img src="img/img3.jpg" alt="Curso 2">
-                    <a href="#" class="enlaceCurso">
+                    <img src="img/img3.jpg" alt="Curso 5">
+                    <a href="#" class="enlaceCurso" data-curso-id="5">
                         <h2>Transporte de capacidades de voz y datos</h2>
                     </a>
                 </div>
                 <div class="course-item">
-                    <img src="img/img7.jpg" alt="Curso 2">
-                    <a href="#" class="enlaceCurso">
+                    <img src="img/img7.jpg" alt="Curso 6">
+                    <a href="#" class="enlaceCurso" data-curso-id="6">
                         <h2>Transporte de capacidades de voz y datos</h2>
                     </a>
+                </div>
+            </section>
+        </section>
+
+        <!-- Nueva vista para detalles del curso -->
+        <section id="view-curso-detalle" class="public-view public-hidden">
+            <div style="padding: 0 2%; margin-bottom: 15px;">
+                <button class="btn-volver" id="btn-volver-cursos"
+                    style="background-color: transparent; border: 2px solid #530e90; color: #530e90; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1rem; display: flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                    <i class="fas fa-arrow-left"></i> Volver a cursos
+                </button>
+            </div>
+
+            <div class="curso-detalle-header">
+                <h2>Titulo.</h2>
+            </div>
+
+            <section class="curso-featured-wrapper">
+                <div class="curso-featured">
+                    <img src="img/img17.jpg" alt="Curso destacado" class="curso-featured-img">
+                    <div class="curso-featured-info">
+                        <p>Anno 1984, Dio, Jonathan Joestar hostis vampiricus, ab imo Oceano Atlantico emergit postquam
+                            corpus Ionathae surripuit. Dio manifestatio vitae industriae quae a Stando facta est, causat
+                            posteros Jonathan, Ioseph Joestar, Sanctus Kujo, et Jotaro Kujo ad lucrandum Stat anno 1987.
+                            Sanctus, sine viribus moderandi Sta, aegrotat et quinquaginta dies vivere aestimatur.</p>
+                        <div class="curso-fechas">
+                            <p><strong>Fecha de inicio:</strong> 01-01-2026</p>
+                            <p><strong>Finalizacion:</strong> 02-02-2026</p>
+                        </div>
+                        <div class="curso-featured-footer">
+                            <p><strong>Cupos:</strong> 10 personas</p>
+                            <span class="badge-disponible">Disponible</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="curso-thumbnails-container">
+                <div class="curso-thumbnails">
+                    <img src="img/img5.jpg" alt="Miniatura 1">
+                    <img src="img/img4.jpg" alt="Miniatura 2">
+                    <img src="img/img9.jpg" alt="Miniatura 3">
+                    <img src="img/img10.jpg" alt="Miniatura 4">
+                </div>
+                <div class="curso-action">
+                    <button class="btn-inscribirse" id="btn-inscribirse-curso">Inscribirse</button>
                 </div>
             </section>
         </section>
@@ -662,24 +708,24 @@
             </section>
             <section class="contacto-container">
                 <div class="icon-container">
-                    <a href="#" class="icon-link">
+                    <a href="#" class="icon-link" id="contacto-instagram-link">
                         <img src="img/insta.svg" alt="instagram" width="40px">
-                        <span>@Instagram</span>
+                        <span id="contacto-instagram-text">@Instagram</span>
                     </a>
-                    <a href="tel:555-5555555" class="icon-link">
+                    <a href="tel:" class="icon-link" id="contacto-telefono-link">
                         <img src="img/telefono.png" alt="telefono" width="40px">
-                        <span>555-5555555</span>
+                        <span id="contacto-telefono-text">555-5555555</span>
                     </a>
                 </div>
                 <div class="icon-container">
-                    <a href="https://www.facebook.com" class="icon-link"
+                    <a href="#" class="icon-link" id="contacto-facebook-link"
                         aria-label="Visitar nuestra página de Facebook">
                         <img src="img/face.svg" alt="ícono de facebook" width="40px">
-                        <span>@Facebook</span>
+                        <span id="contacto-facebook-text">@Facebook</span>
                     </a>
-                    <a href="https://www.ubicación.com" class="icon-link" aria-label="Ver nuestra ubicación">
+                    <a href="#" class="icon-link" id="contacto-direccion-link" aria-label="Ver nuestra ubicación">
                         <img src="img/ubicacion.png" alt="ícono de ubicación" width="40px">
-                        <span>Ubicación</span>
+                        <span id="contacto-direccion-text">Ubicación</span>
                     </a>
                 </div>
             </section>
@@ -720,6 +766,46 @@
                 </div>
             </section>
         </section>
+        </section>
+
+        <!-- Modal de inscripción -->
+        <div id="modal-inscripcion" class="modal-overlay public-hidden-modal">
+            <div class="modal-content">
+                <div class="modal-header-img">
+                    <img src="img/img17.jpg" alt="Header Curso">
+                </div>
+                <div class="modal-body">
+                    <h2 class="modal-title">Curso de electronica : Cupos disponibles</h2>
+
+                    <form id="form-inscripcion" class="form-inscripcion">
+                        <div class="form-group-pill">
+                            <input type="text" placeholder="Nombre y Apellido" required>
+                        </div>
+                        <div class="form-group-pill">
+                            <input type="email" placeholder="Correo electronico" required>
+                        </div>
+                        <div class="form-group-pill">
+                            <input type="text" placeholder="Cedula" required>
+                        </div>
+
+                        <div class="form-group-checkbox">
+                            <label class="custom-radio">
+                                <input type="radio" name="condiciones" required>
+                                <span class="radio-mark"></span>
+                                Aceptación de las condiciones
+                            </label>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-confirmar" id="btn-confirmar-inscripcion">Confirmar
+                                inscripcion</button>
+                            <button type="button" class="btn-exitosa public-hidden-modal"
+                                id="btn-exitosa-msg">Inscripcion exitosa</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </main>
 
     <footer>

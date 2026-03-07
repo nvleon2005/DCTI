@@ -914,3 +914,333 @@
         width: 70%;
     }
 }
+
+/* --- NUEVA VISTA: DETALLES DE CURSO --- */
+#view-cursos {
+    padding-top: 20px;
+}
+
+.curso-detalle-header {
+    background-color: #530e90;
+    width: 100%;
+    padding: 15px 0;
+    margin-bottom: 20px;
+}
+
+.curso-detalle-header h2 {
+    color: #ffffff;
+    font-size: 1.5rem;
+    margin-left: 2%;
+}
+
+.curso-featured-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    padding: 0 2%;
+}
+
+.curso-featured {
+    display: flex;
+    width: 100%;
+    max-width: 1000px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ccc;
+    overflow: hidden;
+}
+
+.curso-featured-img {
+    width: 50%;
+    object-fit: cover;
+}
+
+.curso-featured-info {
+    width: 50%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.curso-featured-info p {
+    font-size: 0.95rem;
+    color: #333;
+    line-height: 1.4;
+}
+
+.curso-fechas {
+    margin: 15px 0;
+}
+
+.curso-fechas p {
+    margin-bottom: 5px;
+}
+
+.curso-featured-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+}
+
+.curso-featured-footer p {
+    margin-bottom: 0;
+}
+
+.badge-disponible {
+    background-color: #0656c5;
+    color: #fff;
+    padding: 6px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.curso-thumbnails-container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.curso-thumbnails {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.curso-thumbnails img {
+    width: 24%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.curso-action {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 40px;
+}
+
+.btn-inscribirse {
+    background-color: #0656c5;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-inscribirse:hover {
+    background-color: #044094;
+}
+
+/* --- MODAL DE INSCRIPCIÓN --- */
+.public-hidden-modal {
+    display: none !important;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    position: relative;
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header-img {
+    height: 120px;
+    width: 100%;
+}
+
+.modal-header-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.modal-body {
+    padding: 20px 30px 30px 30px;
+}
+
+.modal-title {
+    color: #0656c5;
+    font-size: 1.2rem;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-inscripcion {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-group-pill {
+    width: 100%;
+}
+
+.form-group-pill input {
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 50px;
+    border: none;
+    background-color: #c9d7ed;
+    font-size: 0.95rem;
+    color: #333;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.form-group-pill input::placeholder {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.form-group-checkbox {
+    margin: 10px 0 15px 0;
+}
+
+.custom-radio {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #333;
+    font-weight: bold;
+}
+
+.custom-radio input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.radio-mark {
+    height: 18px;
+    width: 18px;
+    background-color: #fff;
+    border: 2px solid #a01cad;
+    border-radius: 50%;
+    margin-right: 10px;
+    display: inline-block;
+    position: relative;
+}
+
+.custom-radio input:checked~.radio-mark {
+    border-color: #0656c5;
+}
+
+.custom-radio input:checked~.radio-mark::after {
+    content: "";
+    position: absolute;
+    display: block;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #0656c5;
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-confirmar {
+    background-color: #0656c5;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 50px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-confirmar:hover {
+    background-color: #044094;
+}
+
+.btn-exitosa {
+    background-color: #a01cad;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 50px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+}
+
+/* Responsividad para el nuevo detalle de curso */
+@media (max-width: 900px) {
+    .curso-featured {
+        flex-direction: column;
+    }
+
+    .curso-featured-img {
+        width: 100%;
+        height: 250px;
+    }
+
+    .curso-featured-info {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .curso-thumbnails {
+        flex-wrap: wrap;
+    }
+
+    .curso-thumbnails img {
+        width: 47%;
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 500px) {
+    .curso-thumbnails img {
+        width: 100%;
+    }
+}

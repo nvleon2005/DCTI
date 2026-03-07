@@ -17,7 +17,12 @@ function getLocalDcti() {
         mission: "",
         vision: "",
         review: "",
-        organigrama: null
+        organigrama: null,
+        phone: "",
+        email: "",
+        address: "",
+        instagram: "",
+        facebook: ""
     };
 }
 
@@ -118,10 +123,17 @@ function handleDctiSubmit(event) {
     const vision = document.getElementById('admin-dcti-vision').value.trim();
     const review = document.getElementById('admin-dcti-review').value.trim();
 
+    // Nuvos campos de contacto y redes sociales (pueden venir vacíos porque son opcionales)
+    const phone = document.getElementById('admin-dcti-phone') ? document.getElementById('admin-dcti-phone').value.trim() : '';
+    const email = document.getElementById('admin-dcti-email') ? document.getElementById('admin-dcti-email').value.trim() : '';
+    const address = document.getElementById('admin-dcti-address') ? document.getElementById('admin-dcti-address').value.trim() : '';
+    const instagram = document.getElementById('admin-dcti-instagram') ? document.getElementById('admin-dcti-instagram').value.trim() : '';
+    const facebook = document.getElementById('admin-dcti-facebook') ? document.getElementById('admin-dcti-facebook').value.trim() : '';
+
     const organigramaPreview = document.getElementById('admin-dcti-organigrama-preview');
     const organigrama = organigramaPreview && organigramaPreview.style.display === 'block' ? organigramaPreview.src : null;
 
-    const result = saveLocalDcti({ mission, vision, review, organigrama });
+    const result = saveLocalDcti({ mission, vision, review, organigrama, phone, email, address, instagram, facebook });
 
     if (result && typeof renderModule === 'function') {
         renderModule('dcti');

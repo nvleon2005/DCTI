@@ -7,16 +7,43 @@ const UsersView = {
 
         return `
             <div class="view-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <h2>Gestión de Usuarios</h2>
-                        <span style="font-size: 0.85rem; background: var(--color-surface-muted); padding: 4px 12px; border-radius: 20px; color: var(--color-text-muted); font-weight: 600;">
-                            Total: ${data.stats.users}
-                        </span>
+                <div style="display: flex; flex-direction: column; gap: var(--space-md); margin-bottom: var(--space-md);">
+                    <!-- Top Row: Title, Count and Primary Action -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <h2>Gestión de Usuarios</h2>
+                            <span style="font-size: 0.85rem; background: var(--color-surface-muted); padding: 4px 12px; border-radius: 20px; color: var(--color-text-muted); font-weight: 600;">
+                                Total: ${data.stats.users}
+                            </span>
+                        </div>
+                        <button class="btn-action" onclick="openUserModal()" title="Nuevo Usuario" style="padding: 10px 20px; border-radius: var(--radius-md); background: var(--color-primary); color: white; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(100, 50, 255, 0.2);">
+                            <i class="fas fa-plus"></i>
+                            <span>Nuevo Usuario</span>
+                        </button>
                     </div>
-                    <button class="btn-action" onclick="openUserModal()" title="Nuevo Usuario" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-user-plus" style="font-size: 1.1rem; margin: 0;"></i>
-                    </button>
+
+                    <!-- Bottom Row: Filters -->
+                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                            <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
+                            <input type="text" id="filter-user-name" placeholder="Buscar Usuario..." oninput="window.lastFocusedInput = this.id; window.globalUserColName = this.value; if(typeof changePage === 'function'){changePage('users', 1)} else {renderModule('users')}" value="${window.globalUserColName || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 130px; font-size: 0.85rem; outline: none; font-weight: 500;">
+                        </div>
+                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                            <i class="fas fa-envelope" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
+                            <input type="text" id="filter-user-email" placeholder="Buscar Email..." oninput="window.lastFocusedInput = this.id; window.globalUserColEmail = this.value; if(typeof changePage === 'function'){changePage('users', 1)} else {renderModule('users')}" value="${window.globalUserColEmail || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 130px; font-size: 0.85rem; outline: none; font-weight: 500;">
+                        </div>
+                        <select onchange="window.globalUserRoleFilter = this.value; if(typeof changePage === 'function'){changePage('users', 1)} else {renderModule('users')}" style="padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
+                            <option value="Todos" ${window.globalUserRoleFilter === 'Todos' || !window.globalUserRoleFilter ? 'selected' : ''}>Todos los Roles</option>
+                            <option value="admin" ${window.globalUserRoleFilter === 'admin' ? 'selected' : ''}>Administradores</option>
+                            <option value="editor" ${window.globalUserRoleFilter === 'editor' ? 'selected' : ''}>Editores</option>
+                            <option value="visitante" ${window.globalUserRoleFilter === 'visitante' ? 'selected' : ''}>Visitantes</option>
+                        </select>
+                        <select onchange="window.globalUserStatusFilter = this.value; if(typeof changePage === 'function'){changePage('users', 1)} else {renderModule('users')}" style="padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
+                            <option value="Todos" ${window.globalUserStatusFilter === 'Todos' || !window.globalUserStatusFilter ? 'selected' : ''}>Todos los Estados</option>
+                            <option value="Activo" ${window.globalUserStatusFilter === 'Activo' ? 'selected' : ''}>Activos</option>
+                            <option value="Inactivo" ${window.globalUserStatusFilter === 'Inactivo' ? 'selected' : ''}>Inactivos</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
