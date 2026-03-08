@@ -130,11 +130,11 @@ const NewsView = {
                                     </div>
                                     <div class="form-group">
                                         <label>Resumen de Portada <span style="color: #ef4444;">*</span></label>
-                                        <input type="text" id="admin-news-summary" placeholder="Breve extracto para captar la atención..." required>
+                                        <textarea id="admin-news-summary" style="width: 100%; padding: 0.8rem; border: 1.5px solid var(--color-border) !important; border-radius: var(--radius-md) !important; height: 100px; font-family: inherit; resize: vertical; background: white !important;" placeholder="Breve extracto para captar la atención..." required></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label>Contenido Completo <span style="color: #ef4444;">*</span></label>
-                                        <textarea id="admin-news-content" style="width: 100%; padding: 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); height: 180px; font-family: inherit; resize: vertical;" placeholder="Escriba la noticia íntegra aquí..." required></textarea>
+                                        <textarea id="admin-news-content" style="width: 100%; padding: 0.8rem; border: 1.5px solid var(--color-border) !important; border-radius: var(--radius-md) !important; height: 180px; font-family: inherit; resize: vertical; background: white !important;" placeholder="Escriba la noticia íntegra aquí..." required></textarea>
                                     </div>
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 1.2rem;">

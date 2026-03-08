@@ -470,6 +470,12 @@ function renderModule(id) {
         initDashboardChart();
     }
 
+    // Inicializar mapa interactivo si estamos en DCTI
+    if (id === 'dcti' && typeof initAdminMap === 'function') {
+        // Pequeño timeout para asegurar que el DOM está listo
+        setTimeout(initAdminMap, 100);
+    }
+
     // Conexión con Lógica de Vistas (Event Listeners)
     if (id === 'profile') {
         const form = document.getElementById('profile-user-form');

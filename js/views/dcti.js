@@ -101,6 +101,40 @@ const DctiView = {
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- Columna 4: Ubicación (Mapa) -->
+                            <div style="display: flex; flex-direction: column; gap: var(--space-md); background: #f8fafc; padding: var(--space-md); border-radius: var(--radius-md); border: 1px solid #e2e8f0; grid-column: 1 / -1;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 10px;">
+                                    <h3 style="color: var(--color-text-main); font-size: 1.1rem; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                        <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(239, 68, 68, 0.1); color: #ef4444; display: flex; align-items: center; justify-content: center;"><i class="fas fa-map-marker-alt"></i></div> Ubicación Geográfica
+                                    </h3>
+                                    <div style="display: flex; gap: 8px;">
+                                        <button type="button" id="admin-dcti-reset-map" onclick="resetAdminMap()" style="background: rgba(148, 163, 184, 0.1); color: #64748b; border: 1px solid rgba(148, 163, 184, 0.2); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px;" title="Volver a la ubicación original">
+                                            <i class="fas fa-undo"></i> Restaurar Pin
+                                        </button>
+                                        <button type="button" id="admin-dcti-unlock-map" onclick="unlockAdminMap()" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px;">
+                                            <i class="fas fa-lock-open"></i> Modificar Ubicación
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: -10px; margin-bottom: 5px;">Haga clic en el botón superior para habilitar la edición, luego arrastre el pin rojo hasta la ubicación exacta de la sede.</p>
+                                
+                                <div style="position: relative; width: 100%; height: 300px; border-radius: 8px; overflow: hidden; border: 1px solid var(--color-border);">
+                                    <!-- Capa de bloqueo -->
+                                    <div id="admin-dcti-map-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.4); z-index: 1000; cursor: not-allowed; display: flex; align-items: center; justify-content: center;">
+                                        <div style="background: rgba(0,0,0,0.6); color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; backdrop-filter: blur(4px);">
+                                            <i class="fas fa-lock"></i> Mapa Bloqueado
+                                        </div>
+                                    </div>
+                                    <!-- Contenedor del Mapa -->
+                                    <div id="admin-dcti-map-container" style="width: 100%; height: 100%;"></div>
+                                </div>
+                                
+                                <!-- Campos ocultos para guardar las coordenadas -->
+                                <input type="hidden" id="admin-dcti-lat" value="${dcti.lat || '9.7446818'}">
+                                <input type="hidden" id="admin-dcti-lng" value="${dcti.lng || '-63.1722970'}">
+                            </div>
                         </div>
                         
                         <!-- Actions -->

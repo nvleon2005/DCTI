@@ -130,12 +130,157 @@ function handleDctiSubmit(event) {
     const instagram = document.getElementById('admin-dcti-instagram') ? document.getElementById('admin-dcti-instagram').value.trim() : '';
     const facebook = document.getElementById('admin-dcti-facebook') ? document.getElementById('admin-dcti-facebook').value.trim() : '';
 
+    const lat = document.getElementById('admin-dcti-lat') ? document.getElementById('admin-dcti-lat').value : '9.7446818';
+    const lng = document.getElementById('admin-dcti-lng') ? document.getElementById('admin-dcti-lng').value : '-63.1722970';
+
     const organigramaPreview = document.getElementById('admin-dcti-organigrama-preview');
     const organigrama = organigramaPreview && organigramaPreview.style.display === 'block' ? organigramaPreview.src : null;
 
-    const result = saveLocalDcti({ mission, vision, review, organigrama, phone, email, address, instagram, facebook });
+    const result = saveLocalDcti({ mission, vision, review, organigrama, phone, email, address, instagram, facebook, lat, lng });
 
     if (result && typeof renderModule === 'function') {
         renderModule('dcti');
+    }
+}
+
+// --- LOGICA DEL MAPA INTERACTIVO ---
+let adminMapInstance = null;
+let adminMapMarker = null;
+let originalLatLng = null; // Guardará la ubicación original para poder reiniciarla
+
+// Inyectar clase CSS para la animación de rebote del pin ("bounce")
+const bounceStyle = document.createElement('style');
+bounceStyle.innerHTML = `
+/* Evitar que el pin de Leaflet se vuelva transparente al arrastrarlo */
+.leaflet-dragging .leaflet-marker-icon {
+  opacity: 1 !important;
+  cursor: grabbing !important;
+}
+/* Animación de caída al soltar (usando margin-top para no romper el transform X/Y de Leaflet) */
+@keyframes marker-bounce-drop {
+  0% { margin-top: -61px; }
+  40% { margin-top: -41px; }
+  70% { margin-top: -48px; }
+  100% { margin-top: -41px; }
+}
+.marker-dropping {
+  animation: marker-bounce-drop 0.5s ease-out forwards !important;
+}
+`;
+document.head.appendChild(bounceStyle);
+
+function initAdminMap() {
+    const container = document.getElementById('admin-dcti-map-container');
+    if (!container) return;
+
+    // Leer coordenadas actuales (de MOCK_DATA o los inputs hidden)
+    const latInput = document.getElementById('admin-dcti-lat');
+    const lngInput = document.getElementById('admin-dcti-lng');
+    const lat = latInput ? parseFloat(latInput.value) : 9.7446818;
+    const lng = lngInput ? parseFloat(lngInput.value) : -63.1722970;
+
+    originalLatLng = { lat, lng }; // Guardamos el origen
+
+    // Si ya existe instancia, solo actualizamos vista
+    if (adminMapInstance) {
+        adminMapInstance.remove();
+    }
+
+    // Crear mapa centrado en coordenadas
+    adminMapInstance = L.map('admin-dcti-map-container').setView([lat, lng], 16);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(adminMapInstance);
+
+    // Agregar marcador (inicialmente bloqueado)
+    adminMapMarker = L.marker([lat, lng], { draggable: false }).addTo(adminMapInstance);
+
+    // Escuchar cuando termine de arrastrar para actualizar inputs
+    adminMapMarker.on('dragend', function (event) {
+        const position = adminMapMarker.getLatLng();
+        if (latInput) latInput.value = position.lat;
+        if (lngInput) lngInput.value = position.lng;
+
+        // Ejecutar animación de rebote al soltar el pin
+        const iconElement = adminMapMarker.getElement();
+        if (iconElement) {
+            iconElement.classList.remove('marker-dropping');
+            void iconElement.offsetWidth; // Forzar reflow para reiniciar animación
+            iconElement.classList.add('marker-dropping');
+        }
+    });
+
+    // Deshabilitar interacción del mapa inicialmente
+    adminMapInstance.dragging.disable();
+    adminMapInstance.touchZoom.disable();
+    adminMapInstance.doubleClickZoom.disable();
+    adminMapInstance.scrollWheelZoom.disable();
+    adminMapInstance.boxZoom.disable();
+    adminMapInstance.keyboard.disable();
+
+    // Invalidar para que dibuje bien dentro del contenedor
+    setTimeout(() => {
+        if (adminMapInstance) adminMapInstance.invalidateSize();
+    }, 200);
+}
+
+function unlockAdminMap() {
+    // Quitar capa de bloqueo
+    const overlay = document.getElementById('admin-dcti-map-overlay');
+    if (overlay) overlay.style.display = 'none';
+
+    // Habilitar arrastre del marcador
+    if (adminMapMarker) {
+        adminMapMarker.dragging.enable();
+    }
+
+    // Habilitar interacción del mapa
+    if (adminMapInstance) {
+        adminMapInstance.dragging.enable();
+        adminMapInstance.touchZoom.enable();
+        adminMapInstance.doubleClickZoom.enable();
+        adminMapInstance.scrollWheelZoom.enable();
+        adminMapInstance.boxZoom.enable();
+        adminMapInstance.keyboard.enable();
+    }
+
+    // Desactivar boton de desbloqueo para evitar confusiones
+    const btn = document.getElementById('admin-dcti-unlock-map');
+    if (btn) {
+        btn.innerHTML = '<i class="fas fa-unlock"></i> Mapa Desbloqueado';
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'default';
+        btn.onclick = null;
+    }
+}
+
+function resetAdminMap() {
+    if (!adminMapInstance || !adminMapMarker || !originalLatLng) return;
+
+    // Volver el marcador a la posición original
+    adminMapMarker.setLatLng([originalLatLng.lat, originalLatLng.lng]);
+
+    // Centrar el mapa con una animación suave ("flyTo")
+    adminMapInstance.flyTo([originalLatLng.lat, originalLatLng.lng], 16, {
+        animate: true,
+        duration: 1.5 // Segundos que dura la animación de regreso
+    });
+
+    // Restaurar los valores en los inputs ocultos
+    const latInput = document.getElementById('admin-dcti-lat');
+    const lngInput = document.getElementById('admin-dcti-lng');
+    if (latInput) latInput.value = originalLatLng.lat;
+    if (lngInput) lngInput.value = originalLatLng.lng;
+
+    // Ejecutar la animación de caída al llegar al origen
+    const iconElement = adminMapMarker.getElement();
+    if (iconElement) {
+        iconElement.classList.remove('marker-dropping');
+        void iconElement.offsetWidth; // Forzar reflow para reiniciar animación
+        iconElement.classList.add('marker-dropping');
+    }
+
+    if (typeof AlertService !== 'undefined') {
+        AlertService.notify('Ubicación Restaurada', 'El pin ha vuelto a la posición original guardada.', 'success');
     }
 }
