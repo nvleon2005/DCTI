@@ -1244,3 +1244,113 @@
         width: 100%;
     }
 }
+
+/* --- OVERRIDES RESPONSIVOS GLOBALES PARA MÓVILES (Agregado Seguro) --- */
+@media (max-width: 900px) {
+
+    /* Contracción del padding principal para no comer espacio en móvil */
+    .public-view {
+        padding: clamp(1rem, 3vw, 2rem) clamp(0.5rem, 2vw, 1rem) !important;
+    }
+
+    /* Módulo DCTI */
+    #view-dcti .main {
+        padding: 0 5% !important;
+    }
+
+    #view-dcti .caja {
+        width: 95% !important;
+        margin: 5% auto !important;
+    }
+
+    #view-dcti .conten {
+        flex-direction: column !important;
+        gap: 20px !important;
+        padding: 0 3% !important;
+    }
+
+    #view-dcti .conten .caja {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* Módulo Contactos */
+    #view-contactos .container-form {
+        flex-direction: column !important;
+        width: 95% !important;
+        margin: 5% auto !important;
+    }
+
+    #view-contactos .form-container,
+    #view-contactos .image-form {
+        flex-basis: 100% !important;
+        width: 100% !important;
+    }
+
+    #view-contactos .image-form {
+        display: none !important;
+        /* Ocultar imagen auxiliar para ahorrar espacio en móvil */
+    }
+
+    #view-contactos .contacto-container {
+        padding: 20px 10px !important;
+    }
+
+    #view-contactos .icon-container {
+        flex-direction: column !important;
+        gap: 15px !important;
+        align-items: center;
+    }
+
+    #view-contactos #mi_map {
+        height: 300px !important;
+    }
+
+    /* Grillas Módulos Noticias y Cursos */
+    #view-noticias .course-container,
+    #view-noticias .course-container-noticias,
+    #view-noticias .course-container-noticias2,
+    #view-cursos .course-container {
+        flex-direction: column !important;
+        align-items: center !important;
+        display: flex !important;
+        padding: 10px !important;
+    }
+
+    #view-noticias .noticias {
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    #view-noticias .course-item,
+    #view-cursos .course-item {
+        width: 100% !important;
+        max-width: 400px !important;
+        margin: 15px 0 !important;
+    }
+
+    #view-noticias .titulo_noticia,
+    #view-cursos .titulo_noticia {
+        width: 95% !important;
+        padding: 10px 15px !important;
+        text-align: center !important;
+        box-sizing: border-box;
+    }
+
+    #view-noticias .titulo_noticia h2,
+    #view-cursos .titulo_noticia h2 {
+        margin-right: 0 !important;
+        font-size: 1.25rem !important;
+    }
+
+    /* Modal de Detalles / Inscripción */
+    .modal-content {
+        width: 95% !important;
+        margin: 2% auto !important;
+        border-radius: 10px !important;
+    }
+
+    .form-group-pill {
+        width: 100% !important;
+    }
+}

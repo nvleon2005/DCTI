@@ -562,7 +562,151 @@ footer {
     .footer {
         border-left: none;
         margin: 10px 0 0 0;
-        padding-left: 0;
         text-align: center;
+    }
+}
+
+/* --- OVERRIDES RESPONSIVOS PARA MÓVILES (Agregado Seguro) --- */
+@media (max-width: 900px) {
+
+    /* Prevención Global de Scroll Horizontal (Zooming out preventor) */
+    html,
+    body {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        margin: 0;
+        padding: 0;
+        position: relative;
+    }
+
+    /* Forzar a todos los pseudo-carruseles horizontales a no romper el contenedor padre */
+    .carrusel-contenedor,
+    .miniaturas-contenedor,
+    .noticia-contenedor {
+        max-width: 400%;
+        flex-wrap: nowrap !important;
+    }
+
+    /* Navbar móvil deslizable horizontal (evita superposición) */
+    nav {
+        width: 100% !important;
+        overflow: hidden;
+    }
+
+    nav ul {
+        overflow-x: auto;
+        flex-wrap: nowrap !important;
+        justify-content: flex-start !important;
+        padding: 10px 15px;
+        -webkit-overflow-scrolling: touch;
+        /* Suavidad en iOS */
+        white-space: nowrap;
+        scrollbar-width: none;
+        /* Ocultar barra Firefox */
+    }
+
+    nav ul::-webkit-scrollbar {
+        display: none;
+        /* Ocultar barra Chrome/Safari */
+    }
+
+    nav ul li {
+        margin: 0 15px 0 0;
+        font-size: 90%;
+        flex-shrink: 0;
+    }
+
+    #public-auth-menu {
+        margin-left: 10px !important;
+    }
+
+    /* Carrusel principal: Limitar alturas para móviles */
+    .carrusel-principal {
+        min-height: 250px !important;
+        max-height: 350px !important;
+    }
+
+    .tc {
+        bottom: 20px !important;
+    }
+
+    .tc h2 {
+        font-size: 1.5rem !important;
+    }
+
+    .imgc img {
+        min-height: 250px !important;
+        box-sizing: border-box;
+    }
+
+    /* Carrusel Noticias: apilar imagen arriba y texto abajo */
+    .carrusel-noticias {
+        width: 95%;
+        min-height: auto;
+        max-height: none;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+        margin: 5% auto;
+    }
+
+    .noticia {
+        flex-direction: column !important;
+        height: auto !important;
+    }
+
+    .noticia img {
+        width: 100% !important;
+        height: 220px !important;
+        border-radius: 5px 5px 0 0 !important;
+    }
+
+    .noticia .contenido-noticia {
+        width: 100% !important;
+        padding: 20px !important;
+        font-size: 0.95rem !important;
+        border-radius: 0 0 5px 5px !important;
+        box-sizing: border-box;
+    }
+
+    /* Footer apilado */
+    footer {
+        flex-direction: column;
+        text-align: center;
+        padding: 30px 15px;
+    }
+
+    .footer {
+        border-left: none !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+        margin: 15px 0 0 0 !important;
+        padding-top: 20px !important;
+        width: 100%;
+        text-align: center !important;
+    }
+
+    .footer:first-child {
+        border-top: none !important;
+    }
+}
+
+@media (max-width: 600px) {
+
+    /* Ajustes específicos para teléfonos pequeños */
+    .tc h2 {
+        font-size: 1.2rem !important;
+    }
+
+    .carrusel-principal {
+        min-height: 200px !important;
+        max-height: 220px !important;
+    }
+
+    .imgc img {
+        min-height: 200px !important;
+        max-height: 220px !important;
+    }
+
+    .header .img {
+        height: 60px !important;
     }
 }
