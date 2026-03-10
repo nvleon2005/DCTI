@@ -161,17 +161,7 @@ function renderReportDashboard() {
 
     const data = getReportData(currentReportDomain, filters);
 
-    // Adjuntar evento de búsqueda global (solo lo hacemos una vez la primera vez que invocamos)
-    if (globalSearchInput && !globalSearchInput.hasAttribute('data-report-listener')) {
-        globalSearchInput.setAttribute('data-report-listener', 'true');
-        globalSearchInput.addEventListener('input', () => {
-            // Solo redibujamos si estamos en la vista de reportes
-            const mainView = document.getElementById('main-content');
-            if (mainView && mainView.innerHTML.includes('Explorador de Datos Estructurados')) {
-                renderReportDashboard();
-            }
-        });
-    }
+    // El evento de búsqueda global ahora se maneja de forma centralizada y optimizada en interface-logic.js
 
     // Update Header Operator Name
     const session = JSON.parse(localStorage.getItem('dcti_session')) || {};

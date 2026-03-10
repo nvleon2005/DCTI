@@ -1,30 +1,23 @@
 const MyCoursesView = {
     render: function (data) {
         const user = data.currentUser || {};
+        const userId = user.email || user.username || null;
 
-        let currentCourses = data.courses || [];
+        // Obtener todos los cursos y todas las participaciones reales
+        const allCourses = window.getLocalCourses ? window.getLocalCourses() : [];
+        const allParticipations = window.getLocalParticipations ? window.getLocalParticipations() : [];
 
-        // --- 1. Generación de Datos de Prueba Extendida (Simulación) ---
-        const mockCourses = [
-            { id: 101, title: 'Introducción a SCRUM', type: 'Virtual', progress: 45, instructor: 'Ing. Carlos Mendoza', hours: 40, desc: 'Aprende los fundamentos del marco de trabajo ágil más popular para el desarrollo de proyectos complejos.' },
-            { id: 102, title: 'Gestión de Innovación y Tecnología', type: 'Presencial', progress: 100, instructor: 'Dra. Elena Silva', hours: 60, desc: 'Estrategias corporativas para fomentar la innovación continua dentro de organizaciones gubernamentales.' },
-            { id: 103, title: 'Seguridad Informática Básica', type: 'Virtual', progress: 15, instructor: 'Ing. Roberto Gómez', hours: 30, desc: 'Conceptos fundamentales de ciberseguridad, prevención de phishing y buenas prácticas de contraseñas.' },
-            { id: 104, title: 'Desarrollo Web con HTML5 y CSS3', type: 'Virtual', progress: 85, instructor: 'Lic. María Fernández', hours: 80, desc: 'Estructuración y maquetado moderno de aplicaciones web accesibles y responsivas.' },
-            { id: 105, title: 'Liderazgo Transformacional', type: 'Presencial', progress: 0, instructor: 'MSc. Ana López', hours: 25, desc: 'Técnicas de liderazgo moderno, motivación de equipos y manejo de resolución de conflictos.' },
-            { id: 106, title: 'Manejo de Bases de Datos SQL', type: 'Virtual', progress: 60, instructor: 'Ing. José Ramírez', hours: 50, desc: 'Diseño, creación y optimización de bases de datos relacionales orientadas a grandes volúmenes.' },
-            { id: 107, title: 'Redes y Telecomunicaciones', type: 'Presencial', progress: 10, instructor: 'Ing. Luis Otero', hours: 45, desc: 'Arquitectura de redes, protocolos TCP/IP y administración de servidores locales.' },
-            { id: 108, title: 'Programación en Python', type: 'Virtual', progress: 100, instructor: 'Dra. Carla Ortiz', hours: 70, desc: 'Desde lógica de programación básica hasta análisis de datos con librerías nativas.' }
-        ];
+        // Filtrar cursos donde el usuario actual esté inscrito y tenga estado Aprobado/Activo
+        const enrolledCourseIds = allParticipations
+            .filter(p => p.userId === userId)
+            .map(p => p.courseId);
 
-        // Combinar cursos reales con los simulados para demostrar paginación sí o sí
-        const existingNames = new Set(currentCourses.map(c => c.nombreCurso || c.title));
-        const filteredMock = mockCourses.filter(c => !existingNames.has(c.title));
-        let allCourses = [...currentCourses, ...filteredMock];
+        let myEnrolledCourses = allCourses.filter(c => enrolledCourseIds.includes(c.id));
 
         // --- 2. Preparación de Paginación ---
         const itemsPerPage = 6; // Mostrar 6 tarjetas por página
-        const totalItems = allCourses.length;
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const totalItems = myEnrolledCourses.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
 
         let coursesHtml = '';
 
@@ -34,11 +27,11 @@ const MyCoursesView = {
                 <i class="fas fa-book-open" style="font-size: 3rem; color: var(--color-text-muted); margin-bottom: 1rem;"></i>
                 <h3 style="color: var(--color-text); margin-bottom: 0.5rem;">No tienes cursos en progreso</h3>
                 <p style="color: var(--color-text-muted); margin-bottom: 1.5rem;">Explora el catálogo de la DCTI e inscríbete para potenciar tus habilidades.</p>
-                <button class="btn btn-primary" onclick="window.location.href='index.html#courses'">Ver Catálogo de Cursos</button>
+                <button class="btn btn-primary" onclick="window.location.href='index.html#view-cursos'">Ver Catálogo de Cursos</button>
             </div>`;
         } else {
-            allCourses.forEach((course, index) => {
-                const progress = course.progress !== undefined ? course.progress : Math.floor(Math.random() * 100);
+            myEnrolledCourses.forEach((course, index) => {
+                const progress = course.progress !== undefined ? course.progress : Math.floor(Math.random() * 20); // Simulación temporal de progreso
                 const statusStr = progress === 100 ? 'Completado' : 'En Progreso';
                 const statusColor = progress === 100 ? '#10b981' : 'var(--color-primary)';
                 const pageNum = Math.floor(index / itemsPerPage) + 1;
@@ -250,21 +243,48 @@ window.MyCoursesController = {
             document.getElementById('modal-c-hours').innerHTML = `<i class="far fa-clock" style="color: var(--color-primary); margin-right: 5px;"></i> ${course.hours || 40} Horas Académicas`;
             document.getElementById('modal-c-desc').textContent = course.desc || course.descripcion || 'No hay descripción académica extendida para este curso actualmente. Contacte con la coordinación de métodos y procesos para más información.';
 
-            // Renderizar Materiales Educativos
+            // Renderizar Materiales Educativos con restricciones de fecha
             const materialsContainer = document.getElementById('modal-c-materials');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Ignorar tiempo, comparar solo días
+
+            let isMaterialAvailable = true;
+            let restrictionMessage = '';
+
+            if (course.fechaLiberacionMateriales) {
+                const releaseDate = new Date(course.fechaLiberacionMateriales);
+                releaseDate.setHours(0, 0, 0, 0);
+
+                // Asegurarse de lidiar con posibles desajustes de zona horaria añadiendo un día a la comparativa visual
+                const releaseDateLocal = new Date(course.fechaLiberacionMateriales + 'T00:00:00');
+
+                if (today < releaseDateLocal) {
+                    isMaterialAvailable = false;
+                    const dateFormatted = releaseDateLocal.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+                    restrictionMessage = `Disponible a partir del ${dateFormatted}`;
+                }
+            }
+
             if (course.materiales && course.materiales.length > 0) {
                 let matsHtml = '';
                 course.materiales.forEach(mat => {
+                    const btnStyle = isMaterialAvailable
+                        ? `background: var(--color-primary); color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: filter 0.2s;`
+                        : `background: #e2e8f0; color: #64748b; border: none; padding: 6px 15px; border-radius: 4px; cursor: not-allowed; font-size: 0.8rem; font-weight: 600;`;
+
+                    const btnIcon = isMaterialAvailable ? '<i class="fas fa-download"></i> Descargar' : `<i class="fas fa-lock"></i> ${restrictionMessage}`;
+                    const btnOnClick = isMaterialAvailable ? `onclick="tryDownloadMaterial('${mat.id}', '${course.id}')"` : 'disabled';
+
                     matsHtml += `
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: white;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <i class="fas ${mat.iconClass || 'fa-file-alt'}" style="color: ${mat.iconColor || 'var(--color-primary)'}; font-size: 1.5rem;"></i>
                             <div>
                                 <p style="margin: 0; font-weight: 600; font-size: 0.9rem; color: var(--color-text);">${mat.name}</p>
-                                <p style="margin: 0; font-size: 0.75rem; color: var(--color-text-muted);">${mat.sizeMB} MB</p>
+                                <p style="margin: 0; font-size: 0.75rem; color: var(--color-text-muted);">${mat.sizeMB ? mat.sizeMB + ' MB' : 'Archivo'}</p>
                             </div>
                         </div>
-                        <button onclick="tryDownloadMaterial('${mat.id}', '${course.id}')" style="background: var(--color-primary); color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: filter 0.2s;"><i class="fas fa-download"></i> Descargar</button>
+                        <button ${btnOnClick} style="${btnStyle}">${btnIcon}</button>
                     </div>`;
                 });
                 materialsContainer.innerHTML = matsHtml;

@@ -614,92 +614,34 @@
             <div class="titulo_noticia">
                 <h2>Cursos</h2>
             </div>
-            <section class="course-container">
-                <div class="course-item">
-                    <img src="img/img5.jpg" alt="Curso 1">
-                    <a href="#" class="enlaceCurso" data-curso-id="1">
-                        <h2>Transporte de capacidades de voz y datos</h2>
-                    </a>
+
+            <!-- Contenedor Dinámico para Rendirizado de Cursos y Paginación -->
+            <div id="public-courses-wrapper" style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px;">
+                <div id="public-courses-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; width: 100%;">
+                    <!-- Se llenará mediante JS -->
                 </div>
-                <div class="course-item">
-                    <img src="img/img4.jpg" alt="Curso 2">
-                    <a href="#" class="enlaceCurso" data-curso-id="2">
-                        <h2>Transporte de capacidades de voz y datos</h2>
-                    </a>
+
+                <div id="public-courses-pagination"
+                    style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; font-family: 'Inter', sans-serif;">
+                    <!-- Se llenará mediante JS -->
                 </div>
-                <div class="course-item">
-                    <img src="img/img9.jpg" alt="Curso 3">
-                    <a href="#" class="enlaceCurso" data-curso-id="3">
-                        <h2>Transporte de capacidades de voz y datos</h2>
-                    </a>
-                </div>
-            </section>
-            <section class="course-container">
-                <div class="course-item">
-                    <img src="img/img10.jpg" alt="Curso 4">
-                    <a href="#" class="enlaceCurso" data-curso-id="4">
-                        <h2>Transporte de capacidades de voz y datos</h2>
-                    </a>
-                </div>
-                <div class="course-item">
-                    <img src="img/img3.jpg" alt="Curso 5">
-                    <a href="#" class="enlaceCurso" data-curso-id="5">
-                        <h2>Transporte de capacidades de voz y datos</h2>
-                    </a>
-                </div>
-                <div class="course-item">
-                    <img src="img/img7.jpg" alt="Curso 6">
-                    <a href="#" class="enlaceCurso" data-curso-id="6">
-                        <h2>Transporte de capacidades de voz y datos</h2>
-                    </a>
-                </div>
-            </section>
+            </div>
         </section>
 
         <!-- Nueva vista para detalles del curso -->
         <section id="view-curso-detalle" class="public-view public-hidden">
             <div style="padding: 0 2%; margin-bottom: 15px;">
                 <button class="btn-volver" id="btn-volver-cursos"
-                    style="background-color: transparent; border: 2px solid #530e90; color: #530e90; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1rem; display: flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                    style="background-color: transparent; border: 2px solid #530e90; color: #530e90; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1rem; display: flex; align-items: center; gap: 8px; transition: all 0.3s; margin-top: 20px; margin-left: 20px;">
                     <i class="fas fa-arrow-left"></i> Volver a cursos
                 </button>
             </div>
 
-            <div class="curso-detalle-header">
-                <h2>Titulo.</h2>
+            <!-- Contenedor Dinámico para Detalles del Curso -->
+            <div id="public-course-detail-content" style="width: 100%; max-width: 1200px; margin: 0 auto;">
+                <!-- Se llenará mediante JS -->
             </div>
-
-            <section class="curso-featured-wrapper">
-                <div class="curso-featured">
-                    <img src="img/img17.jpg" alt="Curso destacado" class="curso-featured-img">
-                    <div class="curso-featured-info">
-                        <p>Anno 1984, Dio, Jonathan Joestar hostis vampiricus, ab imo Oceano Atlantico emergit postquam
-                            corpus Ionathae surripuit. Dio manifestatio vitae industriae quae a Stando facta est, causat
-                            posteros Jonathan, Ioseph Joestar, Sanctus Kujo, et Jotaro Kujo ad lucrandum Stat anno 1987.
-                            Sanctus, sine viribus moderandi Sta, aegrotat et quinquaginta dies vivere aestimatur.</p>
-                        <div class="curso-fechas">
-                            <p><strong>Fecha de inicio:</strong> 01-01-2026</p>
-                            <p><strong>Finalizacion:</strong> 02-02-2026</p>
-                        </div>
-                        <div class="curso-featured-footer">
-                            <p><strong>Cupos:</strong> 10 personas</p>
-                            <span class="badge-disponible">Disponible</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="curso-thumbnails-container">
-                <div class="curso-thumbnails">
-                    <img src="img/img5.jpg" alt="Miniatura 1">
-                    <img src="img/img4.jpg" alt="Miniatura 2">
-                    <img src="img/img9.jpg" alt="Miniatura 3">
-                    <img src="img/img10.jpg" alt="Miniatura 4">
-                </div>
-                <div class="curso-action">
-                    <button class="btn-inscribirse" id="btn-inscribirse-curso">Inscribirse</button>
-                </div>
-            </section>
         </section>
 
         <section id="view-contactos" class="public-view public-hidden">
@@ -766,43 +708,40 @@
                 </div>
             </section>
         </section>
-        </section>
 
         <!-- Modal de inscripción -->
-        <div id="modal-inscripcion" class="modal-overlay public-hidden-modal">
-            <div class="modal-content">
-                <div class="modal-header-img">
-                    <img src="img/img17.jpg" alt="Header Curso">
+        <div id="modal-inscripcion" class="public-modal-overlay public-hidden-modal"
+            onclick="if(event.target === this) this.classList.add('public-hidden-modal')">
+            <div class="public-modal-content">
+                <span class="public-close-modal"
+                    onclick="document.getElementById('modal-inscripcion').classList.add('public-hidden-modal')">&times;</span>
+                <div class="public-modal-header" style="margin-bottom: 20px;">
+                    <h3 style="color: #4b0082; margin: 0; font-size: 1.5rem;">Confirmar Inscripción</h3>
                 </div>
-                <div class="modal-body">
-                    <h2 class="modal-title">Curso de electronica : Cupos disponibles</h2>
 
-                    <form id="form-inscripcion" class="form-inscripcion">
-                        <div class="form-group-pill">
-                            <input type="text" placeholder="Nombre y Apellido" required>
-                        </div>
-                        <div class="form-group-pill">
-                            <input type="email" placeholder="Correo electronico" required>
-                        </div>
-                        <div class="form-group-pill">
-                            <input type="text" placeholder="Cedula" required>
-                        </div>
+                <div class="public-modal-body" style="text-align: left; margin-bottom: 25px;">
+                    <p style="color: #475569; font-size: 1rem; line-height: 1.5; margin-bottom: 20px;">
+                        Estás a punto de inscribirte formalmente en este curso. Tu participación será registrada y
+                        ocupará un cupo del aforo total permitido.
+                    </p>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px;">
+                        <p style="margin: 0; font-weight: 600; color: #1e293b; font-size: 0.95rem;">Términos y
+                            Condiciones:</p>
+                        <ul style="margin: 10px 0 0 0; padding-left: 20px; color: #64748b; font-size: 0.9rem;">
+                            <li>Me comprometo a asistir a las clases y completar las evaluaciones.</li>
+                            <li>Entiendo que el cupo es intransferible y asignado a mi cuenta actual.</li>
+                        </ul>
+                    </div>
+                </div>
 
-                        <div class="form-group-checkbox">
-                            <label class="custom-radio">
-                                <input type="radio" name="condiciones" required>
-                                <span class="radio-mark"></span>
-                                Aceptación de las condiciones
-                            </label>
-                        </div>
-
-                        <div class="modal-actions">
-                            <button type="button" class="btn-confirmar" id="btn-confirmar-inscripcion">Confirmar
-                                inscripcion</button>
-                            <button type="button" class="btn-exitosa public-hidden-modal"
-                                id="btn-exitosa-msg">Inscripcion exitosa</button>
-                        </div>
-                    </form>
+                <div class="public-modal-footer">
+                    <button type="button" id="btn-confirmar-inscripcion" class="btn-confirmar">Aceptar y Completar
+                        Inscripción</button>
+                    <div id="btn-exitosa-msg" class="public-hidden-modal"
+                        style="background: #10b981; color: white; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; font-family: 'Outfit', sans-serif;">
+                        <i class="fas fa-check-circle" style="margin-right: 8px;"></i> ¡Inscripción Procesada
+                        Exitosamente!
+                    </div>
                 </div>
             </div>
         </div>

@@ -460,8 +460,10 @@ function renderCourseParticipants(courseId) {
 // ==========================================
 
 function tryDownloadMaterial(materialId, courseId) {
-    const sessionEmail = JSON.parse(localStorage.getItem('dcti_session'))?.email;
-    const adminMode = JSON.parse(localStorage.getItem('dcti_session'))?.role === 'admin';
+    const sessionData = JSON.parse(localStorage.getItem('dcti_session')) || {};
+    const sessionEmail = sessionData.email;
+    const sessionUsername = sessionData.username;
+    const adminMode = sessionData.role === 'admin';
 
     if (adminMode) {
         AlertService.notify('Simulación de Descarga', `El material ${materialId} del curso ha sido empaquetado y descargado. Permiso otorgado vía Token de Administrador.`, 'success');
@@ -469,7 +471,7 @@ function tryDownloadMaterial(materialId, courseId) {
     }
 
     const participations = getLocalParticipations();
-    const isEnrolledAndActive = participations.some(p => p.courseId == courseId && p.userId === sessionEmail && p.estado === "Activo");
+    const isEnrolledAndActive = participations.some(p => p.courseId == courseId && (p.userId === sessionEmail || p.userId === sessionUsername) && (p.estado === "Activo" || p.estado === "Aprobado"));
 
     if (!isEnrolledAndActive) {
         AlertService.notify('Acceso Restringido', 'Integridad de Recursos: Acceso denegado por Ley sobre Derecho de Autor. No posees una inscripción activa en este módulo.', 'error');
@@ -489,7 +491,22 @@ function tryDownloadMaterial(materialId, courseId) {
         }
     }
 
+    const matName = course.materiales?.find(m => m.id === materialId)?.name || 'material_curso';
     AlertService.notify('Material Liberado', `Descarga del registro pedagógico #${materialId} iniciada satisfactoriamente. (Identificador Criptográfico asignado p/Trazabilidad)`, 'success');
+
+    // Generar archivo simulado y forzar descarga en el navegador con la extensión cambiada a .txt preventivamente
+    const mockContent = "Este es un documento generado por el simulador del Portal DCTI para validar la funcionalidad de descarga de materiales protegidos.";
+    const blob = new Blob([mockContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    // Forzamos la extensión de salida a .txt para evitar que el visor PDF o Word de tu PC arroje "archivo corrupto" al intentar leer texto plano
+    a.download = matName.replace(/\.[^/.]+$/, "") + "_simulado.txt";
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
 }
 
 function handleCourseMaterialUpload(event) {

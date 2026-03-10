@@ -1213,6 +1213,72 @@
     text-align: center;
 }
 
+/* --- Modal Público CSS Overlay --- */
+.public-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.public-hidden-modal {
+    display: none !important;
+    opacity: 0;
+}
+
+.public-modal-content {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    animation: modalSlideUp 0.3s ease-out;
+}
+
+@keyframes modalSlideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.public-close-modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #64748b;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.public-close-modal:hover {
+    color: #ef4444;
+}
+
+.public-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+    gap: 15px;
+}
+
 /* Responsividad para el nuevo detalle de curso */
 @media (max-width: 900px) {
     .curso-featured {

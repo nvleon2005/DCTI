@@ -249,7 +249,12 @@ function switchView(viewId) {
     renderModule(viewId);
 }
 
-function renderModule(id) {
+function renderModule(id, skipAnimation = false) {
+    // Si el usuario está escribiendo o usando un filtro (INPUT o SELECT), evitamos la animación
+    if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT')) {
+        skipAnimation = true;
+    }
+
     // HARD STOP: Seguridad Anti-Inyección de DOM para Módulos Exclusivos de Admin
     if (id === 'reports' || id === 'users') {
         const session = JSON.parse(localStorage.getItem('dcti_session')) || {};
@@ -455,6 +460,14 @@ function renderModule(id) {
     }
     DASHBOARD_UI.contentArea.innerHTML = content;
 
+    // Deshabilita la animación de entrada si estamos filtrando o buscando
+    if (skipAnimation) {
+        const container = DASHBOARD_UI.contentArea.querySelector('.view-container');
+        if (container) {
+            container.style.animation = 'none';
+        }
+    }
+
     // Restaurar foco si un input de texto causó el re-render (ej. filtros de texto)
     if (window.lastFocusedInput) {
         const inputToFocus = document.getElementById(window.lastFocusedInput);
@@ -552,14 +565,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Global Search Event Listener
     const dashboardSearchInput = document.getElementById('dashboard-search-input');
     if (dashboardSearchInput) {
+        let searchTimeout;
         dashboardSearchInput.addEventListener('input', (e) => {
-            window.globalSearchQuery = e.target.value.trim();
-            // Go to page 1 implicitly when filtering
-            if (typeof changePage === 'function') {
-                changePage(window.currentActiveModule, 1);
-            } else {
-                renderModule(window.currentActiveModule);
-            }
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                window.globalSearchQuery = e.target.value.trim();
+
+                // Si estamos en reportes, solo actualizamos los datos sin reconstruir toda la vista (evita el corte/parpadeo)
+                if (window.currentActiveModule === 'reports') {
+                    if (typeof renderReportDashboard === 'function') {
+                        renderReportDashboard();
+                    }
+                    return;
+                }
+
+                // Go to page 1 implicitly when filtering
+                if (typeof changePage === 'function') {
+                    changePage(window.currentActiveModule, 1);
+                } else {
+                    renderModule(window.currentActiveModule);
+                }
+            }, 300); // Debounce de 300ms
         });
     }
 
@@ -670,7 +696,6 @@ function initDashboardChart() {
             scales: {
                 y: {
                     min: 0,
-                    max: 140,
                     ticks: {
                         stepSize: 20,
                         color: '#94a3b8',
