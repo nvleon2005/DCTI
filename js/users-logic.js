@@ -404,7 +404,17 @@ function previewProfileAvatar(event) {
                 ctx.drawImage(img, 0, 0, width, height);
 
                 const dataUrl = canvas.toDataURL('image/webp', 0.85);
-                const preview = document.getElementById('profile-avatar-preview');
+                let preview = document.getElementById('profile-avatar-preview');
+
+                // Si el preview original es un DIV (las iniciales), lo reemplazamos por una IMG
+                if (preview.tagName.toLowerCase() !== 'img') {
+                    const newImg = document.createElement('img');
+                    newImg.id = 'profile-avatar-preview';
+                    newImg.className = 'premium-avatar-img';
+                    preview.parentNode.replaceChild(newImg, preview);
+                    preview = newImg;
+                }
+
                 preview.src = dataUrl;
                 preview.style.display = 'block';
                 const placeholder = document.getElementById('profile-avatar-placeholder');
@@ -435,7 +445,8 @@ async function handleProfileSubmit(e) {
     const username = document.getElementById('profile-username').value;
     const pass = document.getElementById('profile-pass').value;
     const avatarPreview = document.getElementById('profile-avatar-preview');
-    const avatar = avatarPreview.style.display === 'block' ? avatarPreview.src : null;
+    // Si el tag es IMG, guardamos su source, sino asume que no hay foto
+    const avatar = (avatarPreview && avatarPreview.tagName.toLowerCase() === 'img') ? avatarPreview.src : null;
 
     if (pass && typeof validatePasswordComplexity === 'function' && !validatePasswordComplexity(pass)) {
         AlertService.notify('Contraseña Insegura', 'La contraseña debe tener 8+ caracteres, mayúscula, número y carácter especial.', 'error');

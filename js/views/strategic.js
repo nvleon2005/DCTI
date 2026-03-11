@@ -8,7 +8,7 @@ const StrategicView = {
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <h2>Áreas y Ejes Estratégicos</h2>
                         <span style="font-size: 0.85rem; background: var(--color-surface-muted); padding: 4px 12px; border-radius: 20px; color: var(--color-text-muted); font-weight: 600;">
-                            Total: ${areas.length}
+                            Total: ${paginated ? paginated.totalItems : data.strategic.length}
                         </span>
                     </div>
                     <button class="btn-action" onclick="openStrategicModal()" title="Nueva Área" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;">

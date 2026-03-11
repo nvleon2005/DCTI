@@ -260,11 +260,20 @@ async function handleCourseSubmit(e) {
         return;
     }
 
-    // Validación de Imágenes mínimas requeridas si es creacion 
-    // En edición podemos dejar la que estaba, pero debe haber 1 al menos.
-    if (!id && courseImageQueue.length === 0) {
-        AlertService.notify('Imagen Requerida', 'La oferta académica debe tener al menos una imagen promocional asociada.', 'warning');
-        return;
+    // Validación de Imágenes mínimas requeridas (Hard Stop)
+    if (courseImageQueue.length === 0) {
+        if (!id) {
+            AlertService.notify('Imagen Requerida', 'La oferta académica debe tener al menos una imagen promocional asociada.', 'error');
+            return;
+        } else {
+            // Si está editando, verificamos si ya tenía imágenes y las borró todas
+            const allCoursesForCheck = getLocalCourses();
+            const editingCourse = allCoursesForCheck.find(c => c.id == id);
+            if (!editingCourse || !editingCourse.images || editingCourse.images.length === 0) {
+                AlertService.notify('Imagen Requerida', 'El curso debe conservar o tener una nueva imagen promocional asociada.', 'error');
+                return;
+            }
+        }
     }
 
     let allCourses = getLocalCourses();

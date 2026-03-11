@@ -14,6 +14,16 @@ const MyCoursesView = {
 
         let myEnrolledCourses = allCourses.filter(c => enrolledCourseIds.includes(c.id));
 
+        // --- Aplicar Filtro Global ---
+        const searchQuery = (window.globalSearchQuery || '').toLowerCase();
+        if (searchQuery) {
+            myEnrolledCourses = myEnrolledCourses.filter(c => {
+                const title = (c.nombreCurso || c.title || '').toLowerCase();
+                const desc = (c.descripcion || c.desc || '').toLowerCase();
+                const instructor = (c.instructor || '').toLowerCase();
+                return title.includes(searchQuery) || desc.includes(searchQuery) || instructor.includes(searchQuery);
+            });
+        }
         // --- 2. Preparación de Paginación ---
         const itemsPerPage = 6; // Mostrar 6 tarjetas por página
         const totalItems = myEnrolledCourses.length;

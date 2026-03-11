@@ -19,6 +19,10 @@ const DashboardView = {
                         <div class="stat-card__icon icon--orange"><i class="fas fa-graduation-cap"></i></div>
                         <div class="stat-card__info"><h3>${data.stats.courses}</h3><p>Ofertas de Cursos</p></div>
                     </div>
+                    <div class="stat-card">
+                        <div class="stat-card__icon" style="background: rgba(236, 72, 153, 0.15); color: #ec4899;"><i class="fas fa-bullseye"></i></div>
+                        <div class="stat-card__info"><h3>${data.stats.strategic}</h3><p>Áreas Estratégicas</p></div>
+                    </div>
                 </div>
                 <div class="recent-activity">
                     <h2 style="margin-bottom: var(--space-md); color: #1e293b;">Evolución de Registros a Cursos</h2>

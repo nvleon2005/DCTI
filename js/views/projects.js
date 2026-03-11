@@ -13,7 +13,7 @@ const ProjectsView = {
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <h2>Iniciativas Estratégicas</h2>
                             <span style="font-size: 0.85rem; background: var(--color-surface-muted); padding: 4px 12px; border-radius: 20px; color: var(--color-text-muted); font-weight: 600;">
-                                Total: ${projects.length}
+                                Total: ${paginated ? paginated.totalItems : projects.length}
                             </span>
                         </div>
                         ${isAdmin ? `

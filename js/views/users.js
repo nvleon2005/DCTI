@@ -13,7 +13,7 @@ const UsersView = {
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <h2>Gestión de Usuarios</h2>
                             <span style="font-size: 0.85rem; background: var(--color-surface-muted); padding: 4px 12px; border-radius: 20px; color: var(--color-text-muted); font-weight: 600;">
-                                Total: ${data.stats.users}
+                                Total: ${paginated ? paginated.totalItems : data.stats.users}
                             </span>
                         </div>
                         <button class="btn-action" onclick="openUserModal()" title="Nuevo Usuario" style="padding: 10px 20px; border-radius: var(--radius-md); background: var(--color-primary); color: white; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(100, 50, 255, 0.2);">

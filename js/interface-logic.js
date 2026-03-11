@@ -41,7 +41,10 @@ function changePage(module, page) {
                 return;
             }
         }
+    }
 
+    // Ejecutar renderización final independientemente de si tiene paginación controlada o no
+    if (typeof renderModule === 'function') {
         renderModule(module);
     }
 }
@@ -61,7 +64,8 @@ const MOCK_DATA = {
         users: 154,
         projects: 42,
         news: 89,
-        courses: 12
+        courses: 12,
+        strategic: 2
     },
     dcti: {
         mission: "Impulsar el desarrollo científico y tecnológico a través de la innovación y la transferencia de conocimiento.",
@@ -269,7 +273,7 @@ function renderModule(id, skipAnimation = false) {
 
     const viewData = { ...MOCK_DATA };
 
-    if (id === 'dashboard' || id === 'users' || id === 'news' || id === 'projects' || id === 'profile' || id === 'my-courses') {
+    if (id === 'dashboard' || id === 'users' || id === 'news' || id === 'projects' || id === 'profile' || id === 'my-courses' || id === 'strategic' || id === 'courses') {
         const adminUsers = typeof AUTH_CONFIG !== 'undefined' ? AUTH_CONFIG.hardcodedUsers : [];
         const localUsers = typeof getLocalUsers === 'function' ? getLocalUsers() : [];
         const allUsers = [...adminUsers, ...localUsers];
@@ -306,6 +310,7 @@ function renderModule(id, skipAnimation = false) {
             if (typeof getLocalStrategic === 'function') {
                 const allStrategic = getLocalStrategic();
                 viewData.strategic = allStrategic;
+                viewData.stats.strategic = allStrategic.length;
                 MOCK_DATA.strategic = allStrategic;
             }
         }
