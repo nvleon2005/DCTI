@@ -16,15 +16,17 @@ const UsersView = {
                                 Total: ${paginated ? paginated.totalItems : data.stats.users}
                             </span>
                         </div>
-                        <button class="btn-action" onclick="openUserModal()" title="Nuevo Usuario" style="padding: 10px 20px; border-radius: var(--radius-md); background: var(--color-primary); color: white; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(100, 50, 255, 0.2);">
-                            <i class="fas fa-plus"></i>
-                            <span>Nuevo Usuario</span>
+                        <button class="btn-action" onclick="openUserModal()" title="Nuevo Usuario" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--color-primary); color: white; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(100, 50, 255, 0.2);">
+                            <i class="fas fa-plus" style="font-size: 1.1rem; margin: 0;"></i>
                         </button>
                     </div>
+                    
+                    <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">
+                </div>
 
-                    <!-- Bottom Row: Filters -->
-                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; flex-wrap: wrap;">
-                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                <!-- Bottom Row: Filters -->
+                <div style="display: flex; justify-content: flex-start; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: var(--space-lg);">
+                    <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                             <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
                             <input type="text" id="filter-user-name" placeholder="Buscar Usuario..." oninput="window.lastFocusedInput = this.id; window.globalUserColName = this.value; if(typeof changePage === 'function'){changePage('users', 1)} else {renderModule('users')}" value="${window.globalUserColName || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 130px; font-size: 0.85rem; outline: none; font-weight: 500;">
                         </div>
@@ -43,7 +45,6 @@ const UsersView = {
                             <option value="Activo" ${window.globalUserStatusFilter === 'Activo' ? 'selected' : ''}>Activos</option>
                             <option value="Inactivo" ${window.globalUserStatusFilter === 'Inactivo' ? 'selected' : ''}>Inactivos</option>
                         </select>
-                    </div>
                 </div>
 
                 <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">

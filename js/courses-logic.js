@@ -444,6 +444,12 @@ function renderCourseParticipants(courseId) {
         let spanColor = p.estado === 'Aprobado' || p.estado === 'Activo' ? '#166534' : (p.estado === 'Suspendido' ? '#991b1b' : '#374151');
         let spanBg = p.estado === 'Aprobado' || p.estado === 'Activo' ? '#dcfce7' : (p.estado === 'Suspendido' ? '#fee2e2' : '#f3f4f6');
 
+        let isSuspended = p.estado === 'Suspendido';
+        let suspendBtnTitle = isSuspended ? 'Activar' : 'Suspender';
+        let suspendBtnIcon = isSuspended ? 'fa-user-check' : 'fa-user-slash';
+        let suspendBtnColor = isSuspended ? '#10b981' : '#f59e0b';
+        let newStatus = isSuspended ? 'Activo' : 'Suspendido';
+
         tableHtml += `
             <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 10px; font-weight: 600;">${p.userId}</td>
@@ -452,8 +458,8 @@ function renderCourseParticipants(courseId) {
                     <span style="background: ${spanBg}; color: ${spanColor}; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">${p.estado}</span>
                 </td>
                 <td style="padding: 10px; text-align: right;">
-                    <button title="Suspender" style="background:none; border:none; cursor:pointer; color: #f59e0b;"><i class="fas fa-user-slash"></i></button>
-                    <button title="Retirar" style="background:none; border:none; cursor:pointer; color: #ef4444; margin-left: 5px;"><i class="fas fa-user-minus"></i></button>
+                    <button type="button" onclick="toggleParticipantStatus(${p.id}, '${newStatus}', ${courseId})" title="${suspendBtnTitle}" style="background:none; border:none; cursor:pointer; color: ${suspendBtnColor};"><i class="fas ${suspendBtnIcon}"></i></button>
+                    <button type="button" onclick="removeParticipant(${p.id}, ${courseId})" title="Retirar" style="background:none; border:none; cursor:pointer; color: #ef4444; margin-left: 5px;"><i class="fas fa-user-minus"></i></button>
                 </td>
             </tr>
         `;
@@ -461,6 +467,37 @@ function renderCourseParticipants(courseId) {
 
     tableHtml += `</tbody></table>`;
     listContainer.innerHTML = tableHtml;
+}
+
+
+// ==========================================
+// 8.1 ACCIONES DE PARTICIPANTES
+// ==========================================
+
+function toggleParticipantStatus(participationId, newStatus, courseId) {
+    let participations = getLocalParticipations();
+    const index = participations.findIndex(p => p.id === participationId);
+    if (index !== -1) {
+        participations[index].estado = newStatus;
+        localStorage.setItem(PARTICIPATIONS_STORAGE_KEY, JSON.stringify(participations));
+        AlertService.notify('Estado Actualizado', `El participante ahora está ${newStatus}.`, 'success');
+        renderCourseParticipants(courseId);
+    }
+}
+
+async function removeParticipant(participationId, courseId) {
+    const confirmed = await AlertService.confirm(
+        'Confirmar Retiro',
+        '¿Está seguro de retirar este participante del curso? Esta acción no se puede deshacer.',
+        'Retirar', 'Cancelar', true
+    );
+    if (!confirmed) return;
+
+    let participations = getLocalParticipations();
+    participations = participations.filter(p => p.id !== participationId);
+    localStorage.setItem(PARTICIPATIONS_STORAGE_KEY, JSON.stringify(participations));
+    AlertService.notify('Retirado', 'Participante retirado del curso exitosamente.', 'success');
+    renderCourseParticipants(courseId);
 }
 
 
@@ -599,7 +636,7 @@ function removeCourseMaterial(index) {
 // 10. ELIMINACIÓN Y FILTROS DEL GRID UI
 // ==========================================
 
-function deleteCourse(id) {
+async function deleteCourse(id) {
     // REGLA DE INTEGRIDAD REFERENCIAL
     const participations = getLocalParticipations().filter(p => p.courseId == id);
     if (participations.length > 0) {
@@ -607,12 +644,17 @@ function deleteCourse(id) {
         return;
     }
 
-    if (confirm("¿Está absolutamente seguro de que desea borrar de forma destructiva y permantente este curso? Esta acción no se puede deshacer.")) {
-        let courses = getLocalCourses();
-        courses = courses.filter(c => c.id != id);
-        saveLocalCourses(courses);
-        AlertService.notify('Eliminado', 'Curso destruido de los registros.', 'success');
-    }
+    const confirmed = await AlertService.confirm(
+        'Confirmar Eliminación Destructiva',
+        '¿Está absolutamente seguro de que desea borrar de forma destructiva y permantente este curso? Esta acción no se puede deshacer.',
+        'Eliminar', 'Cancelar', true
+    );
+    if (!confirmed) return;
+
+    let courses = getLocalCourses();
+    courses = courses.filter(c => c.id != id);
+    saveLocalCourses(courses);
+    AlertService.notify('Eliminado', 'Curso destruido de los registros.', 'success');
 }
 
 function filterCoursesAdmin(category, resetPage = true) {

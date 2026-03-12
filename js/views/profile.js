@@ -81,25 +81,25 @@ const ProfileView = {
                         </div>
 
                         <div class="premium-form-grid">
-                            <div class="premium-input-group">
-                                <label>Nombres</label>
-                                <div class="input-wrapper">
+                            <div class="premium-input-group ${user.name ? 'readonly-group' : ''}">
+                                <label>Nombres ${user.name ? '(Solo Lectura)' : ''}</label>
+                                <div class="input-wrapper ${user.name ? 'disabled-wrapper' : ''}">
                                     <i class="fas fa-user input-icon"></i>
-                                    <input type="text" id="profile-name" placeholder="Tus nombres" value="${user.name || ''}" ${isHardcoded ? 'disabled' : ''}>
+                                    <input type="text" id="profile-name" placeholder="Tus nombres" value="${user.name || ''}" ${(isHardcoded || user.name) ? 'disabled' : ''}>
                                 </div>
                             </div>
-                            <div class="premium-input-group">
-                                <label>Apellidos</label>
-                                <div class="input-wrapper">
+                            <div class="premium-input-group ${user.lastname ? 'readonly-group' : ''}">
+                                <label>Apellidos ${user.lastname ? '(Solo Lectura)' : ''}</label>
+                                <div class="input-wrapper ${user.lastname ? 'disabled-wrapper' : ''}">
                                     <i class="fas fa-user-tag input-icon"></i>
-                                    <input type="text" id="profile-lastname" placeholder="Tus apellidos" value="${user.lastname || ''}" ${isHardcoded ? 'disabled' : ''}>
+                                    <input type="text" id="profile-lastname" placeholder="Tus apellidos" value="${user.lastname || ''}" ${(isHardcoded || user.lastname) ? 'disabled' : ''}>
                                 </div>
                             </div>
-                            <div class="premium-input-group">
-                                <label>Cédula / DNI</label>
-                                <div class="input-wrapper">
+                            <div class="premium-input-group ${user.cedula ? 'readonly-group' : ''}">
+                                <label>Cédula / DNI ${user.cedula ? '(Solo Lectura)' : ''}</label>
+                                <div class="input-wrapper ${user.cedula ? 'disabled-wrapper' : ''}">
                                     <i class="fas fa-id-card input-icon"></i>
-                                    <input type="text" id="profile-cedula" placeholder="12345678" value="${user.cedula || ''}" ${isHardcoded ? 'disabled' : ''}>
+                                    <input type="text" id="profile-cedula" placeholder="12345678" value="${user.cedula || ''}" ${(isHardcoded || user.cedula) ? 'disabled' : ''}>
                                 </div>
                             </div>
                             <div class="premium-input-group">

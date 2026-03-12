@@ -14,16 +14,31 @@ const MyCoursesView = {
 
         let myEnrolledCourses = allCourses.filter(c => enrolledCourseIds.includes(c.id));
 
-        // --- Aplicar Filtro Global ---
+        // --- Aplicar Filtros (Búsqueda y Estado) ---
         const searchQuery = (window.globalSearchQuery || '').toLowerCase();
-        if (searchQuery) {
-            myEnrolledCourses = myEnrolledCourses.filter(c => {
+        const statusFilter = window.myCoursesStatusFilter || 'Todos';
+
+        myEnrolledCourses = myEnrolledCourses.filter(c => {
+            // Evaluamos la búsqueda
+            let matchSearch = true;
+            if (searchQuery) {
                 const title = (c.nombreCurso || c.title || '').toLowerCase();
                 const desc = (c.descripcion || c.desc || '').toLowerCase();
                 const instructor = (c.instructor || '').toLowerCase();
-                return title.includes(searchQuery) || desc.includes(searchQuery) || instructor.includes(searchQuery);
-            });
-        }
+                matchSearch = title.includes(searchQuery) || desc.includes(searchQuery) || instructor.includes(searchQuery);
+            }
+
+            // Evaluamos el estado (Progreso)
+            let matchStatus = true;
+            if (statusFilter !== 'Todos') {
+                const progress = c.progress !== undefined ? c.progress : Math.floor(Math.random() * 20); // Mantenemos la lógica de simulación
+                const statusStr = progress === 100 ? 'Completado' : 'En Progreso';
+                matchStatus = (statusStr === statusFilter);
+            }
+
+            return matchSearch && matchStatus;
+        });
+
         // --- 2. Preparación de Paginación ---
         const itemsPerPage = 6; // Mostrar 6 tarjetas por página
         const totalItems = myEnrolledCourses.length;
@@ -113,9 +128,20 @@ const MyCoursesView = {
 
         return `
         <div class="view-container">
-            <div class="view-header" style="margin-bottom: 2rem;">
-                <h2 style="font-size: 2.2rem; margin: 0; background: linear-gradient(to right, #1e293b, var(--color-primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; font-family: 'Outfit', sans-serif;">Mis Cursos</h2>
-                <p style="color: var(--color-text-muted); font-size: 1.05rem; margin-top: 0.3rem;">Haz seguimiento a tu progreso y continúa tu formación académica.</p>
+            <div class="view-header" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1.5rem;">
+                <div>
+                    <h2 style="font-size: 2.2rem; margin: 0; background: linear-gradient(to right, #1e293b, var(--color-primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; font-family: 'Outfit', sans-serif;">Mis Cursos</h2>
+                    <p style="color: var(--color-text-muted); font-size: 1.05rem; margin-top: 0.3rem;">Haz seguimiento a tu progreso y continúa tu formación académica.</p>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <label for="filter-my-courses-status" style="font-weight: 600; font-size: 0.9rem; color: var(--color-text-muted);"><i class="fas fa-filter" style="margin-right: 5px;"></i> Estado:</label>
+                    <select id="filter-my-courses-status" onchange="MyCoursesController.filterByStatus(this.value)" style="padding: 0.6rem 1rem; border: 1px solid var(--color-border); border-radius: 6px; font-family: 'Outfit', sans-serif; font-size: 0.9rem; background: var(--color-surface); color: var(--color-text); outline: none; cursor: pointer; min-width: 160px; box-shadow: var(--shadow-sm);">
+                        <option value="Todos" ${statusFilter === 'Todos' ? 'selected' : ''}>Todos los cursos</option>
+                        <option value="En Progreso" ${statusFilter === 'En Progreso' ? 'selected' : ''}>En Progreso</option>
+                        <option value="Completado" ${statusFilter === 'Completado' ? 'selected' : ''}>Completados</option>
+                    </select>
+                </div>
             </div>
 
             <div id="courses-wrapper" class="courses-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; align-items: stretch;">
@@ -186,6 +212,13 @@ const MyCoursesView = {
 // --- Controlador Lógico de Mis Cursos ---
 window.MyCoursesController = {
     currentPage: 1,
+
+    filterByStatus: function (statusVal) {
+        window.myCoursesStatusFilter = statusVal;
+        if (typeof renderModule === 'function') {
+            renderModule('mis-cursos', true);
+        }
+    },
 
     goToPage: function (page, totalPages) {
         if (page < 1 || page > totalPages) return;

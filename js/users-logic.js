@@ -470,9 +470,9 @@ async function handleProfileSubmit(e) {
 
         const updatedUser = {
             ...currentUser,
-            name,
-            lastname,
-            cedula,
+            name: currentUser.name || name,
+            lastname: currentUser.lastname || lastname,
+            cedula: currentUser.cedula || cedula,
             username,
             avatar,
             initials

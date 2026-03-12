@@ -23,22 +23,25 @@ const CoursesView = {
                                 Total listados: ${paginated ? paginated.totalItems : data.courses.length}
                             </span>
                         </div>
-                        <button class="btn-action" onclick="openCourseModal()" title="Crear Curso" style="padding: 10px 20px; border-radius: var(--radius-md); background: var(--color-primary); color: white; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(100, 50, 255, 0.2);">
-                            <i class="fas fa-plus"></i>
-                            <span>Crear Curso</span>
+                        <button class="btn-action" onclick="openCourseModal()" title="Crear Curso" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--color-primary); color: white; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(100, 50, 255, 0.2);">
+                            <i class="fas fa-plus" style="font-size: 1.1rem; margin: 0;"></i>
                         </button>
                     </div>
-                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; flex-wrap: wrap;">
+
+                    <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: var(--space-lg);">
+                    <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; flex: 1;">
+                        ${filterButtons}
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; flex-wrap: wrap; flex-shrink: 0;">
                         <select onchange="window.globalCourseModalityFilter = this.value; if(typeof changePage === 'function'){changePage('courses', 1)} else {renderModule('courses')}" style="padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
                             <option value="Todas" ${window.globalCourseModalityFilter === 'Todas' || !window.globalCourseModalityFilter ? 'selected' : ''}>Todas las Modalidades</option>
                             <option value="Virtual" ${window.globalCourseModalityFilter === 'Virtual' ? 'selected' : ''}>Virtual</option>
                             <option value="Presencial" ${window.globalCourseModalityFilter === 'Presencial' ? 'selected' : ''}>Presencial</option>
                         </select>
                     </div>
-                </div>
-
-                <div style="display: flex; gap: 10px; margin-bottom: var(--space-lg); overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;">
-                    ${filterButtons}
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">

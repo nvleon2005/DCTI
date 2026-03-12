@@ -530,8 +530,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (sidebarToggle && sidebar && sidebarOverlay) {
         sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('sidebar--open');
-            sidebarOverlay.classList.toggle('active');
+            if (window.innerWidth <= 1024) {
+                sidebar.classList.toggle('sidebar--open');
+                sidebarOverlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('sidebar--closed');
+            }
         });
 
         sidebarOverlay.addEventListener('click', () => {
