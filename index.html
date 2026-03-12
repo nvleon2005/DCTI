@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- Custom Alerts -->
+    <link rel="stylesheet" href="css/custom-alerts.css">
+
     <title>Portal Web DCTI - Inicio</title>
     <!-- Estilos consolidados con Anti-Caché para Responsive -->
     <link rel="stylesheet" href="css/portal.css?v=2.1">
@@ -29,6 +32,7 @@
                 <li><a href="#" data-target="view-inicio" class="nav-link public-nav-active">Inicio</a></li>
                 <li><a href="#" data-target="view-dcti" class="nav-link">DCTI</a></li>
                 <li><a href="#" data-target="view-ejes" class="nav-link">Ejes de gestion</a></li>
+                <li><a href="#" data-target="view-proyectos" class="nav-link">Proyectos</a></li>
                 <li><a href="#" data-target="view-noticias" class="nav-link">Noticias</a></li>
                 <li><a href="#" data-target="view-cursos" class="nav-link">Cursos</a></li>
                 <li><a href="#" data-target="view-contactos" class="nav-link">Contactos</a></li>
@@ -452,6 +456,57 @@
             </section>
         </section>
 
+        <section id="view-proyectos" class="public-view public-hidden">
+            <div class="cabeza">
+                <h1 class="title">Proyectos en progreso
+                </h1>
+            </div>
+            <section class="course-container-noticias">
+                <div class="noticias">
+                    <div class="course-item">
+                        <img src="img/img5.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                    <div class="course-item">
+                        <img src="img/img4.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                    <div class="course-item">
+                        <img src="img/img9.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                </div>
+            </section>
+            <section class="course-container-noticias2">
+                <div class="noticias">
+                    <div class="course-item">
+                        <img src="img/img10.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                    <div class="course-item">
+                        <img src="img/img3.jpg" alt="Curso 1">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                    <div class="course-item">
+                        <img src="img/img7.jpg" alt="Curso 2">
+                        <a href="#" class="redireccion">
+                            <h2>Transporte de capacidades de voz y datos</h2>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </section>
+
         <section id="view-noticias" class="public-view public-hidden">
             <section class="carrusel-principal">
                 <div class="carrusel-contenedor" id="principal-noticias">
@@ -745,6 +800,63 @@
                 </div>
             </div>
         </div>
+        <!-- Modal de Completar Perfil -->
+        <div id="modal-completar-perfil" class="public-modal-overlay public-hidden-modal"
+            style="backdrop-filter: blur(4px); z-index: 10000;"
+            onclick="if(event.target === this) this.classList.add('public-hidden-modal')">
+            <div class="public-modal-content" style="max-width: 450px;">
+                <span class="public-close-modal"
+                    onclick="document.getElementById('modal-completar-perfil').classList.add('public-hidden-modal')">&times;</span>
+                <div class="public-modal-header"
+                    style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-user-edit" style="color: var(--color-primary); font-size: 1.5rem;"></i>
+                    <h3 style="color: var(--color-primary); margin: 0; font-size: 1.4rem;">Completa tu Perfil</h3>
+                </div>
+
+                <div class="public-modal-body" style="text-align: left; margin-bottom: 25px;">
+                    <p style="color: #475569; font-size: 0.95rem; line-height: 1.5; margin-bottom: 15px;">
+                        Para brindarte una mejor atención y por motivos de seguridad, requerimos tu nombre y apellido
+                        reales para enviar consultas.
+                    </p>
+                    <div
+                        style="background: #fef2f2; border: 1px solid #f87171; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
+                        <p style="margin: 0; font-weight: 600; color: #b91c1c; font-size: 0.85rem;"><i
+                                class="fas fa-exclamation-triangle" style="margin-right: 5px;"></i> Nota Importante:</p>
+                        <p style="margin: 5px 0 0 0; color: #991b1b; font-size: 0.85rem;">Una vez ingresados estos
+                            datos, no podrán ser modificados desde esta interfaz para garantizar la integridad de los
+                            reportes.</p>
+                    </div>
+
+                    <form id="form-completar-perfil">
+                        <div style="margin-bottom: 15px;">
+                            <label
+                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px; font-weight: 600;">Nombre
+                                real</label>
+                            <input type="text" id="completar-nombre" required
+                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem; font-family: 'Outfit', sans-serif;"
+                                placeholder="Ej. Juan">
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label
+                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px; font-weight: 600;">Apellido
+                                real</label>
+                            <input type="text" id="completar-apellido" required
+                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem; font-family: 'Outfit', sans-serif;"
+                                placeholder="Ej. Pérez">
+                        </div>
+                        <div class="public-modal-footer"
+                            style="padding: 0; display: flex; justify-content: flex-end; gap: 10px;">
+                            <button type="button"
+                                onclick="document.getElementById('modal-completar-perfil').classList.add('public-hidden-modal')"
+                                style="padding: 10px 20px; border: none; background: #e2e8f0; color: #475569; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: 'Outfit', sans-serif;">Cancelar</button>
+                            <button type="submit"
+                                style="padding: 10px 20px; border: none; background: var(--color-primary); color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: 'Outfit', sans-serif;">Guardar
+                                Datos</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </main>
 
     <footer>
@@ -765,6 +877,7 @@
     </footer>
 
     <!-- Lógica de carruseles e interactividad -->
+    <script src="js/custom-alerts.js"></script>
     <script src="js/portal-logic.js"></script>
     <script src="js/public-navigation.js"></script>
     <script src="js/carrusel_ejes.js"></script>

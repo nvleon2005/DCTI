@@ -183,6 +183,7 @@ function applyDashboardPermissions(role) {
 
     const navAdminTitle = document.getElementById('nav-admin-title');
     const navContentTitle = document.getElementById('nav-content-title');
+    const navConsultas = document.getElementById('nav-consultas');
 
     const contentItems = ['dcti', 'strategic', 'projects', 'news', 'courses'];
 
@@ -199,6 +200,7 @@ function applyDashboardPermissions(role) {
         if (navContentTitle) navContentTitle.style.display = 'block';
         if (navDashboard) navDashboard.style.display = 'flex';
         if (navMyCourses) navMyCourses.style.display = 'none';
+        if (navConsultas) navConsultas.style.display = 'flex';
 
         contentItems.forEach(id => {
             const item = document.querySelector(`[data-view="${id}"]`);
@@ -213,6 +215,7 @@ function applyDashboardPermissions(role) {
         if (navContentTitle) navContentTitle.style.display = 'block';
         if (navDashboard) navDashboard.style.display = 'flex';
         if (navMyCourses) navMyCourses.style.display = 'none';
+        if (navConsultas) navConsultas.style.display = 'flex'; // Editores pueden ver consultas
 
         ['dcti', 'strategic', 'news', 'courses'].forEach(id => {
             const item = document.querySelector(`[data-view="${id}"]`);
@@ -228,6 +231,7 @@ function applyDashboardPermissions(role) {
         if (navContentTitle) navContentTitle.style.display = 'none';
         if (navDashboard) navDashboard.style.display = 'none';
         if (navMyCourses) navMyCourses.style.display = 'flex';
+        if (navConsultas) navConsultas.style.display = 'none';
 
         contentItems.forEach(id => {
             const item = document.querySelector(`[data-view="${id}"]`);
@@ -442,6 +446,14 @@ function renderModule(id, skipAnimation = false) {
         case 'profile': content = ProfileView.render(viewData); break;
         case 'my-courses': content = typeof MyCoursesView !== 'undefined' ? MyCoursesView.render(viewData) : '<h2>Vista en desarrollo</h2>'; break;
         case 'users': content = UsersView.render(viewData); break;
+        case 'consultas':
+            if (typeof ConsultasController !== 'undefined') {
+                ConsultasController.render(1);
+                return; // Consultas renderiza por sí mismo
+            } else {
+                content = '<h2>Error al cargar el módulo de consultas</h2>';
+            }
+            break;
         case 'dcti':
             if (typeof getLocalDcti === 'function') MOCK_DATA.dcti = getLocalDcti();
             content = DctiView.render(viewData);
