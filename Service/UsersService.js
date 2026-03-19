@@ -1,0 +1,290 @@
+/**
+ * Service/UsersService.js
+ * Responsabilidad: Gestión de Datos de Usuarios (CRUD) y Autenticación.
+ */
+
+const UsersController = {
+    AUTH_CONFIG: {
+        hardcodedUsers: [
+            { email: 'admin@dcti.gob', password: '123', name: 'Administrador', role: 'admin', initials: 'AD', status: 'Activo' },
+            { email: 'editor@dcti.gob', password: '123', name: 'Editor de Contenidos', role: 'editor', initials: 'EC', status: 'Activo' }
+        ]
+    },
+
+    getLocalUsers() {
+        const users = localStorage.getItem('dcti_users');
+        return users ? JSON.parse(users) : [];
+    },
+
+    saveLocalUser(user) {
+        const users = this.getLocalUsers();
+        users.push(user);
+        localStorage.setItem('dcti_users', JSON.stringify(users));
+    },
+
+    previewAvatar(event) {
+        const file = event.target.files[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                AlertService.notify('Error', 'Solo se permiten subir imágenes.', 'error');
+                event.target.value = '';
+                document.getElementById('admin-user-avatar-preview').style.display = 'none';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 150;
+                    const MAX_HEIGHT = 150;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const dataUrl = canvas.toDataURL('image/webp', 0.85);
+                    const preview = document.getElementById('admin-user-avatar-preview');
+                    if (preview) {
+                        preview.src = dataUrl;
+                        preview.style.display = 'block';
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    },
+
+    openUserModal(email = null) {
+        const modal = document.getElementById('user-modal');
+        const form = document.getElementById('user-admin-form');
+        const title = document.getElementById('modal-title');
+        const editEmailInput = document.getElementById('edit-email-target');
+
+        if (!modal || !form) return;
+
+        modal.classList.remove('hidden');
+        form.reset();
+
+        if (email) {
+            if (title) title.textContent = 'Editar Usuario';
+            editEmailInput.value = email;
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.textContent = 'Actualizar';
+
+            const allUsers = [...this.AUTH_CONFIG.hardcodedUsers, ...this.getLocalUsers()];
+            const user = allUsers.find(u => u.email === email);
+
+            if (user) {
+                document.getElementById('admin-user-name').value = user.name || '';
+                document.getElementById('admin-user-lastname').value = user.lastname || '';
+                document.getElementById('admin-user-cedula').value = user.cedula || '';
+                document.getElementById('admin-user-username').value = user.username || '';
+                document.getElementById('admin-user-email').value = user.email || '';
+                document.getElementById('admin-user-role').value = user.role || 'visitante';
+                document.getElementById('admin-user-pass').value = '';
+                document.getElementById('admin-user-pass').placeholder = '•••••••• (Oculta por seguridad)';
+
+                const radios = document.getElementsByName('admin-user-role-radio');
+                for (let radio of radios) {
+                    if (radio.value === user.role) radio.checked = true;
+                }
+
+                const avatarPreview = document.getElementById('admin-user-avatar-preview');
+                if (avatarPreview) {
+                    if (user.avatar) {
+                        avatarPreview.src = user.avatar;
+                        avatarPreview.style.display = 'block';
+                    } else {
+                        avatarPreview.src = '';
+                        avatarPreview.style.display = 'none';
+                    }
+                }
+
+                const isHardcoded = this.AUTH_CONFIG.hardcodedUsers.some(u => u.email === email);
+                document.getElementById('admin-user-email').disabled = isHardcoded;
+            }
+        } else {
+            if (title) title.textContent = 'Nuevo Usuario';
+            editEmailInput.value = '';
+            document.getElementById('admin-user-email').disabled = false;
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.textContent = 'Registrar';
+
+            const preview = document.getElementById('admin-user-avatar-preview');
+            if (preview) {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
+
+            const avatarInput = document.getElementById('admin-user-avatar-input');
+            if (avatarInput) avatarInput.value = '';
+
+            document.getElementById('admin-user-pass').value = '';
+            document.getElementById('admin-user-pass').placeholder = 'Ingrese contraseña segura...';
+
+            const radios = document.getElementsByName('admin-user-role-radio');
+            for (let radio of radios) {
+                if (radio.value === 'visitante') radio.checked = true;
+            }
+            document.getElementById('admin-user-role').value = 'visitante';
+        }
+    },
+
+    closeUserModal() {
+        const modal = document.getElementById('user-modal');
+        if (modal) modal.classList.add('hidden');
+    },
+
+    async handleUserAdminSubmit(e) {
+        e.preventDefault();
+        const editEmail = document.getElementById('edit-email-target').value;
+        const name = document.getElementById('admin-user-name').value;
+        const lastname = document.getElementById('admin-user-lastname').value;
+        const cedula = document.getElementById('admin-user-cedula').value;
+        const username = document.getElementById('admin-user-username').value;
+        const email = document.getElementById('admin-user-email').value;
+        const pass = document.getElementById('admin-user-pass').value;
+        const role = document.getElementById('admin-user-role').value;
+        const avatarPreview = document.getElementById('admin-user-avatar-preview');
+        const avatar = (avatarPreview && avatarPreview.style.display === 'block') ? avatarPreview.src : null;
+
+        if (typeof validateEmailFormat === 'function' && !validateEmailFormat(email)) {
+            AlertService.notify('Validación Fallida', 'Formato de correo electrónico no válido.', 'error');
+            return;
+        }
+
+        if (pass && typeof validatePasswordComplexity === 'function' && !validatePasswordComplexity(pass)) {
+            AlertService.notify('Contraseña Insegura', 'Mínimo 8 caracteres, una mayúscula, un número y un carácter especial.', 'error');
+            return;
+        }
+
+        if (editEmail) {
+            await this.updateUser(editEmail, { name, lastname, cedula, username, email, role, password: pass, avatar });
+        } else {
+            if (!pass) {
+                AlertService.notify('Campo Requerido', 'La contraseña es obligatoria.', 'warning');
+                return;
+            }
+
+            const allUsers = [...this.AUTH_CONFIG.hardcodedUsers, ...this.getLocalUsers()];
+            if (allUsers.some(u => u.email === email)) {
+                AlertService.notify('Correo Duplicado', 'Este correo ya pertenece a un usuario.', 'error');
+                return;
+            }
+
+            const passwordHash = await hashSHA256(pass);
+            const nameSafe = name || username || 'Usuario';
+            const newUser = {
+                name, lastname, cedula, username, email,
+                password: passwordHash,
+                role, avatar, status: 'Activo',
+                initials: nameSafe.substring(0, 2).toUpperCase()
+            };
+            this.saveLocalUser(newUser);
+        }
+
+        this.closeUserModal();
+        if (typeof renderModule === 'function') renderModule('users');
+    },
+
+    async updateUser(oldEmail, newData) {
+        if (oldEmail === 'admin@dcti.gob') {
+            AlertService.notify('Acción Denegada', 'El administrador principal está protegido.', 'error');
+            return;
+        }
+
+        const localUsers = this.getLocalUsers();
+        const index = localUsers.findIndex(u => u.email === oldEmail);
+
+        if (index !== -1) {
+            const currentUser = localUsers[index];
+            const updatedUser = {
+                ...currentUser,
+                name: newData.name,
+                lastname: newData.lastname,
+                cedula: newData.cedula,
+                username: newData.username,
+                email: newData.email,
+                role: newData.role,
+                avatar: newData.avatar,
+                initials: (newData.name || newData.username || 'U').substring(0, 2).toUpperCase()
+            };
+
+            if (newData.password) {
+                updatedUser.password = await hashSHA256(newData.password);
+            }
+
+            localUsers[index] = updatedUser;
+            localStorage.setItem('dcti_users', JSON.stringify(localUsers));
+            AlertService.notify('Usuario Actualizado', 'Los datos han sido guardados.', 'success');
+        } else {
+            AlertService.notify('Restricción', 'Este usuario es de sistema y tiene restricciones.', 'info');
+        }
+    },
+
+    async deleteUser(email) {
+        if (email === 'admin@dcti.gob') {
+            AlertService.notify('Acción Denegada', 'Protegido.', 'error');
+            return;
+        }
+
+        const confirmed = await AlertService.confirm('¿Eliminar?', `Confirma eliminación de ${email}`, 'Eliminar', 'Cancelar', true);
+        if (!confirmed) return;
+
+        const localUsers = this.getLocalUsers();
+        const updatedUsers = localUsers.filter(u => u.email !== email);
+
+        if (localUsers.length === updatedUsers.length) {
+            AlertService.notify('Restricción', 'Usuario de sistema.', 'warning');
+        } else {
+            localStorage.setItem('dcti_users', JSON.stringify(updatedUsers));
+            AlertService.notify('Eliminado', 'Usuario removido.', 'success');
+            if (typeof renderModule === 'function') renderModule('users');
+        }
+    },
+
+    toggleUserStatus(email) {
+        if (email === 'admin@dcti.gob') return;
+
+        const localUsers = this.getLocalUsers();
+        const index = localUsers.findIndex(u => u.email === email);
+
+        if (index !== -1) {
+            const user = localUsers[index];
+            user.status = user.status === 'Inactivo' ? 'Activo' : 'Inactivo';
+            localStorage.setItem('dcti_users', JSON.stringify(localUsers));
+            AlertService.notify('Estado Actualizado', 'Estado cambiado correctamente.', 'info');
+            if (typeof renderModule === 'function') renderModule('users');
+        }
+    }
+};
+
+// Exponer funciones globales para compatibilidad con Auth y onclick HTML
+window.AUTH_CONFIG = UsersController.AUTH_CONFIG;
+window.getLocalUsers = UsersController.getLocalUsers.bind(UsersController);
+window.saveLocalUser = UsersController.saveLocalUser.bind(UsersController);
+window.openUserModal = UsersController.openUserModal.bind(UsersController);
+window.closeUserModal = UsersController.closeUserModal.bind(UsersController);
+window.handleUserAdminSubmit = UsersController.handleUserAdminSubmit.bind(UsersController);
+window.deleteUser = UsersController.deleteUser.bind(UsersController);
+window.toggleUserStatus = UsersController.toggleUserStatus.bind(UsersController);
+window.previewAvatar = UsersController.previewAvatar.bind(UsersController);
