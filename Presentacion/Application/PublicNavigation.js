@@ -9,39 +9,53 @@ function initPublicNavigation() {
                 const session = JSON.parse(sessionStr);
                 const displayName = session.name || session.username || 'Usuario';
                 const avatarHTML = session.avatar
-                    ? `<img src="${session.avatar}" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid white;">`
-                    : `<div style="width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; border: 2px solid white;">${session.initials || 'U'}</div>`;
+                    ? `<img src="${session.avatar}" alt="Avatar" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover;">`
+                    : `<div style="width: 35px; height: 35px; border-radius: 50%; background: #6366f1; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">${session.initials || 'U'}</div>`;
 
                 authMenuContainer.innerHTML = `
                     <div class="public-user-pill-container" style="position: relative;">
-                        <div class="public-user-pill" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 5px 12px; border-radius: 20px; background: #faf5ff; border: 1px solid #e9d5ff; transition: all 0.3s;" id="public-user-pill-btn">
+                        <!-- User Pill Button -->
+                        <div class="public-user-pill" id="public-user-pill-btn" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 14px 4px 4px; border-radius: 50px; background: #ffffff; border: 1px solid #c7d2fe; transition: all 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                             ${avatarHTML}
-                            <span style="color: var(--color-primary); font-weight: 600; font-size: 0.9rem; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</span>
-                            <i class="fas fa-chevron-down" style="color: var(--color-primary-light); font-size: 0.8rem; margin-left: 2px;"></i>
+                            <span style="color: #4f46e5; font-weight: 600; font-size: 0.95rem; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</span>
+                            <i class="fas fa-chevron-down" style="color: #4f46e5; font-size: 0.75rem; margin-left: 4px;"></i>
                         </div>
-                        <div class="public-dropdown hidden" id="public-user-dropdown" style="position: absolute; top: calc(100% + 10px); right: 0; background: white; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); min-width: 200px; overflow: hidden; z-index: 9999; border: 1px solid rgba(0,0,0,0.05);">
-                            <div style="padding: 10px 15px; border-bottom: 1px solid #f1f5f9; background: #fdfaff;">
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="public-dropdown hidden" id="public-user-dropdown" style="position: absolute; top: calc(100% + 10px); right: 0; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); width: max-content; overflow: hidden; z-index: 9999; border: 1px solid rgba(0,0,0,0.05);">
+                            
+                            <!-- Header Info -->
+                            <div style="padding: 15px 20px; border-bottom: 1px solid #f1f5f9;">
                                 <p style="margin: 0; font-size: 0.8rem; color: #64748b;">Conectado como</p>
-                                <p style="margin: 0; font-size: 0.9rem; font-weight: bold; color: var(--color-primary-dark);" title="${session.email}">${displayName}</p>
+                                <p style="margin: 0; font-size: 1rem; font-weight: bold; color: #1e293b;" title="${session.email}">${displayName}</p>
                             </div>
-                            <ul style="list-style: none; padding: 5px 0; margin: 0;">
-                                <li>
-                                    <a href="#" onclick="event.preventDefault(); if(typeof Router !== 'undefined') Router.navigateTo('dashboard');" style="display: flex; align-items: center; gap: 10px; padding: 10px 15px; color: #334155; text-decoration: none; font-size: 0.9rem; transition: background 0.3s; background: transparent;" onmouseover="this.style.background='#f3e8ff';" onmouseout="this.style.background='transparent';">
-                                        <i class="fas fa-chart-line" style="color: var(--color-primary);"></i> Dashboard / Perfil
-                                    </a>
-                                </li>
+                            
+                            <!-- Action Items (Horizontal Layout) -->
+                            <div style="display: flex; gap: 20px; padding: 15px 20px; align-items: center; background: #ffffff;">
+                                
+                                <!-- Dashboard -->
+                                <a href="#" onclick="event.preventDefault(); if(typeof Router !== 'undefined') Router.navigateTo('dashboard');" style="display: flex; align-items: center; gap: 10px; color: #475569; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#4f46e5';" onmouseout="this.style.color='#475569';">
+                                    <i class="fas fa-user-circle" style="color: #6366f1; font-size: 1.3rem;"></i>
+                                    <span style="font-size: 0.85rem; line-height: 1.2; font-weight: 500;">Dashboard<br>/ Perfil</span>
+                                </a>
+
                                 ${session.role === 'visitante' ? `
-                                <li>
-                                    <a href="#" onclick="event.preventDefault(); if(typeof Router !== 'undefined') Router.navigateTo('my-courses');" style="display: flex; align-items: center; gap: 10px; padding: 10px 15px; color: #334155; text-decoration: none; font-size: 0.9rem; transition: background 0.3s; background: transparent;" onmouseover="this.style.background='#f3e8ff';" onmouseout="this.style.background='transparent';">
-                                        <i class="fas fa-book-open" style="color: #a01cad;"></i> Mis Cursos
-                                    </a>
-                                </li>` : ''}
-                                <li style="border-top: 1px solid #f1f5f9; margin-top: 5px;">
-                                    <a href="#" id="public-logout-btn" style="display: flex; align-items: center; gap: 10px; padding: 10px 15px; color: #ef4444; text-decoration: none; font-size: 0.9rem; transition: background 0.3s; background: transparent;" onmouseover="this.style.background='#fee2e2';" onmouseout="this.style.background='transparent';">
-                                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                                    </a>
-                                </li>
-                            </ul>
+                                <!-- Mis Cursos -->
+                                <a href="#" onclick="event.preventDefault(); if(typeof Router !== 'undefined') Router.navigateTo('my-courses');" style="display: flex; align-items: center; gap: 10px; color: #475569; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#10b981';" onmouseout="this.style.color='#475569';">
+                                    <i class="fas fa-book" style="color: #10b981; font-size: 1.3rem;"></i>
+                                    <span style="font-size: 0.85rem; line-height: 1.2; font-weight: 500;">Mis<br>Cursos</span>
+                                </a>` : ''}
+
+                                <!-- Spacer to push logout to right if needed -->
+                                <div style="flex-grow: 1; min-width: 10px;"></div>
+
+                                <!-- Cerrar Sesión -->
+                                <a href="#" id="public-logout-btn" style="display: flex; align-items: center; gap: 10px; color: #ef4444; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7';" onmouseout="this.style.opacity='1';">
+                                    <i class="fas fa-sign-out-alt" style="font-size: 1.3rem;"></i>
+                                    <span style="font-size: 0.85rem; line-height: 1.2; font-weight: 500;">Cerrar<br>Sesión</span>
+                                </a>
+
+                            </div>
                         </div>
                     </div>
                 `;
