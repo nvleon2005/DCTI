@@ -28,12 +28,13 @@ const MyCoursesView = {
                 matchSearch = title.includes(searchQuery) || desc.includes(searchQuery) || instructor.includes(searchQuery);
             }
 
-            // Evaluamos el estado (Progreso)
+            // Evaluamos el estado (Progreso real según participación)
             let matchStatus = true;
             if (statusFilter !== 'Todos') {
-                const progress = c.progress !== undefined ? c.progress : Math.floor(Math.random() * 20); // Mantenemos la lógica de simulación
-                const statusStr = progress === 100 ? 'Completado' : 'En Progreso';
-                matchStatus = (statusStr === statusFilter);
+                const myParticipant = allParticipations.find(p => p.courseId === c.id && p.userId === userId);
+                const statusStr = myParticipant ? myParticipant.estado : 'Activo';
+                const mappedStatus = (statusStr === 'Aprobado') ? 'Completado' : 'En Progreso';
+                matchStatus = (mappedStatus === statusFilter);
             }
 
             return matchSearch && matchStatus;
@@ -56,9 +57,11 @@ const MyCoursesView = {
             </div>`;
         } else {
             myEnrolledCourses.forEach((course, index) => {
-                const progress = course.progress !== undefined ? course.progress : Math.floor(Math.random() * 20); // Simulación temporal de progreso
-                const statusStr = progress === 100 ? 'Completado' : 'En Progreso';
-                const statusColor = progress === 100 ? '#10b981' : 'var(--color-primary)';
+                const myParticipation = allParticipations.find(p => p.courseId === course.id && p.userId === userId);
+                const rawStatus = myParticipation ? myParticipation.estado : 'Activo';
+                const statusStr = rawStatus === 'Aprobado' ? 'Completado' : 'En Progreso';
+                const statusColor = rawStatus === 'Aprobado' ? '#10b981' : 'var(--color-primary)';
+                const isCompleted = rawStatus === 'Aprobado';
                 const pageNum = Math.floor(index / itemsPerPage) + 1;
 
                 // Serializamos la info del curso usando Base64 para evitar problemas con comillas en el DOM
@@ -82,11 +85,8 @@ const MyCoursesView = {
 
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <span style="font-size: 0.85rem; font-weight: 600; color: ${statusColor};">${statusStr}</span>
-                            <span style="font-size: 0.85rem; color: var(--color-text-muted); font-weight: 600;">${progress}%</span>
-                        </div>
-                        <div style="width: 100%; height: 8px; background: var(--color-background); border-radius: 4px; overflow: hidden;">
-                            <div style="width: ${progress}%; height: 100%; background: ${statusColor}; border-radius: 4px;"></div>
+                            <span style="font-size: 0.85rem; font-weight: 600; color: ${statusColor};"><i class="fas fa-user-graduate" style="margin-right: 5px;"></i> ${statusStr}</span>
+                            <span style="font-size: 0.85rem; color: var(--color-text-muted); font-weight: 600;">Estado Oficial</span>
                         </div>
                     </div>
                     
@@ -94,12 +94,12 @@ const MyCoursesView = {
                         <button class="btn" onclick="MyCoursesController.showDetails('${courseDataStr}')" style="flex: 1; padding: 0.5rem; font-size: 0.85rem; background: var(--color-background); color: var(--color-text); text-align: center; border: 1px solid var(--color-border); border-radius: var(--radius-sm); cursor: pointer; transition: background 0.2s;">
                             <i class="fas fa-info-circle"></i> Detalles
                         </button>
-                        ${progress < 100 ? `
+                        ${!isCompleted ? `
                         <button class="btn btn-primary" onclick="window.MyCoursesController.startCourse(${course.id})" style="flex: 1; padding: 0.5rem; font-size: 0.85rem; text-align: center; border-radius: var(--radius-sm); cursor: pointer; transition: filter 0.2s;">
                             <i class="fas fa-play"></i> Continuar
                         </button>
                         ` : `
-                        <button class="btn btn-secondary" onclick="window.MyCoursesController.downloadCertificate(${course.id})" style="flex: 1; padding: 0.5rem; font-size: 0.85rem; text-align: center; border-radius: var(--radius-sm); cursor: pointer; transition: filter 0.2s; background: #f59e0b;">
+                        <button class="btn btn-secondary" onclick="window.MyCoursesController.downloadCertificate(${course.id})" style="flex: 1; padding: 0.5rem; font-size: 0.85rem; text-align: center; border-radius: var(--radius-sm); cursor: pointer; transition: filter 0.2s; background: #f59e0b; border: none; color: white;">
                             <i class="fas fa-award"></i> Certificado
                         </button>
                         `}

@@ -167,6 +167,20 @@ const ConsultasView = {
 
                         </div>
 
+                        <!-- Quick Reply Container (Hidden by Default) -->
+                        <div id="quick-reply-container" class="hidden" style="padding: 10px 30px 15px; background: #ffffff; border-top: 1px dashed #e2e8f0; margin-top: -15px;">
+                            <div style="position: relative; margin-top: 15px;">
+                                <div style="position: absolute; top: -10px; left: 15px; background: white; padding: 0 8px; font-size: 0.75rem; color: #10b981; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Respuesta Rápida</div>
+                                <textarea id="quick-reply-text" style="width: 100%; border: 1.5px solid #10b98150; border-radius: 12px; padding: 20px; font-size: 1rem; color: #334155; line-height: 1.5; outline: none; resize: vertical; min-height: 120px; font-family: inherit; transition: border-color 0.2s;" placeholder="Escribe aquí tu respuesta para enviar automáticamente al solicitante..."></textarea>
+                                <div style="display: flex; justify-content: flex-end; margin-top: 15px; gap: 10px;">
+                                    <button onclick="document.getElementById('quick-reply-container').classList.add('hidden')" style="padding: 8px 16px; border-radius: 6px; background: white; border: 1px solid #cbd5e1; color: #475569; font-weight: 600; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">Cancelar</button>
+                                    <button id="btn-send-reply" style="padding: 8px 16px; border-radius: 6px; background: #10b981; border: none; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+                                        <i class="fas fa-paper-plane"></i> Enviar Ahora
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Footer del Modal -->
                         <div style="padding: 20px 30px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px;">
                             <button id="btn-modal-respondida" class="btn-primary" style="background: white; border: 1.5px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); padding: 10px 20px; border-radius: 8px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;">

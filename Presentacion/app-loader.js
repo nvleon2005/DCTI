@@ -60,12 +60,16 @@
         if (scripts.length === 0) {
             console.log("DCTI: Todos los módulos cargados dinámicamente.");
             document.dispatchEvent(new CustomEvent('DCTIScriptsLoaded'));
+            // Poblar links de redes sociales del footer tan pronto estén disponibles
+            if (typeof window.applyDctiContactLinks === 'function') {
+                window.applyDctiContactLinks();
+            }
             return;
         }
 
         const src = scripts.shift();
         const script = document.createElement('script');
-        script.src = src;
+        script.src = src + '?v=' + new Date().getTime();
         script.async = false; // Importante para mantener el orden de ejecución global
         script.onload = loadNext;
         script.onerror = () => console.error(`Error cargando: ${src}`);

@@ -15,7 +15,16 @@ function getLocalNews() {
 }
 
 function saveLocalNews(newsArray) {
-    localStorage.setItem('dcti_news', JSON.stringify(newsArray));
+    try {
+        localStorage.setItem('dcti_news', JSON.stringify(newsArray));
+    } catch (e) {
+        if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+            AlertService.notify('Almacenamiento Lleno', 'No hay espacio para guardar los datos. Intente borrar otros registros o subir imágenes más pequeñas.', 'error');
+        } else {
+            console.error('Error guardando en localStorage:', e);
+        }
+        throw e; // Relanzar para abortar la lógica subsiguiente (como cerrar el modal)
+    }
 }
 
 let currentNewsCategoryFilter = 'Todas';
@@ -102,9 +111,31 @@ document.addEventListener('change', async (e) => {
 function encodeFileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 800;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > MAX_WIDTH) {
+                    height = height * (MAX_WIDTH / width);
+                    width = MAX_WIDTH;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                // Compresión agresiva a WebP para cuidar localStorage
+                resolve(canvas.toDataURL('image/webp', 0.7));
+            };
+            img.onerror = () => reject(new Error('Error al cargar la imagen en canvas'));
+            img.src = e.target.result;
+        };
         reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
     });
 }
 
@@ -170,13 +201,18 @@ async function handleNewsAdminSubmit(e) {
         AlertService.notify('Noticia Creada', 'La noticia ha sido publicada exitosamente.', 'success');
     }
 
-    saveLocalNews(allNews);
-    closeNewsModal();
+    try {
+        saveLocalNews(allNews);
+        closeNewsModal();
 
-    // Actualizar la vista si estamos en el módulo de noticias
-    if (typeof renderModule === 'function') {
-        MOCK_DATA.news = allNews;
-        filterNewsAdmin('Todas'); // Reset to 'Todas' on save
+        // Actualizar la vista si estamos en el módulo de noticias
+        if (typeof renderModule === 'function') {
+            MOCK_DATA.news = allNews;
+            filterNewsAdmin('Todas'); // Reset to 'Todas' on save
+        }
+    } catch (e) {
+        // Falla silenciosa controlada por el try catch de saveLocalNews
+        console.warn("La persistencia fue abortada por falta de espacio.");
     }
 }
 

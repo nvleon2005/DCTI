@@ -16,7 +16,7 @@ const AdminDctiView = {
 
                 <!-- Contenedor Principal Estilo Tarjeta -->
                 <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); padding: var(--space-xl); box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                    <form id="dcti-admin-form" style="display: flex; flex-direction: column; gap: var(--space-lg); width: 100%;">
+                    <form id="dcti-admin-form" onsubmit="if(typeof handleDctiSubmit === 'function') handleDctiSubmit(event)" style="display: flex; flex-direction: column; gap: var(--space-lg); width: 100%;">
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-xl); box-sizing: border-box;">
                             
                             <!-- Columna 1: Textos (Misión, Visión, Reseña) y Organigrama -->
@@ -100,9 +100,39 @@ const AdminDctiView = {
                                         <input type="text" id="admin-dcti-facebook" style="width: 100%; padding: 10px 12px 10px 36px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.95rem; transition: border-color 0.2s; box-sizing: border-box;" placeholder="@usuario_dcti o URL" value="${dcti.facebook || ''}">
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; color: var(--color-text-main);">Twitter / X <span style="color: var(--color-text-muted); font-weight: 400; font-size: 0.8rem;">(Opcional)</span></label>
+                                    <div style="position: relative;">
+                                        <i class="fab fa-twitter" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                                        <input type="text" id="admin-dcti-twitter" style="width: 100%; padding: 10px 12px 10px 36px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.95rem; transition: border-color 0.2s; box-sizing: border-box;" placeholder="@usuario_twitter" value="${dcti.twitter || ''}">
+                                    </div>
+                                </div>
                             </div>
                             
-                            <!-- Columna 4: Ubicación (Mapa) -->
+                            <!-- Columna 4: Imagen de Consultas -->
+                            <div style="display: flex; flex-direction: column; gap: var(--space-md); background: #f8fafc; padding: var(--space-md); border-radius: var(--radius-md); border: 1px solid #e2e8f0;">
+                                <h3 style="color: var(--color-text-main); font-size: 1.1rem; margin-top: 0; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+                                    <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; display: flex; align-items: center; justify-content: center;"><i class="fas fa-headphones-alt"></i></div> Imagen de Consultas
+                                </h3>
+                                
+                                <p style="font-size: 0.82rem; color: var(--color-text-muted); margin: 0;">Esta imagen aparece junto al formulario de consultas en el Portal Público.</p>
+
+                                <div style="display: flex; flex-direction: column; margin-top: 5px;">
+                                    <div style="position: relative; width: 100%; height: 180px; background: white; border-radius: 8px; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; padding: 8px; transition: border-color 0.2s; box-sizing: border-box;">
+                                        <img id="admin-dcti-consultas-preview" src="${dcti.consultasImage || ''}" style="max-width: 100%; max-height: 100%; height: auto; object-fit: contain; border-radius: 6px; display: ${dcti.consultasImage ? 'block' : 'none'};">
+                                        <div id="admin-dcti-consultas-placeholder" style="color: #94a3b8; font-size: 0.9rem; display: ${dcti.consultasImage ? 'none' : 'flex'}; flex-direction: column; align-items: center; gap: 8px;"><i class="fas fa-image" style="font-size: 1.5rem;"></i><span>Clic en + para subir</span></div>
+                                        <input type="file" id="admin-dcti-consultas-input" accept="image/*" style="display: none;" onchange="typeof previewConsultasImage === 'function' ? previewConsultasImage(event) : null">
+                                        <button type="button" onclick="document.getElementById('admin-dcti-consultas-input').click()" style="position: absolute; bottom: -12px; right: -12px; width: 36px; height: 36px; border-radius: 50%; background: var(--color-primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 1.1rem; transition: background 0.2s; z-index: 10;" title="Subir Imagen de Consultas">
+                                            <i class="fas fa-upload" style="font-size: 14px;"></i>
+                                        </button>
+                                    </div>
+                                    <div style="margin-top: 15px; font-size: 0.8rem; color: var(--color-text-muted);">
+                                        La imagen será escalada automáticamente.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Columna 5: Ubicación (Mapa) -->
                             <div style="display: flex; flex-direction: column; gap: var(--space-md); background: #f8fafc; padding: var(--space-md); border-radius: var(--radius-md); border: 1px solid #e2e8f0; grid-column: 1 / -1;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 10px;">
                                     <h3 style="color: var(--color-text-main); font-size: 1.1rem; margin: 0; display: flex; align-items: center; gap: 8px;">

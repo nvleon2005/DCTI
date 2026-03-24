@@ -8,6 +8,7 @@ const AdminShell = {
         const initials = user.initials || '??';
         const displayName = user.name || user.username || 'Usuario';
         const displayRole = user.role ? (user.role.charAt(0).toUpperCase() + user.role.slice(1)) : 'Rol';
+        const isVisitor = user.role === 'visitante';
 
         return `
         <div class="app-container">
@@ -22,12 +23,12 @@ const AdminShell = {
 
                 <nav class="sidebar__nav">
                     <ul class="sidebar__list">
-                        <li class="sidebar__item sidebar__item--active" data-view="dashboard">
+                        ${!isVisitor ? `<li class="sidebar__item sidebar__item--active" data-view="dashboard">
                             <i class="fas fa-chart-line"></i>
                             <span>Dashboard</span>
-                        </li>
+                        </li>` : ''}
                         <li class="sidebar__section-title">MI CUENTA</li>
-                        <li class="sidebar__item" data-view="profile" id="nav-profile">
+                        <li class="sidebar__item ${isVisitor ? 'sidebar__item--active' : ''}" data-view="profile" id="nav-profile">
                             <i class="fas fa-user-circle"></i>
                             <span>Mi Perfil</span>
                         </li>
@@ -35,6 +36,7 @@ const AdminShell = {
                             <i class="fas fa-book-open"></i>
                             <span>Mis Cursos</span>
                         </li>
+                        ${!isVisitor ? `
                         <li class="sidebar__section-title" id="nav-admin-title">ADMINISTRACIÓN</li>
                         <li class="sidebar__item" data-view="users" id="nav-users">
                             <i class="fas fa-users-cog"></i>
@@ -45,7 +47,7 @@ const AdminShell = {
                             <span>Consultas</span>
                         </li>
                         <li class="sidebar__section-title" id="nav-content-title">CONTENIDOS</li>
-                        <li class="sidebar__item" data-view="dcti">
+                        <li class="sidebar__item" data-view="admin-dcti">
                             <i class="fas fa-building"></i>
                             <span>DCTI</span>
                         </li>
@@ -69,7 +71,7 @@ const AdminShell = {
                         <li class="sidebar__item" data-view="reports" id="nav-reports">
                             <i class="fas fa-chart-pie"></i>
                             <span>Reportes</span>
-                        </li>
+                        </li>` : ''}
                         <li class="sidebar__section-title">NAVEGACIÓN</li>
                         <li class="sidebar__item" onclick="window.location.href='index.html'"
                             style="color: var(--color-primary); font-weight: 600;">

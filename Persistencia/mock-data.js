@@ -145,6 +145,30 @@ function initMockData() {
         } catch (e) { }
     }
 
+    // Migración de rutas de imágenes para cursos (si existen datos cacheados)
+    let existingCoursesRaw = localStorage.getItem('dcti_courses');
+    if (existingCoursesRaw) {
+        try {
+            let existingCourses = JSON.parse(existingCoursesRaw);
+            let modified = false;
+            existingCourses.forEach(c => {
+                if (c.images && Array.isArray(c.images)) {
+                    c.images = c.images.map(img => {
+                        if (img.startsWith('img/')) {
+                            modified = true;
+                            return img.replace('img/', 'Assets/images/');
+                        }
+                        return img;
+                    });
+                }
+            });
+            if (modified) {
+                localStorage.setItem('dcti_courses', JSON.stringify(existingCourses));
+                console.log("Rutas de imágenes de cursos locales actualizadas en caché.");
+            }
+        } catch (e) { }
+    }
+
     // Migración de rutas de imágenes para proyectos (si existen datos cacheados)
     let existingProjectsRaw = localStorage.getItem('dcti_projects');
     if (existingProjectsRaw) {

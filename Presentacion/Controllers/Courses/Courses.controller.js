@@ -56,10 +56,19 @@ function getLocalCourses() {
 }
 
 function saveLocalCourses(coursesArray) {
-    localStorage.setItem(COURSES_STORAGE_KEY, JSON.stringify(coursesArray));
-    if (typeof renderModule === 'function') {
-        const currentCourseFilter = typeof globalCourseFilter !== 'undefined' ? globalCourseFilter : 'Publicado';
-        filterCoursesAdmin(currentCourseFilter, false); // Forzar re-render respetando el filtro
+    try {
+        localStorage.setItem(COURSES_STORAGE_KEY, JSON.stringify(coursesArray));
+        if (typeof renderModule === 'function') {
+            const currentCourseFilter = typeof globalCourseFilter !== 'undefined' ? globalCourseFilter : 'Publicado';
+            filterCoursesAdmin(currentCourseFilter, false); // Forzar re-render respetando el filtro
+        }
+    } catch (e) {
+        if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+            AlertService.notify('Almacenamiento Lleno', 'No hay espacio para guardar los datos. Intente borrar otros registros o subir imágenes más pequeñas.', 'error');
+        } else {
+            console.error('Error guardando cursos en localStorage:', e);
+        }
+        throw e;
     }
 }
 
@@ -326,8 +335,12 @@ async function handleCourseSubmit(e) {
         AlertService.notify('Curso Publicado', 'La nueva oferta de formación se ha emitido correctamente.', 'success');
     }
 
-    saveLocalCourses(allCourses);
-    closeCourseModal();
+    try {
+        saveLocalCourses(allCourses);
+        closeCourseModal();
+    } catch (e) {
+        console.warn("Persistencia abortada por falta de almacenamiento.");
+    }
 }
 
 // ==========================================
@@ -371,8 +384,8 @@ function handleCourseImageUpload(event) {
                 canvas.width = width;
                 canvas.height = height;
                 ctx.drawImage(img, 0, 0, width, height);
-                // Compresión WebP 0.82
-                courseImageQueue.push(canvas.toDataURL('image/webp', 0.82));
+                // Compresión WebP 0.7
+                courseImageQueue.push(canvas.toDataURL('image/webp', 0.7));
                 renderCourseGallery();
             };
             img.src = e.target.result;

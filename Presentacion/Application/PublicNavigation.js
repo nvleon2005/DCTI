@@ -447,33 +447,40 @@ if (document.readyState === 'loading') {
     // Render inicial
     renderPublicCourses();
 
+    // -------------------------------------------------------
     // --- INTEGRACIÓN DE DATOS DE CONTACTO DINÁMICOS (DCTI) ---
-    const dctiStorage = localStorage.getItem('dcti_info');
-    let dctiData = null;
-    if (dctiStorage) {
-        try {
-            dctiData = JSON.parse(dctiStorage);
-        } catch (e) { console.error('Error parsing dcti_info', e); }
-    } else if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.dcti) {
-        dctiData = MOCK_DATA.dcti;
-    }
-
-    if (dctiData) {
-        // Facebook
-        const fbLink = document.getElementById('contacto-facebook-link');
-        const fbText = document.getElementById('contacto-facebook-text');
-        if (fbLink && fbText && dctiData.facebook) {
-            fbText.textContent = dctiData.facebook;
-            fbLink.href = dctiData.facebook.startsWith('http') ? dctiData.facebook : `https://www.facebook.com/${dctiData.facebook.replace('@', '')}`;
+    // (Se llama desde ContactosView.init() una vez que el DOM está listo)
+    // -------------------------------------------------------
+    window.applyDctiContactLinks = function () {
+        const dctiStorage = localStorage.getItem('dcti_info');
+        let dctiData = null;
+        if (dctiStorage) {
+            try { dctiData = JSON.parse(dctiStorage); } catch (e) { console.error('Error parsing dcti_info', e); }
+        } else if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.dcti) {
+            dctiData = MOCK_DATA.dcti;
         }
 
-        // Instagram
-        const igLink = document.getElementById('contacto-instagram-link');
-        const igText = document.getElementById('contacto-instagram-text');
-        if (igLink && igText && dctiData.instagram) {
-            igText.textContent = dctiData.instagram;
-            igLink.href = dctiData.instagram.startsWith('http') ? dctiData.instagram : `https://www.instagram.com/${dctiData.instagram.replace('@', '')}`;
+        if (!dctiData) return;
+
+        function setLink(linkId, textId, value, urlBuilder) {
+            const link = document.getElementById(linkId);
+            const text = document.getElementById(textId);
+            if (link && text && value) {
+                text.textContent = value;
+                link.href = urlBuilder(value);
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+            }
         }
+
+        setLink('contacto-facebook-link', 'contacto-facebook-text', dctiData.facebook,
+            v => v.startsWith('http') ? v : `https://www.facebook.com/${v.replace('@', '')}`);
+
+        setLink('contacto-twitter-link', 'contacto-twitter-text', dctiData.twitter,
+            v => v.startsWith('http') ? v : `https://x.com/${v.replace('@', '')}`);
+
+        setLink('contacto-instagram-link', 'contacto-instagram-text', dctiData.instagram,
+            v => v.startsWith('http') ? v : `https://www.instagram.com/${v.replace('@', '')}`);
 
         // Teléfono
         const phoneLink = document.getElementById('contacto-telefono-link');
@@ -483,26 +490,47 @@ if (document.readyState === 'loading') {
             phoneLink.href = `tel:${dctiData.phone.replace(/[^0-9+]/g, '')}`;
         }
 
-        // La dirección interactiva puede requerir geocodificación o simplemente mostrar texto en un modal/tooltip,
-        // pero por ahora actualizamos el título o el enlace si aplicara.
+        // Dirección
         const dirLink = document.getElementById('contacto-direccion-link');
         const dirText = document.getElementById('contacto-direccion-text');
         if (dirLink && dirText && dctiData.address) {
-            // Se mantiene "Ubicación" como texto pero se actualiza el tooltip o label
-            dirLink.title = dctiData.address;
-            dirLink.setAttribute('aria-label', `Ver nuestra ubicación: ${dctiData.address}`);
-            // Alternativamente, se podría cambiar el texto directamente:
-            // dirText.textContent = dctiData.address.substring(0, 15) + (dctiData.address.length > 15 ? '...' : ''); 
+            dirText.textContent = dctiData.address;
+            dirLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dctiData.address)}`;
+            dirLink.target = '_blank';
+            dirLink.rel = 'noopener noreferrer';
         }
-    }
+
+        // Footer social links (siempre presentes en el DOM)
+        function setFooterLink(id, value, urlBuilder) {
+            const el = document.getElementById(id);
+            if (el && value) {
+                el.href = urlBuilder(value);
+                el.target = '_blank';
+                el.rel = 'noopener noreferrer';
+            }
+        }
+        setFooterLink('footer-instagram-link', dctiData.instagram,
+            v => v.startsWith('http') ? v : `https://www.instagram.com/${v.replace('@', '')}`);
+        setFooterLink('footer-facebook-link', dctiData.facebook,
+            v => v.startsWith('http') ? v : `https://www.facebook.com/${v.replace('@', '')}`);
+        setFooterLink('footer-twitter-link', dctiData.twitter,
+            v => v.startsWith('http') ? v : `https://x.com/${v.replace('@', '')}`);
+    };
 
     // Render inicial llamadas (AQUI ORIGINALMENTE CERRABA DOMContentLoaded)
 
     // ===========================================
     // --- LÓGICA DINÁMICA: NOTICIAS PÚBLICAS ---
     // ===========================================
-    let currentNewsPage = 1;
-    const newsPerPage = 2; // Reducido para forzar la paginación con pocos datos
+    const newsCategoryPages = {
+        'Institucionales': 1,
+        'Local': 1,
+        'Regional': 1,
+        'Nacional': 1,
+        'Internacional': 1,
+        'Otras': 1
+    };
+    const newsCardsPerPage = 3;
     let currentNewsFilter = 'Todas';
 
     function getPublicNews() {
@@ -522,36 +550,29 @@ if (document.readyState === 'loading') {
                 newsFilterBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentNewsFilter = btn.getAttribute('data-category');
-                renderPublicNews(1);
+
+                Object.keys(newsCategoryPages).forEach(k => newsCategoryPages[k] = 1);
+                renderPublicNews();
             });
         });
     });
 
-    window.publicChangeNewsPage = function (newPage) {
-        renderPublicNews(newPage);
-        const el = document.getElementById('view-noticias');
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.changeNewsCategoryPage = function (category, delta) {
+        newsCategoryPages[category] += delta;
+        renderPublicNews();
     };
 
-    window.renderPublicNews = function (page = 1) {
-        currentNewsPage = page;
+    window.renderPublicNews = function () {
         const wrapper = document.getElementById('public-news-wrapper');
         const pagination = document.getElementById('public-news-pagination');
         if (!wrapper) return;
 
         let news = getPublicNews();
-        if (currentNewsFilter && currentNewsFilter !== 'Todas') {
-            news = news.filter(n => n.category === currentNewsFilter);
-        }
-
         if (news.length === 0) {
             wrapper.innerHTML = `<div style="text-align: center; width:100%; padding: 40px; color: #64748b;"><i class="fas fa-newspaper" style="font-size:3rem;opacity:0.4;margin-bottom:15px;"></i><p>No hay noticias disponibles.</p></div>`;
             if (pagination) pagination.innerHTML = '';
             return;
         }
-
-        const totalPages = Math.ceil(news.length / newsPerPage);
-        const pagedNews = news.slice((page - 1) * newsPerPage, page * newsPerPage);
 
         const categoriesList = [
             { id: 'Institucionales', title: 'Noticias institucionales', class: 'course-container-noticias' },
@@ -564,63 +585,92 @@ if (document.readyState === 'loading') {
         let html = '';
 
         categoriesList.forEach(catDef => {
-            const catNews = pagedNews.filter(n => n.category === catDef.id);
-            html += `
-            <section class="${catDef.class}">
-                <div class="titulo_noticia">
-                    <h2>${catDef.title}</h2>
-                </div>
-                <div class="noticias">
-                    ${catNews.length > 0 ? catNews.map(n => {
-                const media = n.multimedia || 'Assets/images/img8.jpg';
-                return `
-                        <div class="noticia-card" style="cursor:pointer;" onclick="window.showNewsDetail(${n.id})">
-                            <img src="${media}" alt="${n.headline}">
-                            <div class="noticia-card-body">
-                                <a onclick="event.preventDefault(); window.showNewsDetail(${n.id})" class="redireccion" style="cursor:pointer;"><h2>${n.headline}</h2></a>
-                            </div>
-                        </div>`;
-            }).join('') : '<p style="padding: 20px; color: #64748b;">Aún no hay noticias publicadas en esta categoría.</p>'}
-                </div>
-            </section>`;
+            const catNewsAll = news.filter(n => n.category === catDef.id);
+
+            if (catNewsAll.length > 0) {
+                const currentPage = newsCategoryPages[catDef.id] || 1;
+                const totalPages = Math.ceil(catNewsAll.length / newsCardsPerPage);
+
+                if (currentPage > totalPages && totalPages > 0) newsCategoryPages[catDef.id] = totalPages;
+                if (currentPage < 1) newsCategoryPages[catDef.id] = 1;
+
+                const safePage = newsCategoryPages[catDef.id];
+                const catNewsPaged = catNewsAll.slice((safePage - 1) * newsCardsPerPage, safePage * newsCardsPerPage);
+
+                html += `
+                <section class="${catDef.class}">
+                    <div class="titulo_noticia">
+                        <h2>${catDef.title}</h2>
+                    </div>
+                    <div class="noticias" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; align-items: stretch; padding: 0 2% 2% 2%;">
+                        ${catNewsPaged.map(n => {
+                    const media = n.multimedia || 'Assets/images/img8.jpg';
+                    return `
+                            <div class="noticia-card" style="cursor:pointer; width: 300px; max-width: 30%; margin: 1%; background-color: #fdfdfd; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column;" onclick="window.showNewsDetail(${n.id})">
+                                <img src="${media}" alt="${n.headline}" style="width: 100%; height: 200px; object-fit: cover;">
+                                <div class="noticia-card-body" style="padding: 15px; flex-grow: 1;">
+                                    <a onclick="event.preventDefault(); window.showNewsDetail(${n.id})" class="redireccion" style="cursor:pointer; text-decoration: none;">
+                                        <h2 style="margin: 0; color: #0656c5; font-size: 1.1rem; line-height: 1.3;">${n.headline}</h2>
+                                    </a>
+                                </div>
+                            </div>`;
+                }).join('')}
+                    </div>
+                    ${totalPages > 1 ? `
+                    <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px; padding-bottom: 20px;">
+                        <button onclick="window.changeNewsCategoryPage('${catDef.id}', -1)" ${safePage === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : 'style="cursor:pointer;"'} class="public-page-btn" style="padding: 8px 16px; background-color: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 600;"><i class="fas fa-chevron-left"></i> Anterior</button>
+                        <span style="display:flex; align-items:center; color: #333; font-weight: bold; font-family: Verdana;">Página ${safePage} de ${totalPages}</span>
+                        <button onclick="window.changeNewsCategoryPage('${catDef.id}', 1)" ${safePage === totalPages ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : 'style="cursor:pointer;"'} class="public-page-btn" style="padding: 8px 16px; background-color: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 600;">Siguiente <i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    ` : ''}
+                </section>`;
+            }
         });
 
         // Para noticias que no encajen en esas categorías
-        const otherNews = pagedNews.filter(n => !categoriesList.find(c => c.id === n.category) && n.category !== 'Carrusel de Noticias');
-        if (otherNews.length > 0) {
+        const otherNewsAll = news.filter(n => !categoriesList.find(c => c.id === n.category) && n.category !== 'Carrusel de Noticias');
+        if (otherNewsAll.length > 0) {
+            const currentPage = newsCategoryPages['Otras'] || 1;
+            const totalPages = Math.ceil(otherNewsAll.length / newsCardsPerPage);
+
+            if (currentPage > totalPages && totalPages > 0) newsCategoryPages['Otras'] = totalPages;
+            if (currentPage < 1) newsCategoryPages['Otras'] = 1;
+
+            const safePage = newsCategoryPages['Otras'];
+            const otherNewsPaged = otherNewsAll.slice((safePage - 1) * newsCardsPerPage, safePage * newsCardsPerPage);
+
             html += `
                 <section class="course-container-noticias2">
                     <div class="titulo_noticia">
                         <h2>Otras Noticias</h2>
                     </div>
-                    <div class="noticias">
-                        ${otherNews.map(n => {
+                    <div class="noticias" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; align-items: stretch; padding: 0 2% 2% 2%;">
+                        ${otherNewsPaged.map(n => {
                 const media = n.multimedia || 'Assets/images/img8.jpg';
                 return `
-                            <div class="noticia-card" style="cursor:pointer;" onclick="window.showNewsDetail(${n.id})">
-                                <img src="${media}" alt="${n.headline}">
-                                <div class="noticia-card-body">
-                                    <a onclick="event.preventDefault(); window.showNewsDetail(${n.id})" class="redireccion" style="cursor:pointer;"><h2>${n.headline}</h2></a>
+                            <div class="noticia-card" style="cursor:pointer; width: 300px; max-width: 30%; margin: 1%; background-color: #fdfdfd; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column;" onclick="window.showNewsDetail(${n.id})">
+                                <img src="${media}" alt="${n.headline}" style="width: 100%; height: 200px; object-fit: cover;">
+                                <div class="noticia-card-body" style="padding: 15px; flex-grow: 1;">
+                                    <a onclick="event.preventDefault(); window.showNewsDetail(${n.id})" class="redireccion" style="cursor:pointer; text-decoration: none;">
+                                        <h2 style="margin: 0; color: #0656c5; font-size: 1.1rem; line-height: 1.3;">${n.headline}</h2>
+                                    </a>
                                 </div>
                             </div>`;
             }).join('')}
                     </div>
+                    ${totalPages > 1 ? `
+                    <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px; padding-bottom: 20px;">
+                        <button onclick="window.changeNewsCategoryPage('Otras', -1)" ${safePage === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : 'style="cursor:pointer;"'} class="public-page-btn" style="padding: 8px 16px; background-color: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 600;"><i class="fas fa-chevron-left"></i> Anterior</button>
+                        <span style="display:flex; align-items:center; color: #333; font-weight: bold; font-family: Verdana;">Página ${safePage} de ${totalPages}</span>
+                        <button onclick="window.changeNewsCategoryPage('Otras', 1)" ${safePage === totalPages ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : 'style="cursor:pointer;"'} class="public-page-btn" style="padding: 8px 16px; background-color: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 600;">Siguiente <i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    ` : ''}
                 </section>`;
         }
 
         wrapper.innerHTML = html;
-
-        if (pagination && totalPages > 1) {
-            let pagHtml = `<button onclick="window.publicChangeNewsPage(${page - 1})" ${page === 1 ? 'disabled style="opacity:0.4"' : ''} style="background:transparent;border:1px solid #ccc;border-radius:4px;padding:5px 10px;cursor:pointer;"><i class="fas fa-chevron-left"></i></button>`;
-            for (let i = 1; i <= totalPages; i++) {
-                pagHtml += `<button onclick="window.publicChangeNewsPage(${i})" style="background:${page === i ? '#530e90' : 'white'};color:${page === i ? 'white' : '#333'};padding:5px 10px;border-radius:4px;border:1px solid #ccc;cursor:pointer;">${i}</button>`;
-            }
-            pagHtml += `<button onclick="window.publicChangeNewsPage(${page + 1})" ${page === totalPages ? 'disabled style="opacity:0.4"' : ''} style="background:transparent;border:1px solid #ccc;border-radius:4px;padding:5px 10px;cursor:pointer;"><i class="fas fa-chevron-right"></i></button>`;
-            pagination.innerHTML = pagHtml;
-        } else if (pagination) {
-            pagination.innerHTML = '';
-        }
-    }
+        if (pagination) pagination.innerHTML = '';
+    };
 
     window.showNewsDetail = function (id) {
         const grid = document.getElementById('view-noticias');
@@ -650,16 +700,17 @@ if (document.readyState === 'loading') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const btnVolverNews = document.getElementById('btn-volver-noticias');
-        if (btnVolverNews) {
-            btnVolverNews.addEventListener('click', () => {
-                document.getElementById('view-noticia-detalle').classList.add('public-hidden');
-                document.getElementById('view-noticia-detalle').classList.remove('public-active');
-                document.getElementById('view-noticias').classList.add('public-active');
-                document.getElementById('view-noticias').classList.remove('public-hidden');
+    document.addEventListener('click', (e) => {
+        if (e.target && (e.target.id === 'btn-volver-noticias' || e.target.closest('#btn-volver-noticias'))) {
+            const viewDetail = document.getElementById('view-noticia-detalle');
+            const viewList = document.getElementById('view-noticias');
+            if (viewDetail && viewList) {
+                viewDetail.classList.add('public-hidden');
+                viewDetail.classList.remove('public-active');
+                viewList.classList.add('public-active');
+                viewList.classList.remove('public-hidden');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
+            }
         }
     });
 
@@ -770,16 +821,17 @@ if (document.readyState === 'loading') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const btnVolverProj = document.getElementById('btn-volver-proyectos');
-        if (btnVolverProj) {
-            btnVolverProj.addEventListener('click', () => {
-                document.getElementById('view-proyecto-detalle').classList.add('public-hidden');
-                document.getElementById('view-proyecto-detalle').classList.remove('public-active');
-                document.getElementById('view-proyectos').classList.add('public-active');
-                document.getElementById('view-proyectos').classList.remove('public-hidden');
+    document.addEventListener('click', (e) => {
+        if (e.target && (e.target.id === 'btn-volver-proyectos' || e.target.closest('#btn-volver-proyectos'))) {
+            const viewDetail = document.getElementById('view-proyecto-detalle');
+            const viewList = document.getElementById('view-proyectos');
+            if (viewDetail && viewList) {
+                viewDetail.classList.add('public-hidden');
+                viewDetail.classList.remove('public-active');
+                viewList.classList.add('public-active');
+                viewList.classList.remove('public-hidden');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
+            }
         }
     });
 
@@ -790,6 +842,19 @@ if (document.readyState === 'loading') {
         return JSON.parse(localStorage.getItem('dcti_strategic')) || [];
     }
 
+    let currentEjePage = 1;
+    const ejesPerPage = 6;
+
+    window.publicChangeEjePage = function (page) {
+        const ejes = getPublicEjes();
+        const totalPages = Math.ceil(ejes.length / ejesPerPage);
+        if (page < 1 || page > totalPages) return;
+        currentEjePage = page;
+        window.renderPublicEjes();
+        const grid = document.getElementById('public-ejes-grid');
+        if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
     window.renderPublicEjes = function () {
         const grid = document.getElementById('public-ejes-grid');
         if (!grid) return;
@@ -798,23 +863,83 @@ if (document.readyState === 'loading') {
             grid.innerHTML = `<div style="text-align:center;width:100%;padding:40px;color:#64748b;">No hay información disponible sobre los ejes de gestión.</div>`;
             return;
         }
-        grid.innerHTML = ejes.map((eje, index) => {
-            const isOdd = index % 2 === 0;
-            const cardClass = isOdd ? 'eje-card-odd' : 'eje-card-even';
-            const bgMedia = eje.multimedia || 'Assets/images/img7.jpg';
-            const goals = (eje.goals || '').split('\n').filter(g => g.trim());
-            const goalsHtml = goals.length ? `<ul>${goals.map(g => `<li>${g.replace(/^- /, '')}</li>`).join('')}</ul>` : '';
 
-            return `
-                <article class="${cardClass}">
-                    <img src="${bgMedia}" alt="${eje.title}">
-                    <div class="contenido-eje-new">
-                        <h2>${eje.title}</h2>
-                        <p>${eje.description}</p>
-                        ${goalsHtml}
+        const totalPages = Math.ceil(ejes.length / ejesPerPage);
+        if (currentEjePage > totalPages) currentEjePage = totalPages;
+        const start = (currentEjePage - 1) * ejesPerPage;
+        const slice = ejes.slice(start, start + ejesPerPage);
+
+        let html = `<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 20px 0;">`;
+
+        slice.forEach((eje, localIdx) => {
+            const globalIndex = start + localIdx;
+            const bgMedia = eje.image || 'Assets/images/img7.jpg';
+            const title = eje.area || 'Sin Título';
+            const description = eje.description || '';
+            const shortDesc = description.length > 120 ? description.substring(0, 120) + '...' : description;
+
+            html += `
+                <article style="display: flex; flex-direction: column; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; width: 350px; max-width: 100%; transition: transform 0.2s ease; margin-bottom: 20px;">
+                    <div style="width: 100%; height: 200px; overflow: hidden; cursor: pointer;" onclick="if(typeof openEjeModal === 'function') openEjeModal(${globalIndex})">
+                        <img src="${bgMedia}" alt="${title}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    </div>
+                    <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1;">
+                        <h2 style="margin: 0 0 12px 0; color: #530e90; font-size: 1.3rem; line-height: 1.3; overflow-wrap: anywhere; word-break: break-word;">${title}</h2>
+                        <p style="margin: 0 0 20px 0; color: #475569; line-height: 1.6; font-size: 0.95rem; overflow-wrap: anywhere; word-break: break-word;">${shortDesc}</p>
+                        <button onclick="if(typeof openEjeModal === 'function') openEjeModal(${globalIndex})" style="margin-top: auto; align-self: flex-start; background: transparent; color: #530e90; border: 1px solid #530e90; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#530e90'; this.style.color='white';" onmouseout="this.style.background='transparent'; this.style.color='#530e90';">Ver Detalles</button>
                     </div>
                 </article>`;
-        }).join('');
+        });
+
+        html += `</div>`;
+
+        // Paginación discreta (solo visible si hay más de una página)
+        if (totalPages > 1) {
+            html += `<div style="display: flex; justify-content: center; align-items: center; gap: 8px; padding: 10px 0 30px 0;">`;
+            html += `<button onclick="window.publicChangeEjePage(${currentEjePage - 1})" ${currentEjePage === 1 ? 'disabled' : ''} style="width:32px;height:32px;border:1px solid #e2e8f0;background:white;border-radius:50%;cursor:${currentEjePage === 1 ? 'default' : 'pointer'};opacity:${currentEjePage === 1 ? '0.3' : '1'};display:flex;align-items:center;justify-content:center;"><i class="fas fa-chevron-left" style="font-size:0.75rem;"></i></button>`;
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button onclick="window.publicChangeEjePage(${i})" style="width:32px;height:32px;border:1px solid ${currentEjePage === i ? '#530e90' : '#e2e8f0'};background:${currentEjePage === i ? '#530e90' : 'white'};color:${currentEjePage === i ? 'white' : '#475569'};border-radius:50%;cursor:pointer;font-size:0.85rem;font-weight:600;">${i}</button>`;
+            }
+            html += `<button onclick="window.publicChangeEjePage(${currentEjePage + 1})" ${currentEjePage === totalPages ? 'disabled' : ''} style="width:32px;height:32px;border:1px solid #e2e8f0;background:white;border-radius:50%;cursor:${currentEjePage === totalPages ? 'default' : 'pointer'};opacity:${currentEjePage === totalPages ? '0.3' : '1'};display:flex;align-items:center;justify-content:center;"><i class="fas fa-chevron-right" style="font-size:0.75rem;"></i></button>`;
+            html += `</div>`;
+        }
+
+        grid.innerHTML = html;
+    };
+
+    window.openEjeModal = function (index) {
+        const ejes = getPublicEjes();
+        const eje = ejes[index];
+        if (!eje) return;
+
+        let modal = document.getElementById('eje-public-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'eje-public-modal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(4px);';
+            modal.onclick = function (e) { if (e.target === this) this.style.opacity = '0', setTimeout(() => this.style.display = 'none', 200); };
+            document.body.appendChild(modal);
+        }
+
+        const bgMedia = eje.image || 'Assets/images/img7.jpg';
+
+        modal.innerHTML = `
+            <div style="background: white; border-radius: 12px; overflow: hidden; max-width: 650px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); transition: transform 0.2s ease;">
+                <div style="position: relative; height: 260px; flex-shrink: 0; background: #e2e8f0;">
+                    <img src="${bgMedia}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <button onclick="document.getElementById('eje-public-modal').style.opacity='0'; setTimeout(() => document.getElementById('eje-public-modal').style.display='none', 200);" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); transition: background 0.2s ease;" onmouseover="this.style.background='rgba(0,0,0,0.8)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">&times;</button>
+                </div>
+                <div style="padding: 35px; overflow-y: auto;">
+                    <h2 style="margin: 0 0 10px 0; color: #530e90; font-size: 1.8rem; line-height: 1.2; overflow-wrap: anywhere; word-break: break-word;">${eje.area || 'Sin Título'}</h2>
+                    ${eje.responsible ? `<div style="color: #64748b; font-size: 0.95rem; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center;"><i class="fas fa-user-tie" style="margin-right: 8px;"></i> Responsable: <strong style="margin-left: 5px; color: #475569;">${eje.responsible}</strong></div>` : ''}
+                    <div style="color: #334155; font-size: 1.05rem; line-height: 1.8; overflow-wrap: anywhere; word-break: break-word;">
+                        ${(eje.description || '').replace(/\n/g, '<br><br>')}
+                    </div>
+                </div>
+            </div>
+        `;
+        modal.style.display = 'flex';
+        setTimeout(() => modal.style.opacity = '1', 10);
     };
 
     // ==============================================

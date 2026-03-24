@@ -45,7 +45,6 @@ function openStrategicModal(id = null) {
     if (id) {
         title.textContent = 'Editar Área Estratégica';
         editIdInput.value = id;
-        if (galleryTitle) galleryTitle.textContent = 'Publicadas';
 
         const allAreas = getLocalStrategic();
         const area = allAreas.find(a => a.id == id);
@@ -55,14 +54,10 @@ function openStrategicModal(id = null) {
             document.getElementById('admin-strategic-responsible').value = area.responsible || '';
             document.getElementById('admin-strategic-description').value = area.description || '';
 
-            // Handle backwards compatibility for string arrays vs objects
-            if (area.images) {
-                strategicImageQueue = area.images.map(img => {
-                    if (typeof img === 'string') return { id: Date.now() + Math.random(), image: img, title: '', description: '' };
-                    return img; // Already an object
-                });
-            } else if (area.image) {
-                strategicImageQueue = [{ id: Date.now() + Math.random(), image: area.image, title: '', description: '' }];
+            if (area.image) {
+                strategicImageQueue = [{ id: Date.now() + Math.random(), image: area.image }];
+            } else if (area.images && area.images.length > 0) {
+                strategicImageQueue = [{ id: Date.now() + Math.random(), image: area.images[0].image || area.images[0] }];
             } else {
                 strategicImageQueue = [];
             }
@@ -70,7 +65,6 @@ function openStrategicModal(id = null) {
     } else {
         title.textContent = 'Nueva Área Estratégica';
         editIdInput.value = '';
-        if (galleryTitle) galleryTitle.textContent = 'Imágenes del Carrusel (Añada textos descriptivos)';
     }
 
     renderStrategicGallery();
@@ -85,74 +79,50 @@ function closeStrategicModal() {
 
 document.addEventListener('change', async (e) => {
     if (e.target && e.target.id === 'admin-strategic-file') {
-        const files = Array.from(e.target.files);
-        if (files.length === 0) return;
+        const file = e.target.files[0];
+        if (!file) return;
 
-        let remainingSlots = 4 - strategicImageQueue.length;
-        if (remainingSlots <= 0) {
-            AlertService.notify('Límite alcanzado', 'Solo puedes subir un máximo de 4 imágenes por área.', 'warning');
+        if (!file.type.startsWith('image/')) {
+            AlertService.notify('Archivo inválido', `El archivo ${file.name} no es una imagen.`, 'error');
             e.target.value = '';
             return;
         }
 
-        const filesToProcess = files.slice(0, remainingSlots);
-        if (files.length > remainingSlots) {
-            AlertService.notify('Límite excedido', `Se subirán solo las primeras ${remainingSlots} imágenes seleccionadas para no superar el límite de 4.`, 'warning');
-        }
+        try {
+            const base64 = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800;
+                        const MAX_HEIGHT = 800;
+                        let width = img.width;
+                        let height = img.height;
 
-        for (const file of filesToProcess) {
-            if (!file.type.startsWith('image/')) {
-                AlertService.notify('Archivo inválido', `El archivo ${file.name} no es una imagen.`, 'error');
-                continue;
-            }
+                        if (width > height) {
+                            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                        } else {
+                            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                        }
 
-            try {
-                const base64 = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.readAsDataURL(file);
-                    reader.onload = () => {
-                        const img = new Image();
-                        img.onload = () => {
-                            const canvas = document.createElement('canvas');
-                            const MAX_WIDTH = 1200;
-                            const MAX_HEIGHT = 1200;
-                            let width = img.width;
-                            let height = img.height;
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
 
-                            if (width > height) {
-                                if (width > MAX_WIDTH) {
-                                    height *= MAX_WIDTH / width;
-                                    width = MAX_WIDTH;
-                                }
-                            } else {
-                                if (height > MAX_HEIGHT) {
-                                    width *= MAX_HEIGHT / height;
-                                    height = MAX_HEIGHT;
-                                }
-                            }
-
-                            canvas.width = width;
-                            canvas.height = height;
-                            const ctx = canvas.getContext('2d');
-                            ctx.drawImage(img, 0, 0, width, height);
-
-                            resolve(canvas.toDataURL('image/jpeg', 0.8));
-                        };
-                        img.onerror = reject;
-                        img.src = reader.result;
+                        resolve(canvas.toDataURL('image/jpeg', 0.7));
                     };
-                    reader.onerror = reject;
-                });
+                    img.onerror = reject;
+                    img.src = reader.result;
+                };
+                reader.onerror = reject;
+            });
 
-                strategicImageQueue.push({
-                    id: Date.now() + Math.random(),
-                    image: base64,
-                    title: '',
-                    description: ''
-                });
-            } catch (err) {
-                AlertService.notify('Error', `No se pudo procesar la imagen ${file.name}.`, 'error');
-            }
+            strategicImageQueue = [{ id: Date.now() + Math.random(), image: base64 }];
+        } catch (err) {
+            AlertService.notify('Error', `No se pudo procesar la imagen ${file.name}.`, 'error');
         }
 
         renderStrategicGallery();
@@ -174,8 +144,8 @@ function handleStrategicImageChange(event, index) {
         const img = new Image();
         img.onload = () => {
             const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 1200;
-            const MAX_HEIGHT = 1200;
+            const MAX_WIDTH = 800;
+            const MAX_HEIGHT = 800;
             let width = img.width;
             let height = img.height;
 
@@ -190,7 +160,7 @@ function handleStrategicImageChange(event, index) {
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
 
-            strategicImageQueue[index].image = canvas.toDataURL('image/jpeg', 0.8);
+            strategicImageQueue[index].image = canvas.toDataURL('image/jpeg', 0.7);
             renderStrategicGallery();
         };
         img.src = reader.result;
@@ -207,9 +177,8 @@ function updateStrategicImageMetadata(index, field, value) {
 function renderStrategicGallery() {
     const preview = document.getElementById('admin-strategic-preview');
     const icon = document.getElementById('admin-strategic-placeholder-icon');
-    const gallery = document.getElementById('admin-strategic-gallery');
 
-    if (!preview || !gallery) return;
+    if (!preview) return;
 
     if (strategicImageQueue.length > 0) {
         preview.style.backgroundImage = `url(${strategicImageQueue[0].image})`;
@@ -218,37 +187,6 @@ function renderStrategicGallery() {
         preview.style.backgroundImage = 'none';
         if (icon) icon.style.display = 'block';
     }
-
-    let html = '';
-    for (let i = 0; i < 4; i++) {
-        if (i < strategicImageQueue.length) {
-            const item = strategicImageQueue[i];
-            // Construir una tarjeta interactiva para cada imagen de la cola
-            html += `
-                <div style="background: white; border-radius: 6px; border: 1px solid var(--color-border); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(0,0,0,0.05); grid-column: span 1;">
-                    <div style="position: relative; aspect-ratio: 16/9; background-image: url(${item.image}); background-size: cover; background-position: center;">
-                        <input type="file" id="strategic-change-img-${item.id}" accept="image/*" style="display: none;" onchange="handleStrategicImageChange(event, ${i})">
-                        <div style="position: absolute; top: 4px; right: 4px; display: flex; gap: 4px;">
-                            <button type="button" onclick="document.getElementById('strategic-change-img-${item.id}').click()" style="background: rgba(37, 99, 235, 0.9); color: white; border: none; border-radius: 4px; padding: 4px 6px; cursor: pointer; font-size: 0.7rem;" title="Cambiar la foto (mantiene los textos)"><i class="fas fa-sync-alt"></i></button>
-                            <button type="button" onclick="removeStrategicImage(${i})" style="background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 4px; padding: 4px 6px; cursor: pointer; font-size: 0.7rem;" title="Eliminar por completo"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                    <div style="padding: 8px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
-                        <input type="text" id="carousel-title-${item.id}" placeholder="Título para la imagen..." style="width: 100%; border: 1px solid #e2e8f0; border-radius: 4px; padding: 6px; font-size: 0.75rem;" value="${item.title || ''}" oninput="updateStrategicImageMetadata(${i}, 'title', this.value)">
-                        <textarea id="carousel-desc-${item.id}" placeholder="Descripción del carrusel..." style="width: 100%; border: 1px solid #e2e8f0; border-radius: 4px; padding: 6px; font-size: 0.75rem; height: 50px; resize: none;" oninput="updateStrategicImageMetadata(${i}, 'description', this.value)">${item.description || ''}</textarea>
-                    </div>
-                </div>
-            `;
-        } else {
-            // Placeholder vacío
-            html += `<div style="aspect-ratio: 9/12; background: #f8fafc; border-radius: 6px; border: 1px dashed #cbd5e1; display: flex; align-items: center; justify-content: center;"><span style="color: #94a3b8; font-size: 0.75rem;">Slot Vacío</span></div>`;
-        }
-    }
-
-    // Cambiar layout de grid en proyectos para que entren como tarjetas (en strategic.js ya se inyecta en una grid apropiada, pero ajustaremos para tarjetas verticales)
-    gallery.style.gridTemplateColumns = 'repeat(2, 1fr)';
-    gallery.style.gap = '15px';
-    gallery.innerHTML = html;
 }
 
 // Function para uso legacy (no tan util aqui pero mantenemos por consistencia si se clickeaba imagen para main)

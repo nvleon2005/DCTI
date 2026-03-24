@@ -18,11 +18,13 @@ function getLocalDcti() {
         vision: "",
         review: "",
         organigrama: null,
+        consultasImage: null,
         phone: "",
         email: "",
         address: "",
         instagram: "",
-        facebook: ""
+        facebook: "",
+        twitter: ""
     };
 }
 
@@ -32,7 +34,7 @@ function getLocalDcti() {
 function saveLocalDcti(data) {
     if (!data.mission || !data.vision || !data.review || data.mission.trim() === '' || data.vision.trim() === '' || data.review.trim() === '') {
         if (typeof AlertService !== 'undefined') {
-            AlertService.notify('Todos los campos son obligatorios y no pueden contener solo espacios vacíos.', 'error');
+            AlertService.notify('Campos Obligatorios', 'Todos los campos son obligatorios y no pueden contener solo espacios vacíos.', 'error');
         }
         return false;
     }
@@ -45,7 +47,7 @@ function saveLocalDcti(data) {
     }
 
     if (typeof AlertService !== 'undefined') {
-        AlertService.notify('Información institucional actualizada correctamente.', 'success');
+        AlertService.notify('Información Actualizada', 'La información institucional ha sido actualizada correctamente.', 'success');
     }
     return true;
 }
@@ -114,6 +116,39 @@ function previewOrganigrama(event) {
 }
 
 /**
+ * Manejador de previsualización de imagen de Consultas (con compresión en canvas)
+ */
+function previewConsultasImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+        if (typeof AlertService !== 'undefined') AlertService.notify('Solo se permiten imágenes.', 'error');
+        event.target.value = '';
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+            const canvas = document.createElement('canvas');
+            const MAX_W = 800, MAX_H = 800;
+            let w = img.width, h = img.height;
+            if (w > h) { if (w > MAX_W) { h *= MAX_W / w; w = MAX_W; } }
+            else { if (h > MAX_H) { w *= MAX_H / h; h = MAX_H; } }
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            const dataUrl = canvas.toDataURL('image/webp', 0.7);
+            const preview = document.getElementById('admin-dcti-consultas-preview');
+            if (preview) { preview.src = dataUrl; preview.style.display = 'block'; }
+            const placeholder = document.getElementById('admin-dcti-consultas-placeholder');
+            if (placeholder) placeholder.style.display = 'none';
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+/**
  * Form handler for DCTI view
  */
 function handleDctiSubmit(event) {
@@ -129,17 +164,21 @@ function handleDctiSubmit(event) {
     const address = document.getElementById('admin-dcti-address') ? document.getElementById('admin-dcti-address').value.trim() : '';
     const instagram = document.getElementById('admin-dcti-instagram') ? document.getElementById('admin-dcti-instagram').value.trim() : '';
     const facebook = document.getElementById('admin-dcti-facebook') ? document.getElementById('admin-dcti-facebook').value.trim() : '';
+    const twitter = document.getElementById('admin-dcti-twitter') ? document.getElementById('admin-dcti-twitter').value.trim() : '';
 
     const lat = document.getElementById('admin-dcti-lat') ? document.getElementById('admin-dcti-lat').value : '9.7446818';
     const lng = document.getElementById('admin-dcti-lng') ? document.getElementById('admin-dcti-lng').value : '-63.1722970';
 
     const organigramaPreview = document.getElementById('admin-dcti-organigrama-preview');
-    const organigrama = organigramaPreview && organigramaPreview.style.display === 'block' ? organigramaPreview.src : null;
+    const organigrama = organigramaPreview && organigramaPreview.style.display === 'block' ? organigramaPreview.src : (getLocalDcti().organigrama || null);
 
-    const result = saveLocalDcti({ mission, vision, review, organigrama, phone, email, address, instagram, facebook, lat, lng });
+    const consultasPreview = document.getElementById('admin-dcti-consultas-preview');
+    const consultasImage = consultasPreview && consultasPreview.style.display === 'block' ? consultasPreview.src : (getLocalDcti().consultasImage || null);
+
+    const result = saveLocalDcti({ mission, vision, review, organigrama, consultasImage, phone, email, address, instagram, facebook, twitter, lat, lng });
 
     if (result && typeof renderModule === 'function') {
-        renderModule('dcti');
+        renderModule('admin-dcti');
     }
 }
 
@@ -181,15 +220,26 @@ function initAdminMap() {
 
     originalLatLng = { lat, lng }; // Guardamos el origen
 
-    // Si ya existe instancia, solo actualizamos vista
+    // Si ya existe instancia, destruirla completamente antes de recrear
     if (adminMapInstance) {
         adminMapInstance.remove();
+        adminMapInstance = null;
+    }
+
+    // Limpiar el atributo _leaflet_id que Leaflet deja en el contenedor
+    // para que no lance el error "Map container is already initialized"
+    if (container._leaflet_id) {
+        delete container._leaflet_id;
     }
 
     // Crear mapa centrado en coordenadas
-    adminMapInstance = L.map('admin-dcti-map-container').setView([lat, lng], 16);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap'
+    adminMapInstance = L.map('admin-dcti-map-container', {
+        attributionControl: false
+    }).setView([lat, lng], 17);
+
+    // Sincronizado con el portal público: Servidor de Google Maps para referencias consistentes
+    L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+        maxZoom: 20
     }).addTo(adminMapInstance);
 
     // Agregar marcador (inicialmente bloqueado)
@@ -289,6 +339,7 @@ window.getLocalDcti = getLocalDcti;
 window.saveLocalDcti = saveLocalDcti;
 window.handleDctiSubmit = handleDctiSubmit;
 window.previewOrganigrama = previewOrganigrama;
+window.previewConsultasImage = previewConsultasImage;
 window.initAdminMap = initAdminMap;
 window.unlockAdminMap = unlockAdminMap;
 window.resetAdminMap = resetAdminMap;

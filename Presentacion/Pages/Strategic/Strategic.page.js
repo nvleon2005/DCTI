@@ -21,7 +21,7 @@ const StrategicView = {
                     ${areas.map(s => `
                         <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                             <div style="height: 120px; background: #f1f5f9; position: relative; overflow: hidden;">
-                                <img src="${(s.images && s.images.length > 0) ? s.images[0] : (s.image || 'Assets/images/img4.jpg')}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;">
+                                <img src="${s.image || 'Assets/images/img4.jpg'}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;" onerror="this.src='Assets/images/img4.jpg'">
                                 <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 10px; background: linear-gradient(transparent, rgba(0,0,0,0.6)); color: white;">
                                     <h3 style="font-size: 1rem; margin: 0;">${s.area}</h3>
                                 </div>
@@ -77,18 +77,13 @@ const StrategicView = {
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr)); gap: 30px; box-sizing: border-box;">
                                 <!-- Columna Izquierda: Imagen y Carrusel -->
                                 <div style="display: flex; flex-direction: column;">
-                                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--color-text-muted);">Añadir imágenes</label>
-                                    <div style="position: relative; width: 100%; aspect-ratio: 1; background: #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
+                                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--color-text-muted);">Imagen Principal</label>
+                                    <div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
                                         <div id="admin-strategic-preview" style="width: 100%; height: 100%; border-radius: 8px; background-color: #cbd5e1; background-position: center; background-size: cover; position: relative; border: 2px dashed var(--color-border); display: flex; align-items: center; justify-content: center;">
-                                            <input type="file" id="admin-strategic-file" accept="image/*" multiple style="opacity: 0; position: absolute; width: 100%; height: 100%; cursor: pointer; z-index: 10;">
+                                            <input type="file" id="admin-strategic-file" accept="image/*" style="opacity: 0; position: absolute; width: 100%; height: 100%; cursor: pointer; z-index: 10;">
                                             <i class="fas fa-image placeholder-icon" id="admin-strategic-placeholder-icon" style="font-size: 2rem; color: #94a3b8; pointer-events: none;"></i>
                                         </div>
-                                        <button type="button" onclick="document.getElementById('admin-strategic-file').click()" style="position: absolute; bottom: -15px; right: -15px; width: 36px; height: 36px; border-radius: 50%; background: #2563eb; color: white; border: none; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; z-index: 11; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer;" title="Subir Imágenes">+</button>
-                                    </div>
-                                    
-                                    <label id="strategic-gallery-title" style="display: block; margin-bottom: 10px; font-size: 0.9rem; color: var(--color-text-muted);">Publicadas</label>
-                                    <div id="admin-strategic-gallery" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
-                                        <!-- Dynamic gallery injected here -->
+                                        <button type="button" onclick="document.getElementById('admin-strategic-file').click()" style="position: absolute; bottom: -15px; right: -15px; width: 36px; height: 36px; border-radius: 50%; background: #2563eb; color: white; border: none; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; z-index: 11; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer;" title="Subir Imagen">+</button>
                                     </div>
                                 </div>
 

@@ -9,8 +9,11 @@ const App = {
     },
 
     start: (user) => {
-        // En modo SPA, si el usuario es visitante, nos quedamos en el portal público
-        if (user.role === 'visitante') {
+        const currentHash = window.location.hash.replace('#', '');
+        const isNavigatingToAdmin = currentHash === 'dashboard' || currentHash === 'profile' || currentHash === 'my-courses';
+
+        // En modo SPA, si el usuario es visitante y no está intentando entrar explícitamente a su perfil, nos quedamos en el portal público
+        if (user.role === 'visitante' && !isNavigatingToAdmin) {
             // Ocultar capas de auth/admin
             const authScreen = document.getElementById('auth-view-root');
             const adminRoot = document.getElementById('admin-root');

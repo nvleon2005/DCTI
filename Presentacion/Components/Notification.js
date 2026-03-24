@@ -46,6 +46,22 @@ const AlertService = {
         }, duration);
     },
 
+    success(message, title = 'Éxito', duration = 4000) {
+        this.notify(title, message, 'success', duration);
+    },
+
+    error(message, title = 'Error', duration = 4000) {
+        this.notify(title, message, 'error', duration);
+    },
+
+    warning(message, title = 'Atención', duration = 4000) {
+        this.notify(title, message, 'warning', duration);
+    },
+
+    info(message, title = 'Información', duration = 4000) {
+        this.notify(title, message, 'info', duration);
+    },
+
     async confirm(title, message, confirmText = 'Confirmar', cancelText = 'Cancelar', isDanger = false) {
         return new Promise((resolve) => {
             const overlay = document.createElement('div');

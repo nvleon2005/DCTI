@@ -94,6 +94,12 @@ async function handleLogin(e) {
                 const sessionToken = btoa(JSON.stringify({ email: user.email, role: user.role, iat: Date.now() }));
                 localStorage.setItem('dcti_session', JSON.stringify({ ...user, token: sessionToken }));
 
+                // Iniciar la sesión a nivel de aplicación (refresca el dropdown/navbar visualmente)
+                if (typeof App !== 'undefined') {
+                    const fullSession = JSON.parse(localStorage.getItem('dcti_session'));
+                    App.start(fullSession);
+                }
+
                 // Redirigir usando el Router para mantener consistencia SPA
                 if (user.role === 'admin' || user.role === 'editor') {
                     Router.navigateTo('dashboard');

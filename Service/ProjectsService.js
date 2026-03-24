@@ -23,10 +23,19 @@ function getLocalProjects() {
 }
 
 function saveLocalProjects(projectsArray) {
-    localStorage.setItem('dcti_projects', JSON.stringify(projectsArray));
-    // Actualizar stats globales
-    if (typeof MOCK_DATA !== 'undefined') {
-        MOCK_DATA.stats.projects = projectsArray.length;
+    try {
+        localStorage.setItem('dcti_projects', JSON.stringify(projectsArray));
+        // Actualizar stats globales
+        if (typeof MOCK_DATA !== 'undefined') {
+            MOCK_DATA.stats.projects = projectsArray.length;
+        }
+    } catch (e) {
+        if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+            AlertService.notify('Almacenamiento Lleno', 'No hay espacio para guardar los datos. Intente borrar otros registros o subir imágenes más pequeñas.', 'error');
+        } else {
+            console.error('Error guardando proyectos en localStorage:', e);
+        }
+        throw e;
     }
 }
 
@@ -140,8 +149,8 @@ document.addEventListener('change', async (e) => {
                         const img = new Image();
                         img.onload = () => {
                             const canvas = document.createElement('canvas');
-                            const MAX_WIDTH = 1200;
-                            const MAX_HEIGHT = 1200;
+                            const MAX_WIDTH = 800;
+                            const MAX_HEIGHT = 800;
                             let width = img.width;
                             let height = img.height;
 
@@ -156,7 +165,7 @@ document.addEventListener('change', async (e) => {
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
 
-                            resolve(canvas.toDataURL('image/webp', 0.85)); // Usando WEBP con soporte de transparencia
+                            resolve(canvas.toDataURL('image/webp', 0.7)); // Usando WEBP con soporte de transparencia
                         };
                         img.onerror = reject;
                         img.src = reader.result;
@@ -327,11 +336,15 @@ async function handleProjectSubmit(e) {
         AlertService.notify('Éxito', 'Nuevo proyecto registrado satisfactoriamente.', 'success');
     }
 
-    saveLocalProjects(allProjects);
-    closeProjectModal();
+    try {
+        saveLocalProjects(allProjects);
+        closeProjectModal();
 
-    if (typeof renderModule === 'function') {
-        renderModule('projects');
+        if (typeof renderModule === 'function') {
+            renderModule('projects');
+        }
+    } catch (e) {
+        console.warn("La persistencia del proyecto fue abortada debido a falta de espacio local.");
     }
 }
 

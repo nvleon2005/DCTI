@@ -146,7 +146,18 @@ const Router = {
     showAdminView: function (viewId) {
         const session = JSON.parse(localStorage.getItem('dcti_session'));
 
-        if (session && (session.role === 'admin' || session.role === 'editor')) {
+        if (!session) {
+            // Sin sesión: volver a inicio y mostrar login
+            this.navigateTo('inicio');
+            return;
+        }
+
+        const role = session.role;
+        const isAdmin = role === 'admin' || role === 'editor';
+        // Rutas que visitantes pueden ver (su propio perfil y sus cursos)
+        const visitorAllowed = ['profile', 'my-courses', 'dashboard'];
+
+        if (isAdmin || visitorAllowed.includes(viewId)) {
             const publicPortal = document.getElementById('public-portal');
             const adminRoot = document.getElementById('admin-root');
             const authRoot = document.getElementById('auth-view-root');
@@ -161,12 +172,17 @@ const Router = {
             }
 
             if (typeof renderModule === 'function') {
-                renderModule(viewId);
+                // Visitantes que navegan a 'dashboard' van directamente a su perfil
+                const targetView = (!isAdmin && viewId === 'dashboard') ? 'profile' : viewId;
+                renderModule(targetView);
             }
         } else {
-            // Si no hay sesión, volver a inicio o mostrar login
+            // Visitante que intenta acceder a rutas de admin → regresar al inicio y navegar al portal
+            const publicPortal = document.getElementById('public-portal');
+            const adminRoot = document.getElementById('admin-root');
+            if (publicPortal) publicPortal.classList.remove('hidden');
+            if (adminRoot) adminRoot.classList.add('hidden');
             this.navigateTo('inicio');
-            if (typeof showLogin === 'function') showLogin();
         }
     },
 

@@ -250,7 +250,7 @@ function renderModule(id, skipAnimation = false) {
     if (id === 'dashboard' && typeof DashboardController !== 'undefined') {
         DashboardController.initChart();
     }
-    if (id === 'dcti' && typeof initAdminMap === 'function') {
+    if ((id === 'admin-dcti' || id === 'dcti') && typeof initAdminMap === 'function') {
         setTimeout(initAdminMap, 100);
     }
 

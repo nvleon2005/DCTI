@@ -1,16 +1,16 @@
 /* ===========================================================
    PORTAL DCTI - HOJA DE ESTILOS UNIFICADA
-   Fusi√≥n de: fluid-styles.css + main.css + custom-alerts.css
+   FusiÛn de: fluid-styles.css + main.css + custom-alerts.css
    ===========================================================
 
-   √çNDICE:
+   ÕNDICE:
     1. Tokens Globales (Custom Properties)
     2. Reset y Base
     3. Scrollbar Personalizado
     4. Dashboard Admin (Sidebar, Header, Vistas)
     5. Modales y Formularios (Admin)
-    6. Portal P√∫blico (Header, Carruseles, Vistas, Footer)
-    7. Sistema de Alertas (Toast y Confirmaci√≥n)
+    6. Portal P˙blico (Header, Carruseles, Vistas, Footer)
+    7. Sistema de Alertas (Toast y ConfirmaciÛn)
    ===========================================================
 */
 /* ========================== 1-5. ADMIN DASHBOARD CSS ========================== */
@@ -54,11 +54,13 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+html { font-size: 14.5px; }
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Verdana', sans-serif;
 }
 
 /* CUSTOM SCROLLBAR */
@@ -90,7 +92,7 @@
 
 body {
     background-color: var(--color-bg);
-    color: var(--color-text-main);
+    color: #333;
     height: 100vh;
     overflow: hidden;
     margin: 0;
@@ -128,7 +130,7 @@ body {
 
     .login-card__right {
         display: none;
-        /* Ocultar el decorativo en m√≥viles para ahorrar espacio */
+        /* Ocultar el decorativo en mÛviles para ahorrar espacio */
     }
 
     .login-card__left {
@@ -157,7 +159,7 @@ body {
 .login-card__right {
     flex: 0.8;
     background: var(--grad-login-decor);
-    /* Card Decorativo: Tecnolog√≠a y Creatividad */
+    /* Card Decorativo: TecnologÌa y Creatividad */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -169,14 +171,14 @@ body {
     font-size: 2.2rem;
     font-weight: 800;
     color: #540E90;
-    /* P√∫rpura Institucional */
+    /* P˙rpura Institucional */
     margin-bottom: 0.5rem;
 }
 
 .login-header h2 {
     font-size: 1.2rem;
     color: #0656C5;
-    /* Azul Tecnolog√≠a */
+    /* Azul TecnologÌa */
     font-weight: 500;
     margin-bottom: 0.2rem;
 }
@@ -310,7 +312,7 @@ body {
 
 .btn-secondary {
     background: var(--color-surface);
-    color: var(--color-text-main);
+    color: #333;
     border: 1.5px solid var(--color-border);
     padding: 12px 20px;
     border-radius: var(--radius-md);
@@ -347,7 +349,7 @@ body {
 
 .login-links a {
     color: #540E90;
-    /* P√∫rpura Institucional */
+    /* P˙rpura Institucional */
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 600;
@@ -643,7 +645,7 @@ body {
     background: none;
     border: none;
     font-size: 1.2rem;
-    color: var(--color-text-main);
+    color: #333;
     cursor: pointer;
     margin-right: var(--space-md);
     padding: 5px;
@@ -946,7 +948,7 @@ body {
     margin-bottom: 5px;
     font-size: 0.85rem;
     font-weight: 700;
-    color: var(--color-text-main);
+    color: #333;
 }
 
 .form-group input,
@@ -987,10 +989,12 @@ body {
     /* Hospital shadow adaptation */
     background-color: #ffffff;
 }
-/* ========================== 6. PORTAL P√öBLICO CSS ========================== */
+/* ========================== 6. PORTAL P⁄BLICO CSS ========================== */
 /* --- PORTAL DCTI - CONSOLIDATED STYLES --- */
 
 /* Reset & General */
+html { font-size: 14.5px; }
+
 * {
     margin: 0;
     padding: 0;
@@ -1003,7 +1007,7 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Verdana', sans-serif;
     color: #333;
     line-height: 1.6;
 }
@@ -1132,7 +1136,7 @@ nav ul li a:hover,
     font-size: 200%;
     z-index: 10;
     background-color: rgba(83, 14, 144, 0.85);
-    /* Fondo morado transl√∫cido */
+    /* Fondo morado transl˙cido */
     color: #ffffff;
     padding: 15px 0;
 }
@@ -1233,7 +1237,7 @@ nav ul li a:hover,
 }
 
 .contenido-noticia h2 {
-    color: var(--color-primary);
+    color: #a01cad;
     margin-bottom: 15px;
 }
 
@@ -1363,7 +1367,7 @@ nav ul li a:hover,
     object-fit: cover;
 }
 
-/* Botones Navegaci√≥n Carruseles */
+/* Botones NavegaciÛn Carruseles */
 .btn-left,
 .btn-right,
 .btn-left-m,
@@ -1587,7 +1591,7 @@ nav ul li a:hover,
 .noticia-contenedor {
     display: flex;
     transition: transform 0.5s ease;
-    /* Transici√≥n suave al cambiar de noticia */
+    /* TransiciÛn suave al cambiar de noticia */
     width: 300%;
     height: 100%;
 }
@@ -1698,14 +1702,14 @@ nav ul li a:hover,
     }
 }
 
-/* Bot√≥n de noticias */
+/* BotÛn de noticias */
 .dots-container {
     position: absolute;
     left: 60%;
     bottom: 12px;
     transform: translate(-50%);
     display: flex;
-    /* Aseg√∫rate de que los puntos se alineen horizontalmente */
+    /* Aseg˙rate de que los puntos se alineen horizontalmente */
 }
 
 .dot {
@@ -1717,7 +1721,7 @@ nav ul li a:hover,
     margin: 0 3px;
     user-select: none;
     transition: background-color 0.3s;
-    /* Transici√≥n para el color */
+    /* TransiciÛn para el color */
 }
 
 .dot.active {
@@ -1747,12 +1751,12 @@ nav ul li a:hover,
     max-height: 250px;
     display: flex;
     transition: transform 0.6s ease;
-    /* Transici√≥n suave para el movimiento */
+    /* TransiciÛn suave para el movimiento */
 }
 
 .miniaturasc {
     width: calc(100%/4);
-    /* Muestra 4 im√°genes a la vez y resta el margen */
+    /* Muestra 4 im·genes a la vez y resta el margen */
     padding: 10px;
     max-height: 250px;
     border-radius: 10px;
@@ -1830,10 +1834,10 @@ footer {
     }
 }
 
-/* --- OVERRIDES RESPONSIVOS PARA M√ìVILES (Agregado Seguro) --- */
+/* --- OVERRIDES RESPONSIVOS PARA M”VILES (Agregado Seguro) --- */
 @media (max-width: 900px) {
 
-    /* Prevenci√≥n Global de Scroll Horizontal (Zooming out preventor) */
+    /* PrevenciÛn Global de Scroll Horizontal (Zooming out preventor) */
     html,
     body {
         overflow-x: hidden !important;
@@ -1893,7 +1897,7 @@ footer {
         transform: scale(1.1);
     }
 
-    /* Navbar m√≥vil deslizable horizontal (evita superposici√≥n) */
+    /* Navbar mÛvil deslizable horizontal (evita superposiciÛn) */
     nav {
         width: 100% !important;
         overflow: hidden;
@@ -1926,7 +1930,7 @@ footer {
         margin-left: 10px !important;
     }
 
-    /* Carrusel principal: Limitar alturas para m√≥viles */
+    /* Carrusel principal: Limitar alturas para mÛviles */
     .carrusel-principal {
         min-height: 250px !important;
         max-height: 350px !important;
@@ -1996,7 +2000,7 @@ footer {
 
 @media (max-width: 600px) {
 
-    /* Ajustes espec√≠ficos para tel√©fonos peque√±os */
+    /* Ajustes especÌficos para telÈfonos pequeÒos */
     .tc h2 {
         font-size: 1.2rem !important;
     }
@@ -2016,7 +2020,7 @@ footer {
     }
 }
 
-/* --- Estilos Globales para SPA P√∫blico --- */
+/* --- Estilos Globales para SPA P˙blico --- */
 
 .public-view {
     display: none;
@@ -2049,7 +2053,7 @@ footer {
     }
 }
 
-/* Modificadores de men√∫ activo */
+/* Modificadores de men˙ activo */
 .public-nav-active {
     color: var(--color-accent) !important;
     font-weight: 600;
@@ -2065,13 +2069,13 @@ footer {
     background-color: var(--color-accent);
 }
 
-/* --- VISTA EXACTA REPLICADA: DCTI (Misi√≥n / Visi√≥n) --- */
+/* --- VISTA EXACTA REPLICADA: DCTI (MisiÛn / VisiÛn) --- */
 #view-dcti {
     background-image: url('../images/img0.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Verdana', sans-serif;
     padding: 0;
     min-height: 100vh;
 }
@@ -2144,7 +2148,7 @@ footer {
     }
 }
 
-/* --- VISTA EXACTA REPLICADA: EJES DE GESTI√ìN (Carruseles) --- */
+/* --- VISTA EXACTA REPLICADA: EJES DE GESTI”N (Carruseles) --- */
 .view-ejes {
     padding: 0;
 }
@@ -2206,7 +2210,7 @@ footer {
     background: #ffffff;
 }
 
-/* Botones de navegaci√≥n */
+/* Botones de navegaciÛn */
 .dots-container-eje1,
 .dots-container-eje2,
 .dots-container-eje3,
@@ -2488,7 +2492,7 @@ footer {
     }
 }
 
-/* --- VISTA: EJES DE GESTI√ìN (Aesthetic Restaurada) --- */
+/* --- VISTA: EJES DE GESTI”N (Aesthetic Restaurada) --- */
 #view-ejes {
     padding: 0;
 }
@@ -3285,7 +3289,7 @@ footer {
     background-color: #044094;
 }
 
-/* --- MODAL DE INSCRIPCI√ìN --- */
+/* --- MODAL DE INSCRIPCI”N --- */
 .public-hidden-modal {
     display: none !important;
 }
@@ -3456,7 +3460,7 @@ footer {
     text-align: center;
 }
 
-/* --- Modal P√∫blico CSS Overlay --- */
+/* --- Modal P˙blico CSS Overlay --- */
 .public-modal-overlay {
     position: fixed;
     top: 0;
@@ -3554,15 +3558,15 @@ footer {
     }
 }
 
-/* --- OVERRIDES RESPONSIVOS GLOBALES PARA M√ìVILES (Agregado Seguro) --- */
+/* --- OVERRIDES RESPONSIVOS GLOBALES PARA M”VILES (Agregado Seguro) --- */
 @media (max-width: 900px) {
 
-    /* Contracci√≥n del padding principal para no comer espacio en m√≥vil */
+    /* ContracciÛn del padding principal para no comer espacio en mÛvil */
     .public-view {
         padding: clamp(1rem, 3vw, 2rem) clamp(0.5rem, 2vw, 1rem) !important;
     }
 
-    /* M√≥dulo DCTI */
+    /* MÛdulo DCTI */
     #view-dcti .main {
         padding: 0 5% !important;
     }
@@ -3583,7 +3587,7 @@ footer {
         margin: 0 !important;
     }
 
-    /* M√≥dulo Contactos */
+    /* MÛdulo Contactos */
     #view-contactos .container-form {
         flex-direction: column !important;
         width: 95% !important;
@@ -3598,7 +3602,7 @@ footer {
 
     #view-contactos .image-form {
         display: none !important;
-        /* Ocultar imagen auxiliar para ahorrar espacio en m√≥vil */
+        /* Ocultar imagen auxiliar para ahorrar espacio en mÛvil */
     }
 
     #view-contactos .contacto-container {
@@ -3615,7 +3619,7 @@ footer {
         height: 300px !important;
     }
 
-    /* Grillas M√≥dulos Noticias y Cursos */
+    /* Grillas MÛdulos Noticias y Cursos */
     #view-noticias .course-container,
     #view-noticias .course-container-noticias,
     #view-noticias .course-container-noticias2,
@@ -3652,7 +3656,7 @@ footer {
         font-size: 1.25rem !important;
     }
 
-    /* Modal de Detalles / Inscripci√≥n */
+    /* Modal de Detalles / InscripciÛn */
     .modal-content {
         width: 95% !important;
         margin: 2% auto !important;
@@ -3669,7 +3673,7 @@ footer {
     padding: 0;
 }
 
-/* T√≠tulo de Proyectos */
+/* TÌtulo de Proyectos */
 #view-proyectos .cabeza {
     display: block;
     background-color: #530e90;
@@ -3843,7 +3847,7 @@ footer {
 }
 
 #view-dcti .caja h2 {
-    color: var(--color-primary);
+    color: #0656c5;
     margin-bottom: 15px;
     text-align: center;
 }
@@ -3871,7 +3875,7 @@ footer {
     max-width: 1000px;
 }
 
-/* Ejes de Gesti√≥n Styles */
+/* Ejes de GestiÛn Styles */
 #view-ejes .view-section-title {
     color: var(--color-primary);
     margin-bottom: 2%;
@@ -3969,7 +3973,7 @@ footer {
     gap: 12px;
     padding: 10px 15px;
     border-radius: var(--radius-sm);
-    color: var(--color-text-main);
+    color: #333;
     text-decoration: none;
     font-size: 0.9rem;
     cursor: pointer;
@@ -4066,10 +4070,10 @@ footer {
 
 .btn-modal--cancel {
     background: var(--color-surface-muted);
-    color: var(--color-text-main);
+    color: #333;
 }
 
-/* Footer (Portal DCTI P√∫blico) */
+/* Footer (Portal DCTI P˙blico) */
 footer {
     background-image: url('../images/footer.png');
     background-size: cover;
@@ -4343,7 +4347,7 @@ html {
 .toast__title {
     font-weight: 700;
     font-size: 0.9rem;
-    color: var(--color-text-main);
+    color: #333;
     display: block;
 }
 
@@ -4352,7 +4356,7 @@ html {
     color: var(--color-text-muted);
 }
 
-/* Modal de Confirmaci√≥n */
+/* Modal de ConfirmaciÛn */
 .custom-modal-overlay {
     position: fixed;
     top: 0;
@@ -4412,7 +4416,7 @@ html {
 .custom-modal h3 {
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--color-text-main);
+    color: #333;
     margin-bottom: var(--space-xs);
 }
 
@@ -4440,7 +4444,7 @@ html {
 
 .btn-modal--cancel {
     background: var(--color-surface-muted);
-    color: var(--color-text-main);
+    color: #333;
 }
 
 .btn-modal--confirm {
@@ -4457,3 +4461,4 @@ html {
     transform: translateY(-2px);
     filter: brightness(1.1);
 }
+

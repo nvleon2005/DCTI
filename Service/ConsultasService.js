@@ -120,7 +120,25 @@ window.verConsultaCompleta = function (id) {
     }
 
     const btnMailto = document.getElementById('btn-modal-mailto');
-    btnMailto.href = `mailto:${consulta.correo}?subject=Respuesta a tu consulta en el Portal DCTI&body=Hola ${consulta.nombre},%0D%0A%0D%0AEn respuesta a tu consulta:%0D%0A"${consulta.consulta}"%0D%0A%0D%0A`;
+    btnMailto.removeAttribute('href'); // Quitar mailto nativo
+    btnMailto.onclick = (e) => {
+        e.preventDefault();
+        const container = document.getElementById('quick-reply-container');
+        container.classList.toggle('hidden');
+        if (!container.classList.contains('hidden')) {
+            document.getElementById('quick-reply-text').focus();
+        }
+    };
+
+    const btnSendReply = document.getElementById('btn-send-reply');
+    if (btnSendReply) {
+        btnSendReply.onclick = () => { window.enviarRespuestaConsulta(id); };
+    }
+
+    // Ocultar drawer al abrir otra consulta
+    document.getElementById('quick-reply-container').classList.add('hidden');
+    document.getElementById('quick-reply-text').value = '';
+
 
     // Mostrar modal
     document.getElementById('modal-ver-consulta').classList.remove('hidden');
@@ -138,10 +156,46 @@ window.toggleEstadoConsulta = function (id) {
             AlertService.success(`Consulta marcada como ${nuevoEstado}`);
         }
 
-        // Re-render
         if (typeof renderModule === 'function') {
             renderModule('consultas');
         }
+    }
+};
+
+window.enviarRespuestaConsulta = function (id) {
+    const textarea = document.getElementById('quick-reply-text');
+    const mensaje = textarea.value.trim();
+
+    if (!mensaje) {
+        if (typeof AlertService !== 'undefined') AlertService.notify('Atención', 'Debes escribir una respuesta antes de enviar.', 'warning');
+        return;
+    }
+
+    // 1. Simular envío por Email a través de Pasarela SMTP
+    // (En un entorno real aquí se haría un fetch POST a la API de backend, ej: SendGrid)
+
+    // 2. Marcar consulta como "Respondida" localmente
+    let consultas = ConsultasController.getConsultas();
+    let consultaIndex = consultas.findIndex(c => c.id == id);
+    if (consultaIndex !== -1) {
+        consultas[consultaIndex].estado = 'Respondida';
+        // Opcionalmente se podría guardar la respuesta en el objeto para consultar el historial después
+        consultas[consultaIndex].respuestaEmitida = mensaje;
+        consultas[consultaIndex].fechaRespuesta = new Date().toISOString();
+        ConsultasController.saveConsultas(consultas);
+    }
+
+    // 3. Limpiar y cerrar modales
+    textarea.value = '';
+    document.getElementById('quick-reply-container').classList.add('hidden');
+    document.getElementById('modal-ver-consulta').classList.add('hidden');
+
+    if (typeof AlertService !== 'undefined') {
+        AlertService.notify('Correo Enviado', 'La respuesta ha sido enviada exitosamente al solicitante.', 'success');
+    }
+
+    if (typeof renderModule === 'function') {
+        renderModule('consultas');
     }
 };
 
