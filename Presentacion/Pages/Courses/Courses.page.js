@@ -1,4 +1,4 @@
-const CoursesView = {
+﻿const CoursesView = {
     render: (data) => {
         const paginated = data.pagination;
         const courses = paginated ? paginated.items : data.courses;
@@ -46,7 +46,7 @@ const CoursesView = {
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">
                     ${courses.map(c => {
-            const coverImage = (c.images && c.images.length > 0) ? (c.images[0].image || c.images[0]) : 'Assets/images/img9.jpg';
+            const coverImage = (c.images && c.images.length > 0) ? (c.images[0].image || c.images[0]) : 'assets/images/img9.jpg';
             const isFinalizado = c.estadoCurso === 'Finalizado';
             const isPublicado = c.estadoCurso === 'Publicado';
 

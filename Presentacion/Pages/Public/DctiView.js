@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Presentacion/Pages/Public/DctiView.js
  * Vista Institucional (Reseña, Misión, Visión, Organigrama).
  */
@@ -21,7 +21,7 @@ window.DctiView = {
             console.error("Error leyendo info de la DCTI", e);
         }
 
-        const organigramaSrc = info.organigrama || 'Assets/images/organigrama_nuevo.png';
+        const organigramaSrc = info.organigrama || 'assets/images/organigrama_nuevo.png';
 
         return `
             <section id="view-dcti" class="public-view public-active">

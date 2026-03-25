@@ -1,4 +1,4 @@
-const MOCK_DATA = {
+﻿const MOCK_DATA = {
     dcti: {
         address: "Av. Alirio Ugarte Pelayo, Sector PDVSA Edif. ESEM, Planta Baja. Maturín, Monagas.",
         phone: "+58 412-1234567",
@@ -27,7 +27,7 @@ const MOCK_DATA = {
             published: new Date(Date.now() - 86400000).toISOString(),
             status: "Publicado",
             author: "Prensa DCTI",
-            multimedia: "Assets/images/img8.jpg"
+            multimedia: "assets/images/img8.jpg"
         },
         {
             id: 2,
@@ -38,7 +38,7 @@ const MOCK_DATA = {
             published: new Date(Date.now() - 172800000).toISOString(),
             status: "Publicado",
             author: "Prensa DCTI",
-            multimedia: "Assets/images/img3.jpg"
+            multimedia: "assets/images/img3.jpg"
         },
         {
             id: 3,
@@ -49,7 +49,7 @@ const MOCK_DATA = {
             published: new Date().toISOString(),
             status: "Publicado",
             author: "Dirección Académica",
-            multimedia: "Assets/images/img4.jpg"
+            multimedia: "assets/images/img4.jpg"
         },
         {
             id: 4,
@@ -60,7 +60,7 @@ const MOCK_DATA = {
             published: new Date(Date.now() - 259200000).toISOString(),
             status: "Publicado",
             author: "Equipo Local",
-            multimedia: "Assets/images/img5.jpg"
+            multimedia: "assets/images/img5.jpg"
         },
         {
             id: 5,
@@ -71,7 +71,7 @@ const MOCK_DATA = {
             published: new Date(Date.now() - 345600000).toISOString(),
             status: "Publicado",
             author: "Relaciones Internacionales",
-            multimedia: "Assets/images/img9.jpg"
+            multimedia: "assets/images/img9.jpg"
         }
     ],
     projects: [
@@ -82,7 +82,7 @@ const MOCK_DATA = {
             objectives: "- Facilitar clases online\n- Seguimiento de estudiantes\n- Recursos digitales",
             status: "En Desarrollo",
             progress: 65,
-            multimedia: "Assets/images/img5.jpg"
+            multimedia: "assets/images/img5.jpg"
         },
         {
             id: 2,
@@ -91,7 +91,7 @@ const MOCK_DATA = {
             objectives: "- Optimizar riego\n- Control de plagas",
             status: "Implementado",
             progress: 100,
-            multimedia: "Assets/images/img10.jpg"
+            multimedia: "assets/images/img10.jpg"
         },
         {
             id: 3,
@@ -100,7 +100,7 @@ const MOCK_DATA = {
             objectives: "- Conectar escuelas\n- Puntos Wi-Fi públicos",
             status: "En Revisión",
             progress: 20,
-            multimedia: "Assets/images/img7.jpg"
+            multimedia: "assets/images/img7.jpg"
         }
     ],
     strategic: [
@@ -109,14 +109,14 @@ const MOCK_DATA = {
             title: "Soberanía Tecnológica",
             description: "Promovemos el desarrollo de software libre en la gestión pública.",
             goals: "- Migración a tecnologías abiertas\n- Formación comunitaria\n- Independencia tecnológica",
-            multimedia: "Assets/images/img4.jpg"
+            multimedia: "assets/images/img4.jpg"
         },
         {
             id: 2,
             title: "Ciencia para la Vida",
             description: "Aplicación de conocimientos científicos en la salud y protección ambiental.",
             goals: "- Proyectos ecosustentables\n- Innovación médica regional",
-            multimedia: "Assets/images/img15.jpg"
+            multimedia: "assets/images/img15.jpg"
         }
     ]
 };
@@ -134,7 +134,7 @@ function initMockData() {
                 if (n.category === 'Educación') { n.category = 'Regional'; modified = true; }
                 if (n.category === 'Innovación') { n.category = 'Nacional'; modified = true; }
                 if (n.multimedia && n.multimedia.startsWith('img/')) {
-                    n.multimedia = n.multimedia.replace('img/', 'Assets/images/');
+                    n.multimedia = n.multimedia.replace('img/', 'assets/images/');
                     modified = true;
                 }
             });
@@ -156,7 +156,7 @@ function initMockData() {
                     c.images = c.images.map(img => {
                         if (img.startsWith('img/')) {
                             modified = true;
-                            return img.replace('img/', 'Assets/images/');
+                            return img.replace('img/', 'assets/images/');
                         }
                         return img;
                     });
@@ -177,7 +177,7 @@ function initMockData() {
             let modified = false;
             existingProjects.forEach(p => {
                 if (p.multimedia && p.multimedia.startsWith('img/')) {
-                    p.multimedia = p.multimedia.replace('img/', 'Assets/images/');
+                    p.multimedia = p.multimedia.replace('img/', 'assets/images/');
                     modified = true;
                 }
             });
@@ -196,7 +196,7 @@ function initMockData() {
             let modified = false;
             existingStrategic.forEach(s => {
                 if (s.multimedia && s.multimedia.startsWith('img/')) {
-                    s.multimedia = s.multimedia.replace('img/', 'Assets/images/');
+                    s.multimedia = s.multimedia.replace('img/', 'assets/images/');
                     modified = true;
                 }
             });

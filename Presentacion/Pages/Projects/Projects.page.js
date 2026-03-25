@@ -1,4 +1,4 @@
-const ProjectsView = {
+﻿const ProjectsView = {
     render: (data) => {
         // En este punto, renderModule ya debió sincronizar MOCK_DATA.projects con localStorage si existe getLocalProjects
         const paginated = data.pagination;
@@ -42,7 +42,7 @@ const ProjectsView = {
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">
                     ${projects.map(p => {
-            const coverImage = (p.images && p.images.length > 0) ? (p.images[0].image || p.images[0]) : (p.image || 'Assets/images/img8.jpg');
+            const coverImage = (p.images && p.images.length > 0) ? (p.images[0].image || p.images[0]) : (p.image || 'assets/images/img8.jpg');
             return `
                         <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative;">
                             ${p.featured ? `

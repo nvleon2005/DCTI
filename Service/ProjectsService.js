@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ADMIN DASHBOARD - PROJECTS LOGIC (Local-First v1.0.0)
  * Responsabilidad: Gestión de Proyectos (Iniciativas Estratégicas), Auditoría Detallada y Validación.
  */
@@ -15,7 +15,7 @@ function getLocalProjects() {
             status: p.status || 'En Proceso',
             progress: p.progress || 0,
             featured: p.featured || false,
-            image: p.image || 'Assets/images/proyectos.png',
+            image: p.image || 'assets/images/proyectos.png',
             history: [] // Historial de auditoría
         }));
     }
@@ -98,7 +98,7 @@ function openProjectModal(id = null) {
             document.getElementById('admin-project-progress').value = project.progress || 0;
             document.getElementById('admin-project-featured').checked = project.featured || false;
 
-            projectImageQueue = project.images ? [...project.images] : (project.image && project.image !== 'Assets/images/proyectos.png' ? [project.image] : []);
+            projectImageQueue = project.images ? [...project.images] : (project.image && project.image !== 'assets/images/proyectos.png' ? [project.image] : []);
         }
     } else {
         title.textContent = 'Nuevo Proyecto';
@@ -263,7 +263,7 @@ async function handleProjectSubmit(e) {
         return;
     }
 
-    const imageToSave = projectImageQueue.length > 0 ? projectImageQueue[0] : 'Assets/images/proyectos.png';
+    const imageToSave = projectImageQueue.length > 0 ? projectImageQueue[0] : 'assets/images/proyectos.png';
 
     // CU-001: Validación de estado "Validado" para ser destacado
     if (featured && status !== 'Validado') {

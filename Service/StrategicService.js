@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ADMIN DASHBOARD - STRATEGIC AREAS LOGIC (Local-First v1.0.0)
  * Responsabilidad: Gestión de Áreas Estratégicas, Validación de Unicidad y Auditoría.
  */
@@ -229,7 +229,7 @@ async function handleStrategicSubmit(e) {
         return;
     }
 
-    const imageToSave = strategicImageQueue.length > 0 ? strategicImageQueue[0].image : 'Assets/images/img4.jpg';
+    const imageToSave = strategicImageQueue.length > 0 ? strategicImageQueue[0].image : 'assets/images/img4.jpg';
 
     let allAreas = getLocalStrategic();
 

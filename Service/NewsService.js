@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service/NewsService.js
  * Responsabilidad: Gestión de Datos de Noticias (CRUD) y Persistencia.
  */
@@ -98,7 +98,7 @@ const NewsController = {
             const newId = allNews.length > 0 ? Math.max(...allNews.map(n => n.id)) + 1 : 1;
             allNews.push({
                 id: newId, headline, category, author, summary, content,
-                multimedia: media || 'Assets/images/img8.jpg',
+                multimedia: media || 'assets/images/img8.jpg',
                 published: date, status
             });
             AlertService.notify('Creada', 'Noticia publicada.', 'success');

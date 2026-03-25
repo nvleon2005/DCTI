@@ -1,4 +1,4 @@
-function initPublicNavigation() {
+﻿function initPublicNavigation() {
     // --- INTEGRACIÓN DEL ESTADO DE SESIÓN (USER PILL) ---
 
     const authMenuContainer = document.getElementById('public-auth-menu');
@@ -165,7 +165,7 @@ if (document.readyState === 'loading') {
 
         let html = '';
         currentSlice.forEach(course => {
-            const coverImage = (course.images && course.images.length > 0) ? course.images[0] : 'Assets/images/img5.jpg';
+            const coverImage = (course.images && course.images.length > 0) ? course.images[0] : 'assets/images/img5.jpg';
 
             // Calculo de cupos (Visual)
             const parts = getCourseParticipations(course.id);
@@ -306,7 +306,7 @@ if (document.readyState === 'loading') {
 
         const isUserEnrolled = sessionData ? parts.some(p => p.userId === sessionData.email) : false;
 
-        const coverImg = (course.images && course.images.length > 0) ? course.images[0] : 'Assets/images/img5.jpg';
+        const coverImg = (course.images && course.images.length > 0) ? course.images[0] : 'assets/images/img5.jpg';
 
         let thumbnailsHtml = '';
         if (course.images && course.images.length > 1) {
@@ -604,7 +604,7 @@ if (document.readyState === 'loading') {
                     </div>
                     <div class="noticias" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; align-items: stretch; padding: 0 2% 2% 2%;">
                         ${catNewsPaged.map(n => {
-                    const media = n.multimedia || 'Assets/images/img8.jpg';
+                    const media = n.multimedia || 'assets/images/img8.jpg';
                     return `
                             <div class="noticia-card" style="cursor:pointer; width: 300px; max-width: 30%; margin: 1%; background-color: #fdfdfd; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column;" onclick="window.showNewsDetail(${n.id})">
                                 <img src="${media}" alt="${n.headline}" style="width: 100%; height: 200px; object-fit: cover;">
@@ -646,7 +646,7 @@ if (document.readyState === 'loading') {
                     </div>
                     <div class="noticias" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; align-items: stretch; padding: 0 2% 2% 2%;">
                         ${otherNewsPaged.map(n => {
-                const media = n.multimedia || 'Assets/images/img8.jpg';
+                const media = n.multimedia || 'assets/images/img8.jpg';
                 return `
                             <div class="noticia-card" style="cursor:pointer; width: 300px; max-width: 30%; margin: 1%; background-color: #fdfdfd; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column;" onclick="window.showNewsDetail(${n.id})">
                                 <img src="${media}" alt="${n.headline}" style="width: 100%; height: 200px; object-fit: cover;">
@@ -680,7 +680,7 @@ if (document.readyState === 'loading') {
         const news = getPublicNews().find(n => n.id == id);
         if (!news) return;
         const dateStr = news.published ? new Date(news.published).toLocaleDateString('es-VE') : 'N/A';
-        const media = news.multimedia || 'Assets/images/img8.jpg';
+        const media = news.multimedia || 'assets/images/img8.jpg';
         content.innerHTML = `
         <div style="background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.05);padding:30px;">
             <span style="background:rgba(83,14,144,0.1);color:#530e90;padding:5px 12px;border-radius:20px;font-size:0.8rem;font-weight:bold;margin-bottom:15px;display:inline-block;">${news.category || 'General'}</span>
@@ -761,7 +761,7 @@ if (document.readyState === 'loading') {
         chunkedProjects.forEach(chunk => {
             html += `<section class="course-container-noticia">`;
             chunk.forEach(p => {
-                const media = p.multimedia || 'Assets/images/img10.jpg';
+                const media = p.multimedia || 'assets/images/img10.jpg';
 
                 html += `
                 <div class="proyecto-card" style="cursor:pointer;" onclick="window.showProjDetail(${p.id})">
@@ -795,7 +795,7 @@ if (document.readyState === 'loading') {
         if (!list || !detail || !content) return;
         const p = getPublicProjects().find(x => x.id == id);
         if (!p) return;
-        const media = p.multimedia || 'Assets/images/img10.jpg';
+        const media = p.multimedia || 'assets/images/img10.jpg';
         const progress = p.progress || 0;
         let progColor = '#3b82f6';
         if (progress >= 100) progColor = '#10b981';
@@ -879,7 +879,7 @@ if (document.readyState === 'loading') {
 
         slice.forEach((eje, localIdx) => {
             const globalIndex = start + localIdx;
-            const bgMedia = eje.image || 'Assets/images/img7.jpg';
+            const bgMedia = eje.image || 'assets/images/img7.jpg';
             const title = eje.area || 'Sin Título';
             const description = eje.description || '';
             const shortDesc = description.length > 120 ? description.substring(0, 120) + '...' : description;
@@ -927,7 +927,7 @@ if (document.readyState === 'loading') {
             document.body.appendChild(modal);
         }
 
-        const bgMedia = eje.image || 'Assets/images/img7.jpg';
+        const bgMedia = eje.image || 'assets/images/img7.jpg';
 
         modal.innerHTML = `
             <div style="background: white; border-radius: 12px; overflow: hidden; max-width: 650px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); transition: transform 0.2s ease;">
@@ -963,12 +963,12 @@ if (document.readyState === 'loading') {
         // 1. Carrusel Principal Hero
         if (principal) {
             let heroSlides = [];
-            news.slice(0, 2).forEach(n => heroSlides.push({ img: n.multimedia || 'Assets/images/img15.jpg', title: n.headline }));
-            projs.slice(0, 2).forEach(p => heroSlides.push({ img: p.multimedia || 'Assets/images/img4.jpg', title: p.title }));
+            news.slice(0, 2).forEach(n => heroSlides.push({ img: n.multimedia || 'assets/images/img15.jpg', title: n.headline }));
+            projs.slice(0, 2).forEach(p => heroSlides.push({ img: p.multimedia || 'assets/images/img4.jpg', title: p.title }));
             if (heroSlides.length === 0) {
                 heroSlides = [
-                    { img: 'Assets/images/img3.jpg', title: 'Innovación Tecnológica' },
-                    { img: 'Assets/images/img8.jpg', title: 'Monagas Potencia Digital' }
+                    { img: 'assets/images/img3.jpg', title: 'Innovación Tecnológica' },
+                    { img: 'assets/images/img8.jpg', title: 'Monagas Potencia Digital' }
                 ];
             }
             const n = heroSlides.length;
@@ -1005,7 +1005,7 @@ if (document.readyState === 'loading') {
 
                 noticiasG.innerHTML = topNews.map(n => `
                 <article class="noticia" style="width: calc(100% / ${Math.max(3, nCount)}); cursor:pointer;" onclick="document.querySelector('[data-target=view-noticias]').click(); window.showNewsDetail(${n.id})">
-                    <img src="${n.multimedia || 'Assets/images/img8.jpg'}" alt="${n.headline}">
+                    <img src="${n.multimedia || 'assets/images/img8.jpg'}" alt="${n.headline}">
                     <div class="contenido-noticia">
                         <h2 style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${n.headline}</h2>
                         <p style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${n.summary || ''}</p>
@@ -1026,27 +1026,27 @@ if (document.readyState === 'loading') {
         if (miniatura) {
             let mix = [];
             courses.slice(0, 4).forEach(c => mix.push({
-                img: (c.images && c.images[0]) ? c.images[0] : 'Assets/images/img5.jpg',
+                img: (c.images && c.images[0]) ? c.images[0] : 'assets/images/img5.jpg',
                 title: c.name,
                 type: 'Curso',
                 link: "document.querySelector('[data-target=view-cursos]').click();"
             }));
             projs.slice(0, 4).forEach(p => mix.push({
-                img: p.multimedia || 'Assets/images/img10.jpg',
+                img: p.multimedia || 'assets/images/img10.jpg',
                 title: p.title,
                 type: 'Proyecto',
                 link: `document.querySelector('[data-target=view-proyectos]').click(); window.showProjDetail(${p.id});`
             }));
             if (mix.length === 0) {
                 mix = [
-                    { img: 'Assets/images/img5.jpg', title: 'Ciberseguridad', type: 'Formación', link: '' },
-                    { img: 'Assets/images/img7.jpg', title: 'I.O.T.', type: 'Tecnología', link: '' },
-                    { img: 'Assets/images/img3.jpg', title: 'Robótica', type: 'Educación', link: '' },
-                    { img: 'Assets/images/img10.jpg', title: 'AgroTech', type: 'Innovación', link: '' },
-                    { img: 'Assets/images/img1.png', title: 'Sedes Monagas', type: 'Infraestructura', link: '' },
-                    { img: 'Assets/images/img8.jpg', title: 'Pueblo Heroico', type: 'Institucional', link: '' },
-                    { img: 'Assets/images/img2.png', title: 'DCTI', type: 'Portal', link: '' },
-                    { img: 'Assets/images/img9.jpg', title: 'Cooperación', type: 'Acuerdos', link: '' }
+                    { img: 'assets/images/img5.jpg', title: 'Ciberseguridad', type: 'Formación', link: '' },
+                    { img: 'assets/images/img7.jpg', title: 'I.O.T.', type: 'Tecnología', link: '' },
+                    { img: 'assets/images/img3.jpg', title: 'Robótica', type: 'Educación', link: '' },
+                    { img: 'assets/images/img10.jpg', title: 'AgroTech', type: 'Innovación', link: '' },
+                    { img: 'assets/images/img1.png', title: 'Sedes Monagas', type: 'Infraestructura', link: '' },
+                    { img: 'assets/images/img8.jpg', title: 'Pueblo Heroico', type: 'Institucional', link: '' },
+                    { img: 'assets/images/img2.png', title: 'DCTI', type: 'Portal', link: '' },
+                    { img: 'assets/images/img9.jpg', title: 'Cooperación', type: 'Acuerdos', link: '' }
                 ];
             }
 

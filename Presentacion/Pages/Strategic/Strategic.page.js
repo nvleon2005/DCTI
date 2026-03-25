@@ -1,4 +1,4 @@
-const StrategicView = {
+﻿const StrategicView = {
     render: (data) => {
         const paginated = data.pagination;
         const areas = paginated ? paginated.items : data.strategic;
@@ -21,7 +21,7 @@ const StrategicView = {
                     ${areas.map(s => `
                         <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                             <div style="height: 120px; background: #f1f5f9; position: relative; overflow: hidden;">
-                                <img src="${s.image || 'Assets/images/img4.jpg'}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;" onerror="this.src='Assets/images/img4.jpg'">
+                                <img src="${s.image || 'assets/images/img4.jpg'}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;" onerror="this.src='assets/images/img4.jpg'">
                                 <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 10px; background: linear-gradient(transparent, rgba(0,0,0,0.6)); color: white;">
                                     <h3 style="font-size: 1rem; margin: 0;">${s.area}</h3>
                                 </div>

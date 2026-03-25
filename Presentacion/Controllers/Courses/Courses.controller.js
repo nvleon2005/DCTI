@@ -1,4 +1,4 @@
-// courses-logic.js
+﻿// courses-logic.js
 // Lógica de Persistencia y Negocio para el Módulo de Cursos (Validaciones, Tags, Auditoría & Regulación)
 
 // ==========================================
@@ -18,7 +18,7 @@ const DEFAULT_COURSES = [
         fechaFin: "2024-06-15",
         cupoMaximo: 45,
         estadoCurso: "Publicado",
-        images: ["Assets/images/img9.jpg"],
+        images: ["assets/images/img9.jpg"],
         auditLogs: [{ fecha: new Date().toISOString(), estado: "Publicado", motivo: "Creación inicial del curso", autor: "Sistema" }]
     },
     {
@@ -29,7 +29,7 @@ const DEFAULT_COURSES = [
         fechaFin: "2024-04-20",
         cupoMaximo: 25,
         estadoCurso: "Finalizado",
-        images: ["Assets/images/img10.jpg"],
+        images: ["assets/images/img10.jpg"],
         auditLogs: [{ fecha: new Date().toISOString(), estado: "Finalizado", motivo: "Cierre de ciclo formal", autor: "Sistema" }]
     }
 ];

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Presentacion/Pages/Auth/Auth.page.js
  * Vista modular para el sistema de Autenticación.
  */
@@ -122,7 +122,7 @@ window.AuthView = {
                                 DCTI</h1>
                             <div class="brand-icon"
                                 style="background: transparent; box-shadow: none; width: 140px; height: 140px; margin: 0; border: none; border-radius: 0; display: flex; align-items: center; justify-content: center;">
-                                <img src="Assets/images/logo.png" alt="DCTI Logo"
+                                <img src="assets/images/logo.png" alt="DCTI Logo"
                                     style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));">
                             </div>
                             <div class="brand-text" style="display: block; margin-top: 10px;">

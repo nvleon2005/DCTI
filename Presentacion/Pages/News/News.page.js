@@ -1,4 +1,4 @@
-const AdminNewsView = {
+﻿const AdminNewsView = {
     render: (data) => {
         const paginated = data.pagination;
         const news = paginated ? paginated.items : data.news;
@@ -59,7 +59,7 @@ const AdminNewsView = {
                                 </div>
                             ` : ''}
                             <div style="height: 140px; background: #f1f5f9; overflow: hidden; position: relative;">
-                                <img src="${n.multimedia || 'Assets/images/img8.jpg'}" style="width: 100%; height: 100%; object-fit: cover;">
+                                <img src="${n.multimedia || 'assets/images/img8.jpg'}" style="width: 100%; height: 100%; object-fit: cover;">
                                 <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 4px;">
                                     ${statusArray.map(s => `
                                         <span title="${s}" style="width: 8px; height: 8px; border-radius: 50%; background: ${s === 'Publicada' || s === 'Publicado' ? '#22c55e' : (s === 'Validada' ? '#3b82f6' : '#f59e0b')}"></span>

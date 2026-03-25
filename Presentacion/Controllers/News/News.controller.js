@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ADMIN DASHBOARD - NEWS LOGIC (Local-First v1.0.0)
  * Responsabilidad: Gestión de Datos de Noticias (CRUD), Persistencia y Modales.
  */
@@ -193,7 +193,7 @@ async function handleNewsAdminSubmit(e) {
             author,
             summary,
             content,
-            multimedia: media || 'Assets/images/img8.jpg',
+            multimedia: media || 'assets/images/img8.jpg',
             published: date,
             status
         };
