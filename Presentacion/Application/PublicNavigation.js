@@ -839,7 +839,13 @@ if (document.readyState === 'loading') {
     // --- LÓGICA DINÁMICA: EJES ESTRATÉGICOS ---
     // ===========================================
     function getPublicEjes() {
-        return JSON.parse(localStorage.getItem('dcti_strategic')) || [];
+        const raw = JSON.parse(localStorage.getItem('dcti_strategic')) || [];
+        // Normalize: older records may use 'title' or 'name' instead of 'area'
+        return raw.map(s => ({
+            ...s,
+            area: s.area || s.title || s.name || 'Sin nombre',
+            image: s.image || (s.images && s.images[0] ? (s.images[0].image || s.images[0]) : null)
+        }));
     }
 
     let currentEjePage = 1;

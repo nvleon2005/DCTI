@@ -164,6 +164,18 @@ function renderModule(id, skipAnimation = false) {
             viewData.pagination = getPaginatedData(filteredProjects, 'projects');
         }
 
+        if (id === 'strategic') {
+            let filteredStrategic = viewData.strategic;
+            if (q) {
+                filteredStrategic = filteredStrategic.filter(s =>
+                    (s.area || '').toLowerCase().includes(q) ||
+                    (s.description || '').toLowerCase().includes(q) ||
+                    (s.responsible || '').toLowerCase().includes(q)
+                );
+            }
+            viewData.pagination = getPaginatedData(filteredStrategic, 'strategic');
+        }
+
         if (id === 'courses') {
             let filteredCourses = viewData.courses;
             if (typeof globalCourseFilter !== 'undefined' && globalCourseFilter !== 'Todos') {

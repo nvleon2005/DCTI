@@ -8,7 +8,8 @@ window.DctiView = {
         let info = {
             review: "Historia no disponible.",
             mission: "Misión no definida.",
-            vision: "Visión no definida."
+            vision: "Visión no definida.",
+            organigrama: null
         };
 
         try {
@@ -19,6 +20,8 @@ window.DctiView = {
         } catch (e) {
             console.error("Error leyendo info de la DCTI", e);
         }
+
+        const organigramaSrc = info.organigrama || 'Assets/images/organigrama_nuevo.png';
 
         return `
             <section id="view-dcti" class="public-view public-active">
@@ -39,7 +42,7 @@ window.DctiView = {
                     </article>
                 </section>
                 <section class="c_organigrama">
-                    <img src="Assets/images/organigrama_nuevo.png" alt="Organigrama de la Institucion"
+                    <img src="${organigramaSrc}" alt="Organigrama de la Institucion"
                         class="organigrama">
                 </section>
             </section>
