@@ -55,6 +55,7 @@ const UsersView = {
                                 <th style="padding: 15px; text-align: left;">Email</th>
                                 <th style="padding: 15px; text-align: left;">Rol</th>
                                 <th style="padding: 15px; text-align: left;">Estado</th>
+                                <th style="padding: 15px; text-align: left;">Última Act.</th>
                                 <th style="padding: 15px; text-align: center;">Acciones</th>
                             </tr>
                         </thead>
@@ -83,6 +84,10 @@ const UsersView = {
                                             <span style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: ${statusColor}">
                                                 <i class="fas fa-circle" style="font-size: 0.5rem;"></i> ${u.status || 'Activo'}
                                             </span>
+                                        </td>
+                                        <td style="padding: 15px; font-size: 0.75rem;">
+                                            <div style="color:var(--color-text-main); font-weight: 500;">${u.updatedAt ? new Date(u.updatedAt).toLocaleDateString('es-VE') : '-'}</div>
+                                            <div style="color:var(--color-text-muted); font-style: italic;">por ${u.updatedBy || 'Sistema'}</div>
                                         </td>
                                         <td style="padding: 15px; text-align: center;">
                                             <div style="display: flex; justify-content: center; gap: 8px;">
@@ -201,9 +206,12 @@ const UsersView = {
                                         </select>
                                     </div>
                                     
-                                    <div id="admin-user-error" class="login-error hidden" style="background: #fff1f2; border: 1px solid #fda4af; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #e11d48; margin-top: auto; margin-bottom: 10px;"></div>
+                                    <!-- Auditoría Section -->
+                                    <div id="user-audit-container" style="padding-top: 15px; border-top: 1px dashed var(--color-border); margin: 5px 0 10px 10px; display: none;"></div>
 
-                                    <div style="display: flex; justify-content: flex-start; margin-left: 10px;">
+                                    <div id="admin-user-error" class="login-error hidden" style="background: #fff1f2; border: 1px solid #fda4af; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #e11d48; margin-bottom: 10px; margin-left: 10px;"></div>
+
+                                    <div style="display: flex; justify-content: flex-start; margin-left: 10px; margin-top: auto;">
                                         <button type="submit" style="background: #16a34a; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Registrar</button>
                                         <button type="button" class="btn-secondary" onclick="closeUserModal()" style="display: none;">Cancelar</button>
                                     </div>

@@ -167,6 +167,44 @@ const AdminDctiView = {
                             </div>
                         </div>
                         
+                        <!-- Auditoría Section -->
+                        ${(() => {
+                            const session = JSON.parse(localStorage.getItem('dcti_session')) || {};
+                            const isAdmin = session.role === 'admin';
+                            if (!dcti.createdAt) return '';
+
+                            let auditHtml = `
+                                <div style="margin-top: 10px; padding: 20px; border-top: 1px dashed #e2e8f0;">
+                                    <h4 style="font-size: 0.95rem; color: var(--color-text-main); margin-bottom: 15px;"><i class="fas fa-shield-alt" style="margin-right: 8px; color: var(--color-primary);"></i>Auditoría de Información Institucional</h4>
+                                    <div style="display: flex; gap: 30px; font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 15px;">
+                                        <span><i class="fas fa-calendar-plus" style="margin-right: 5px;"></i> Registro Inicial: ${new Date(dcti.createdAt).toLocaleDateString('es-VE')} por ${dcti.createdBy || 'Sistema'}</span>
+                                        <span><i class="fas fa-edit" style="margin-right: 5px;"></i> Última act: ${dcti.updatedAt ? new Date(dcti.updatedAt).toLocaleDateString('es-VE') : 'N/A'} por ${dcti.updatedBy || 'Sistema'}</span>
+                                    </div>
+                            `;
+
+                            if (isAdmin && dcti.history && dcti.history.length > 0) {
+                                auditHtml += `
+                                    <details style="background: #f8fafc; border: 1px solid var(--color-border); border-radius: 8px; padding: 12px; transition: all 0.3s ease;">
+                                        <summary style="font-size: 0.85rem; font-weight: 600; cursor: pointer; color: var(--color-primary); margin-bottom: 5px; user-select: none;">Ver Historial de Cambios (${dcti.history.length})</summary>
+                                        <ul style="list-style: none; padding: 0; margin: 15px 0 0 0; font-size: 0.85rem;">
+                                            ${dcti.history.map(h => `
+                                                <li style="border-bottom: 1px dashed #e2e8f0; padding: 8px 0; display: flex; justify-content: space-between; align-items: start;">
+                                                    <div>
+                                                        <b style="color: var(--color-text-main);">${h.responsible}</b> 
+                                                        <span style="color: var(--color-text-muted); font-size: 0.8rem; margin-left: 5px;">(${h.action || 'Modificación'})</span>
+                                                        <div style="color: #64748b; margin-top: 3px; font-size: 0.8rem;">Campos editados: ${h.fields}</div>
+                                                    </div>
+                                                    <span style="color: var(--color-text-muted); font-size: 0.8rem; white-space: nowrap;">${h.date}</span>
+                                                </li>
+                                            `).join('')}
+                                        </ul>
+                                    </details>
+                                `;
+                            }
+                            auditHtml += `</div>`;
+                            return auditHtml;
+                        })()}
+                        
                         <!-- Actions -->
                         <div style="margin-top: var(--space-md); padding-top: var(--space-md); border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 15px; align-items: center;">
                             <button type="button" onclick="if(typeof restoreDefaultDcti === 'function') restoreDefaultDcti()" title="Restaurar a valores predeterminados" style="background: #ef4444; color: white; border: none; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3); transition: transform 0.2s, background 0.2s;">

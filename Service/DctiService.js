@@ -39,15 +39,64 @@ function saveLocalDcti(data) {
         return false;
     }
 
-    localStorage.setItem(DCTI_STORAGE_KEY, JSON.stringify(data));
+    const oldData = getLocalDcti();
+    const session = JSON.parse(localStorage.getItem('dcti_session')) || { name: 'Sistema' };
+    const nowStr = new Date().toLocaleString('es-VE');
+
+    // Create history log for changes
+    const changes = [];
+    if (oldData.mission !== data.mission && oldData.mission !== undefined) changes.push('Misión');
+    if (oldData.vision !== data.vision && oldData.vision !== undefined) changes.push('Visión');
+    if (oldData.review !== data.review && oldData.review !== undefined) changes.push('Reseña');
+    if (oldData.phone !== data.phone) changes.push('Teléfono');
+    if (oldData.email !== data.email) changes.push('Email');
+    if (oldData.address !== data.address) changes.push('Dirección');
+    if (oldData.instagram !== data.instagram) changes.push('Instagram');
+    if (oldData.facebook !== data.facebook) changes.push('Facebook');
+    if (oldData.twitter !== data.twitter) changes.push('Twitter');
+    if (oldData.organigrama !== data.organigrama) changes.push('Organigrama');
+    if (oldData.consultasImage !== data.consultasImage) changes.push('Img Consultas');
+
+    let historyLog = oldData.history || [];
+    if (changes.length > 0) {
+        historyLog.unshift({
+            date: nowStr,
+            responsible: session.name || session.username || "Usuario",
+            action: "Actualización de Contenido",
+            fields: changes.join(', ')
+        });
+        historyLog = historyLog.slice(0, 15);
+    } else if (!oldData.createdAt) {
+          historyLog.unshift({
+            date: nowStr,
+            responsible: session.name || session.username || "Usuario",
+            action: "Migración/Creación",
+            fields: "Todos"
+        });
+    }
+
+    const finalData = {
+        ...data,
+        createdAt: oldData.createdAt || new Date().toISOString(),
+        createdBy: oldData.createdBy || session.name || session.username || "Usuario",
+        updatedAt: new Date().toISOString(),
+        updatedBy: session.name || session.username || "Usuario",
+        history: historyLog
+    };
+
+    localStorage.setItem(DCTI_STORAGE_KEY, JSON.stringify(finalData));
 
     // Synchronize global MOCK_DATA if available
     if (typeof MOCK_DATA !== 'undefined') {
-        MOCK_DATA.dcti = data;
+        MOCK_DATA.dcti = finalData;
     }
 
     if (typeof AlertService !== 'undefined') {
-        AlertService.notify('Información Actualizada', 'La información institucional ha sido actualizada correctamente.', 'success');
+        if (changes.length > 0 || !oldData.createdAt) {
+            AlertService.notify('Información Actualizada', 'La información institucional y auditoría han sido actualizadas.', 'success');
+        } else {
+            AlertService.notify('Sin Cambios', 'No hubo modificaciones.', 'info');
+        }
     }
     return true;
 }
@@ -151,7 +200,7 @@ function previewConsultasImage(event) {
 /**
  * Form handler for DCTI view
  */
-function handleDctiSubmit(event) {
+async function handleDctiSubmit(event) {
     event.preventDefault();
 
     const mission = document.getElementById('admin-dcti-mission').value.trim();
@@ -169,13 +218,51 @@ function handleDctiSubmit(event) {
     const lat = document.getElementById('admin-dcti-lat') ? document.getElementById('admin-dcti-lat').value : '9.7446818';
     const lng = document.getElementById('admin-dcti-lng') ? document.getElementById('admin-dcti-lng').value : '-63.1722970';
 
+    const oldData = getLocalDcti();
+
     const organigramaPreview = document.getElementById('admin-dcti-organigrama-preview');
-    const organigrama = organigramaPreview && organigramaPreview.style.display === 'block' ? organigramaPreview.src : (getLocalDcti().organigrama || null);
+    const organigrama = organigramaPreview && organigramaPreview.style.display === 'block' ? organigramaPreview.src : (oldData.organigrama || null);
 
     const consultasPreview = document.getElementById('admin-dcti-consultas-preview');
-    const consultasImage = consultasPreview && consultasPreview.style.display === 'block' ? consultasPreview.src : (getLocalDcti().consultasImage || null);
+    const consultasImage = consultasPreview && consultasPreview.style.display === 'block' ? consultasPreview.src : (oldData.consultasImage || null);
 
-    const result = saveLocalDcti({ mission, vision, review, organigrama, consultasImage, phone, email, address, instagram, facebook, twitter, lat, lng });
+    const newData = { mission, vision, review, organigrama, consultasImage, phone, email, address, instagram, facebook, twitter, lat, lng };
+
+    // Comparar los cambios
+    const changesTextData = [];
+    if (oldData.mission !== newData.mission && oldData.mission !== undefined) changesTextData.push('Misión Institucional');
+    if (oldData.vision !== newData.vision && oldData.vision !== undefined) changesTextData.push('Visión Institucional');
+    if (oldData.review !== newData.review && oldData.review !== undefined) changesTextData.push('Reseña Institucional');
+    if (oldData.phone !== newData.phone) changesTextData.push('Teléfono de Contacto');
+    if (oldData.email !== newData.email) changesTextData.push('Correo Electrónico');
+    if (oldData.address !== newData.address) changesTextData.push('Dirección Física');
+    if (oldData.instagram !== newData.instagram) changesTextData.push('Instagram (@)');
+    if (oldData.facebook !== newData.facebook) changesTextData.push('Facebook (URL)');
+    if (oldData.twitter !== newData.twitter) changesTextData.push('Twitter / X (@)');
+    if (oldData.organigrama !== newData.organigrama && oldData.organigrama !== undefined) changesTextData.push('Organigrama Institucional (Imagen)');
+    if (oldData.consultasImage !== newData.consultasImage && oldData.consultasImage !== undefined) changesTextData.push('Imagen de Consultas Públicas');
+    if (oldData.lat !== newData.lat || oldData.lng !== newData.lng) changesTextData.push('Ubicación Geográfica en el Mapa');
+
+    if (changesTextData.length === 0) {
+        if (typeof AlertService !== 'undefined') {
+             AlertService.notify('Sin Cambios', 'No has realizado ninguna modificación en los datos de la institución.', 'info');
+        }
+        return;
+    }
+
+    const htmlChangesList = `<ul style="margin-top: 15px; margin-bottom: 15px; padding-left: 25px; font-weight: 600; color: var(--color-primary); font-size: 0.95rem;">${changesTextData.map(c => `<li style="margin-bottom: 5px;">${c}</li>`).join('')}</ul>`;
+    
+    if (typeof AlertService !== 'undefined') {
+        const confirmResult = await AlertService.confirm(
+            'Confirmar Cambios',
+            `Estás a punto de actualizar la información pública del portal institucional DCTI. Se registrarán los siguientes cambios:<br>${htmlChangesList}¿Deseas confirmar y guardar estos cambios?`,
+            'Guardar Cambios',
+            'Cancelar Modificación'
+        );
+        if (!confirmResult) return;
+    }
+
+    const result = saveLocalDcti(newData);
 
     if (result && typeof renderModule === 'function') {
         renderModule('admin-dcti');
@@ -334,6 +421,26 @@ function resetAdminMap() {
         AlertService.notify('Ubicación Restaurada', 'El pin ha vuelto a la posición original guardada.', 'success');
     }
 }
+
+async function restoreDefaultDcti() {
+    if (typeof AlertService !== 'undefined') {
+        const confirm = await AlertService.confirm(
+            'Descartar Modificaciones',
+            '¿Estás seguro que deseas descartar todo lo que has escrito o modificado en este formulario y recargar los últimos datos guardados oficialmente?',
+            'Sí, descartar y recargar',
+            'Cancelar'
+        );
+        if (!confirm) return;
+    }
+    
+    if (typeof renderModule === 'function') {
+        renderModule('admin-dcti');
+        if (typeof AlertService !== 'undefined') {
+            AlertService.notify('Formulario Restaurado', 'Se han vuelto a cargar los datos originales.', 'info');
+        }
+    }
+}
+
 // EXPORTACIONES GLOBALES
 window.getLocalDcti = getLocalDcti;
 window.saveLocalDcti = saveLocalDcti;
@@ -343,3 +450,4 @@ window.previewConsultasImage = previewConsultasImage;
 window.initAdminMap = initAdminMap;
 window.unlockAdminMap = unlockAdminMap;
 window.resetAdminMap = resetAdminMap;
+window.restoreDefaultDcti = restoreDefaultDcti;

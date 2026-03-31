@@ -62,6 +62,7 @@ const ProjectsView = {
                                 <div style="margin-bottom: 15px; margin-top: auto; padding-top: 10px; border-top: 1px dashed #e2e8f0;">
                                     <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 6px; font-weight: 700;">Últimos Avances:</div>
                                     <p style="font-size: 0.8rem; color: var(--color-text-main); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.8em;">${p.advances || 'Sin registrar...'}</p>
+                                    <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 8px; font-style: italic;">Última act: ${p.updatedAt ? new Date(p.updatedAt).toLocaleDateString('es-VE') : ''} por <b>${p.updatedBy || 'Sistema'}</b></p>
                                 </div>
     
                                 <div style="display: flex; gap: 8px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
@@ -160,6 +161,9 @@ const ProjectsView = {
                                         <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 6px; background: #16a34a; color: white; border: none; font-weight: 600;">Publicar</button>
                                         <button type="button" class="btn-secondary" onclick="closeProjectModal()" style="flex: 1; padding: 12px; border-radius: 6px; background: #9333ea; color: white; border: none; font-weight: 600;">Borrar / Cancelar</button>
                                     </div>
+                                    
+                                    <!-- Auditoría Section -->
+                                    <div id="project-audit-container" style="padding-top: 20px; border-top: 1px solid var(--color-border); margin-top: 20px; display: none;"></div>
                                 </div>
                             </div>
                         </form>

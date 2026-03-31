@@ -26,7 +26,7 @@ function getReportData(domain, filters = {}) {
             const allNews = typeof getLocalNews === 'function' ? getLocalNews() : [];
             const news = allNews.filter(n => {
                 const statStr = Array.isArray(n.status) ? n.status.join(' ').toLowerCase() : (n.status || '').toLowerCase();
-                return statStr.includes('publicad') && statStr.includes('validad');
+                return statStr.includes('publicad'); // FIXED: Removed 'validad' as News only use Publicada/Borrador
             });
             rawData = news.map(n => ({
                 ID: n.id,
@@ -35,6 +35,15 @@ function getReportData(domain, filters = {}) {
                 Autor: n.author || 'Desconocido',
                 Publicación: n.published || 'N/A',
                 Status: Array.isArray(n.status) ? n.status.join(' | ') : (n.status || 'Borrador')
+            }));
+            break;
+        case 'strategic':
+            const allStrategic = typeof getLocalStrategic === 'function' ? getLocalStrategic() : [];
+            rawData = allStrategic.map(s => ({
+                Eje_Gestión: s.area || 'No Definido',
+                Responsable: s.responsible || 'No Asignado',
+                Creación: s.createdAt ? new Date(s.createdAt).toISOString().split('T')[0] : 'N/A',
+                Resumen: s.description ? s.description.substring(0, 50) + '...' : 'N/A'
             }));
             break;
         case 'projects':
@@ -65,14 +74,14 @@ function getReportData(domain, filters = {}) {
     // Aplicar Filtros Dinámicos (Fechas)
     if (filters.dateFrom) {
         rawData = rawData.filter(item => {
-            const dateVal = item['Fecha Ingreso'] || item.Publicación || item.Apertura || item.Convocatoria;
+            const dateVal = item['Fecha Ingreso'] || item.Publicación || item.Apertura || item.Convocatoria || item.Creación;
             if (!dateVal || dateVal === 'N/A' || dateVal === 'Por defecto' || dateVal === 'Pendiente') return true;
             return new Date(dateVal) >= new Date(filters.dateFrom);
         });
     }
     if (filters.dateTo) {
         rawData = rawData.filter(item => {
-            const dateVal = item['Fecha Ingreso'] || item.Publicación || item.Apertura || item.Convocatoria;
+            const dateVal = item['Fecha Ingreso'] || item.Publicación || item.Apertura || item.Convocatoria || item.Creación;
             if (!dateVal || dateVal === 'N/A' || dateVal === 'Por defecto' || dateVal === 'Pendiente') return true;
             return new Date(dateVal) <= new Date(filters.dateTo);
         });
@@ -84,6 +93,7 @@ function getReportData(domain, filters = {}) {
             if (domain === 'news') return item.Autor === filters.customFilter1;
             if (domain === 'projects') return item.Status.includes(filters.customFilter1);
             if (domain === 'courses') return item.Estatus_Académico === filters.customFilter1;
+            if (domain === 'strategic') return item.Responsable === filters.customFilter1;
             return true;
         });
     }
@@ -303,6 +313,17 @@ function renderReportExtraFilters(domain) {
                 </select>
             </div>
         `;
+    } else if (domain === 'strategic') {
+        const uniqueResponsible = [...new Set(currentReportData.map(s => s.Responsable))].filter(Boolean);
+        filterHTML = `
+            <div>
+                <label style="${labelStyle}">Responsable del Área</label>
+                <select id="report-custom-filter-1" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
+                    <option value="all">Todos los Responsables</option>
+                    ${uniqueResponsible.map(r => `<option value="${r}">${r}</option>`).join('')}
+                </select>
+            </div>
+        `;
     }
 
     container.innerHTML = filterHTML;
@@ -367,6 +388,10 @@ function renderReportStats(domain, data) {
         statsHTML += statItem('Validados', data.length, 'fas fa-project-diagram', '#3b82f6');
         statsHTML += statItem('Destacados', featuredCount, 'fas fa-star', '#f59e0b');
         statsHTML += statItem('Resp.', managerCount, 'fas fa-user-tie', '#10b981');
+    } else if (domain === 'strategic') {
+        const manCount = [...new Set(data.map(p => p.Responsable))].filter(r => r !== 'No Asignado').length;
+        statsHTML += statItem('Líneas Estr.', data.length, 'fas fa-sitemap', '#3b82f6');
+        statsHTML += statItem('Líderes', manCount, 'fas fa-user-md', '#10b981');
     }
 
     container.innerHTML = statsHTML;
@@ -432,7 +457,8 @@ function previewReportPDF() {
         'users': 'Directorio de Usuarios',
         'news': 'Registro de Publicaciones',
         'projects': 'Portafolio de Proyectos',
-        'courses': 'Gestión Académica'
+        'courses': 'Gestión Académica',
+        'strategic': 'Ejes de Gestión (Organigrama Institucional)'
     };
     const domainLabel = domainNames[currentReportDomain] || currentReportDomain;
 

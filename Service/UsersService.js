@@ -120,11 +120,52 @@ const UsersController = {
 
                 const isHardcoded = this.AUTH_CONFIG.hardcodedUsers.some(u => u.email === email);
                 document.getElementById('admin-user-email').disabled = isHardcoded;
+
+                const auditContainer = document.getElementById('user-audit-container');
+                if (auditContainer) {
+                    const session = JSON.parse(localStorage.getItem('dcti_session')) || {};
+                    const isAdmin = session.role === 'admin';
+                    
+                    let auditHtml = `
+                        <h4 style="font-size: 0.85rem; color: var(--color-text-main); margin-bottom: 8px;">Auditoría</h4>
+                        <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 10px;">
+                            <div style="margin-bottom: 4px;"><i class="fas fa-calendar-plus" style="margin-right: 5px;"></i> Creado: ${user.createdAt ? new Date(user.createdAt).toLocaleDateString('es-VE') : 'N/A'} por <b>${user.createdBy || 'Sistema'}</b></div>
+                            <div><i class="fas fa-edit" style="margin-right: 5px;"></i> Última act: ${user.updatedAt ? new Date(user.updatedAt).toLocaleDateString('es-VE') : 'N/A'} por <b>${user.updatedBy || 'Sistema'}</b></div>
+                        </div>
+                    `;
+
+                    if (isAdmin && user.history && user.history.length > 0) {
+                        auditHtml += `
+                            <details style="background: #f8fafc; border: 1px solid var(--color-border); border-radius: 4px; padding: 6px;">
+                                <summary style="font-size: 0.75rem; font-weight: 600; cursor: pointer; color: var(--color-primary); margin-bottom: 5px;">Historial de Cambios (${user.history.length})</summary>
+                                <ul style="list-style: none; padding: 0; margin: 5px 0 0 0; font-size: 0.7rem;">
+                                    ${user.history.map(h => `
+                                        <li style="border-bottom: 1px dashed #e2e8f0; padding: 4px 0;">
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                                                <span><b>${h.responsible}</b> (${h.action || 'Cambio'})</span>
+                                                <span style="color: var(--color-text-muted);">${h.date}</span>
+                                            </div>
+                                            <div style="color: #64748b;">${h.fields}</div>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </details>
+                        `;
+                    }
+                    auditContainer.innerHTML = auditHtml;
+                    auditContainer.style.display = 'block';
+                }
             }
         } else {
             if (title) title.textContent = 'Nuevo Usuario';
-            editEmailInput.value = '';
+            if (editEmailInput) editEmailInput.value = '';
             document.getElementById('admin-user-email').disabled = false;
+            
+            const auditContainer = document.getElementById('user-audit-container');
+            if (auditContainer) {
+                auditContainer.innerHTML = '';
+                auditContainer.style.display = 'none';
+            }
 
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) submitBtn.textContent = 'Registrar';
@@ -193,11 +234,19 @@ const UsersController = {
 
             const passwordHash = await hashSHA256(pass);
             const nameSafe = name || username || 'Usuario';
+            const session = JSON.parse(localStorage.getItem('dcti_session')) || { name: 'Sistema' };
+            const nowStr = new Date().toLocaleString('es-VE');
+
             const newUser = {
                 name, lastname, cedula, username, email,
                 password: passwordHash,
                 role, avatar, status: 'Activo',
-                initials: nameSafe.substring(0, 2).toUpperCase()
+                initials: nameSafe.substring(0, 2).toUpperCase(),
+                createdAt: new Date().toISOString(),
+                createdBy: session.name || session.username || "Usuario",
+                updatedAt: new Date().toISOString(),
+                updatedBy: session.name || session.username || "Usuario",
+                history: [{ date: nowStr, responsible: session.name || session.username || "Usuario", action: "Creación", fields: "Todos" }]
             };
             this.saveLocalUser(newUser);
         }
@@ -217,6 +266,19 @@ const UsersController = {
 
         if (index !== -1) {
             const currentUser = localUsers[index];
+            const changes = [];
+            if (currentUser.name !== newData.name) changes.push('Nombre');
+            if (currentUser.lastname !== newData.lastname) changes.push('Apellido');
+            if (currentUser.cedula !== newData.cedula) changes.push('Cédula');
+            if (currentUser.username !== newData.username) changes.push('Usuario');
+            if (currentUser.email !== newData.email) changes.push('Email');
+            if (currentUser.role !== newData.role) changes.push('Rol');
+            if (currentUser.avatar !== newData.avatar) changes.push('Avatar');
+            if (newData.password) changes.push('Contraseña');
+
+            const session = JSON.parse(localStorage.getItem('dcti_session')) || { name: 'Sistema' };
+            const nowStr = new Date().toLocaleString('es-VE');
+
             const updatedUser = {
                 ...currentUser,
                 name: newData.name,
@@ -226,8 +288,21 @@ const UsersController = {
                 email: newData.email,
                 role: newData.role,
                 avatar: newData.avatar,
-                initials: (newData.name || newData.username || 'U').substring(0, 2).toUpperCase()
+                initials: (newData.name || newData.username || 'U').substring(0, 2).toUpperCase(),
+                updatedAt: new Date().toISOString(),
+                updatedBy: session.name || session.username || "Usuario",
+                history: currentUser.history ? [...currentUser.history] : []
             };
+
+            if (changes.length > 0) {
+                updatedUser.history.unshift({
+                    date: nowStr,
+                    responsible: session.name || session.username || "Usuario",
+                    action: "Edición",
+                    fields: changes.join(', ')
+                });
+                updatedUser.history = updatedUser.history.slice(0, 15);
+            }
 
             if (newData.password) {
                 updatedUser.password = await hashSHA256(newData.password);
@@ -271,6 +346,21 @@ const UsersController = {
         if (index !== -1) {
             const user = localUsers[index];
             user.status = user.status === 'Inactivo' ? 'Activo' : 'Inactivo';
+
+            const session = JSON.parse(localStorage.getItem('dcti_session')) || { name: 'Sistema' };
+            const nowStr = new Date().toLocaleString('es-VE');
+
+            user.updatedAt = new Date().toISOString();
+            user.updatedBy = session.name || session.username || "Usuario";
+            if (!user.history) user.history = [];
+            user.history.unshift({
+                date: nowStr,
+                responsible: session.name || session.username || "Usuario",
+                action: "Cambio Estado",
+                fields: user.status
+            });
+            user.history = user.history.slice(0, 15);
+
             localStorage.setItem('dcti_users', JSON.stringify(localUsers));
             AlertService.notify('Estado Actualizado', 'Estado cambiado correctamente.', 'info');
             if (typeof renderModule === 'function') renderModule('users');

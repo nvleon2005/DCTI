@@ -146,6 +146,12 @@ function renderModule(id, skipAnimation = false) {
             if (typeof currentNewsCategoryFilter !== 'undefined' && currentNewsCategoryFilter !== 'Todas') {
                 filteredNews = filteredNews.filter(n => n.category === currentNewsCategoryFilter);
             }
+            if (typeof window.globalNewsStatusFilter !== 'undefined' && window.globalNewsStatusFilter !== 'Todos' && window.globalNewsStatusFilter !== '') {
+                filteredNews = filteredNews.filter(n => {
+                    const s = Array.isArray(n.status) ? n.status : [n.status || ''];
+                    return s.some(val => val === window.globalNewsStatusFilter || (window.globalNewsStatusFilter === 'Publicado' && val === 'Publicada'));
+                });
+            }
             if (q) {
                 filteredNews = filteredNews.filter(n =>
                     Object.values(n).some(val => val && val.toString().toLowerCase().includes(q))

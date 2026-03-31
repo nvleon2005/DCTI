@@ -919,13 +919,13 @@ if (document.readyState === 'loading') {
 
             html += `
                 <article style="display: flex; flex-direction: column; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; border-left: 5px solid #530e90; width: 350px; max-width: 100%; transition: transform 0.2s ease; margin-bottom: 20px;">
-                    <div style="width: 100%; height: 200px; overflow: hidden; cursor: pointer;" onclick="if(typeof openEjeModal === 'function') openEjeModal(${globalIndex})">
+                    <div style="width: 100%; height: 200px; overflow: hidden; cursor: pointer;" onclick="if(typeof showEjeDetail === 'function') showEjeDetail(${globalIndex})">
                         <img src="${bgMedia}" alt="${title}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                     </div>
                     <div style="padding: 24px; display: flex; flex-direction: column; flex-grow: 1;">
                         <h2 style="margin: 0 0 12px 0; color: #530e90; font-size: 1.3rem; line-height: 1.3; overflow-wrap: anywhere; word-break: break-word;">${title}</h2>
                         <p style="margin: 0 0 20px 0; color: #475569; line-height: 1.6; font-size: 0.95rem; overflow-wrap: anywhere; word-break: break-word;">${shortDesc}</p>
-                        <button onclick="if(typeof openEjeModal === 'function') openEjeModal(${globalIndex})" style="margin-top: auto; align-self: flex-start; background: transparent; color: #530e90; border: 1px solid #530e90; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#530e90'; this.style.color='white';" onmouseout="this.style.background='transparent'; this.style.color='#530e90';">Ver Detalles</button>
+                        <button onclick="if(typeof showEjeDetail === 'function') showEjeDetail(${globalIndex})" style="margin-top: auto; align-self: flex-start; background: transparent; color: #530e90; border: 1px solid #530e90; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#530e90'; this.style.color='white';" onmouseout="this.style.background='transparent'; this.style.color='#530e90';">Ver Detalles</button>
                     </div>
                 </article>`;
         });
@@ -946,40 +946,49 @@ if (document.readyState === 'loading') {
         grid.innerHTML = html;
     };
 
-    window.openEjeModal = function (index) {
+    window.showEjeDetail = function (index) {
         const ejes = getPublicEjes();
         const eje = ejes[index];
         if (!eje) return;
 
-        let modal = document.getElementById('eje-public-modal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'eje-public-modal';
-            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(4px);';
-            modal.onclick = function (e) { if (e.target === this) this.style.opacity = '0', setTimeout(() => this.style.display = 'none', 200); };
-            document.body.appendChild(modal);
-        }
+        const list = document.getElementById('view-ejes');
+        const detail = document.getElementById('view-eje-detalle');
+        const content = document.getElementById('public-eje-detail-content');
+        if (!list || !detail || !content) return;
 
         const bgMedia = eje.image || 'assets/images/img7.jpg';
 
-        modal.innerHTML = `
-            <div style="background: white; border-radius: 12px; overflow: hidden; max-width: 650px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); transition: transform 0.2s ease;">
-                <div style="position: relative; height: 260px; flex-shrink: 0; background: #e2e8f0;">
-                    <img src="${bgMedia}" style="width: 100%; height: 100%; object-fit: cover;">
-                    <button onclick="document.getElementById('eje-public-modal').style.opacity='0'; setTimeout(() => document.getElementById('eje-public-modal').style.display='none', 200);" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); transition: background 0.2s ease;" onmouseover="this.style.background='rgba(0,0,0,0.8)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">&times;</button>
-                </div>
-                <div style="padding: 35px; overflow-y: auto;">
-                    <h2 style="margin: 0 0 10px 0; color: #530e90; font-size: 1.8rem; line-height: 1.2; overflow-wrap: anywhere; word-break: break-word;">${eje.area || 'Sin Título'}</h2>
-                    ${eje.responsible ? `<div style="color: #64748b; font-size: 0.95rem; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center;"><i class="fas fa-user-tie" style="margin-right: 8px;"></i> Responsable: <strong style="margin-left: 5px; color: #475569;">${eje.responsible}</strong></div>` : ''}
-                    <div style="color: #334155; font-size: 1.05rem; line-height: 1.8; overflow-wrap: anywhere; word-break: break-word;">
-                        ${(eje.description || '').replace(/\n/g, '<br><br>')}
-                    </div>
-                </div>
+        content.innerHTML = `
+        <div style="background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.05);padding:30px;">
+            <div style="width:100%;max-height:400px;overflow:hidden;border-radius:8px;margin-bottom:25px;">
+                <img src="${bgMedia}" alt="${eje.area || 'Eje'}" style="width:100%;height:100%;object-fit:cover;max-height:400px;">
             </div>
-        `;
-        modal.style.display = 'flex';
-        setTimeout(() => modal.style.opacity = '1', 10);
+            <h1 style="color:#1e293b;font-size:1.8rem;margin:10px 0 20px 0;">${eje.area || 'Sin Título'}</h1>
+            
+            <div style="margin-bottom:25px;">
+                <h3 style="color:#530e90;margin-bottom:10px;font-size:1.1rem;"><i class="fas fa-align-left" style="margin-right:8px;"></i>Descripción</h3>
+                <p style="color:#475569;line-height:1.7;white-space:pre-wrap;">${(eje.description || '').replace(/\n/g, '<br>')}</p>
+            </div>
+        </div>`;
+
+        list.classList.remove('public-active'); list.classList.add('public-hidden');
+        detail.classList.remove('public-hidden'); detail.classList.add('public-active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+
+    document.addEventListener('click', (e) => {
+        if (e.target && (e.target.id === 'btn-volver-ejes' || e.target.closest('#btn-volver-ejes'))) {
+            const viewDetail = document.getElementById('view-eje-detalle');
+            const viewList = document.getElementById('view-ejes');
+            if (viewDetail && viewList) {
+                viewDetail.classList.add('public-hidden');
+                viewDetail.classList.remove('public-active');
+                viewList.classList.add('public-active');
+                viewList.classList.remove('public-hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+    });
 
     // ==============================================
     // --- LÓGICA DINÁMICA: CARRUSELES DE INICIO ---

@@ -3,7 +3,7 @@ const AdminNewsView = {
         const paginated = data.pagination;
         const news = paginated ? paginated.items : data.news;
         const today = new Date().toISOString().split('T')[0];
-        const currentCategory = data.categoryFilter || 'Todas';
+        const currentCategory = (typeof currentNewsCategoryFilter !== 'undefined') ? currentNewsCategoryFilter : 'Todas';
 
         const categories = ['Regional', 'Nacional', 'Internacional', 'Local', 'Institucionales', 'Carrusel de Noticias'];
 
@@ -73,7 +73,8 @@ const AdminNewsView = {
                                     </span>
                                 </div>
                                 <h3 style="font-size: 0.95rem; color: var(--color-text-main); margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.8em;">${n.headline}</h3>
-                                <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 12px;">${n.published ? new Date(n.published).toLocaleDateString('es-VE', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}</p>
+                                <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 4px;">Publicada: ${n.published ? new Date(n.published).toLocaleDateString('es-VE') : ''}</p>
+                                <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 12px; font-style: italic;">Última act: ${n.updatedAt ? new Date(n.updatedAt).toLocaleDateString('es-VE') : ''} por <b>${n.updatedBy || 'Sistema'}</b></p>
                                 <div style="display: flex; gap: 8px; margin-top: auto;">
                                     <button onclick="openNewsModal(${n.id})" title="Editar" style="flex: 1; background: none; border: 1px solid var(--color-border); padding: 8px; border-radius: 6px; cursor: pointer; color: var(--color-text-main); transition: 0.2s;"><i class="fas fa-edit"></i></button>
                                     <button onclick="deleteNews(${n.id})" title="Eliminar" style="flex: 1; background: none; border: 1px solid #fee2e2; color: #ef4444; padding: 8px; border-radius: 6px; cursor: pointer; transition: 0.2s;"><i class="fas fa-trash-alt"></i></button>
@@ -176,6 +177,8 @@ const AdminNewsView = {
                                     </div>
                                 </div>
                             </div>
+                            <!-- Auditoría Section -->
+                            <div id="news-audit-container" style="padding: 0 25px 20px 25px; display: none;"></div>
                             <div class="modal-footer">
                                 <button type="button" class="btn-secondary" onclick="closeNewsModal()" style="padding: 10px 20px; font-weight: 600;">Cancelar</button>
                                 <button type="submit" class="btn-primary" style="padding: 10px 30px; font-weight: 700;">Guardar Cambios</button>

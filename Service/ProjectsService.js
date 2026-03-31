@@ -80,11 +80,49 @@ function openProjectModal(id = null) {
             document.getElementById('admin-project-advances').value = project.advances || '';
 
             projectImageQueue = project.images ? [...project.images] : (project.image && project.image !== 'assets/images/proyectos.png' ? [project.image] : []);
+
+            const auditContainer = document.getElementById('project-audit-container');
+            if (auditContainer) {
+                const session = JSON.parse(localStorage.getItem('dcti_session')) || {};
+                const isAdmin = session.role === 'admin';
+                
+                let auditHtml = `
+                    <h4 style="font-size: 0.9rem; color: var(--color-text-main); margin-bottom: 10px;">Información de Auditoría</h4>
+                    <div style="display: flex; gap: 20px; font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 15px;">
+                        <span><i class="fas fa-calendar-plus" style="margin-right: 5px;"></i> Creado: ${project.createdAt ? new Date(project.createdAt).toLocaleDateString('es-VE') : 'N/A'} por ${project.createdBy || 'Sistema'}</span>
+                        <span><i class="fas fa-edit" style="margin-right: 5px;"></i> Última act: ${project.updatedAt ? new Date(project.updatedAt).toLocaleDateString('es-VE') : 'N/A'} por ${project.updatedBy || 'Sistema'}</span>
+                    </div>
+                `;
+
+                if (isAdmin && project.history && project.history.length > 0) {
+                    auditHtml += `
+                        <details style="background: #f8fafc; border: 1px solid var(--color-border); border-radius: 6px; padding: 10px;">
+                            <summary style="font-size: 0.85rem; font-weight: 600; cursor: pointer; color: var(--color-primary); margin-bottom: 5px;">Ver Historial de Cambios (${project.history.length})</summary>
+                            <ul style="list-style: none; padding: 0; margin: 10px 0 0 0; font-size: 0.8rem;">
+                                ${project.history.map(h => `
+                                    <li style="border-bottom: 1px dashed #e2e8f0; padding: 6px 0; display: flex; justify-content: space-between;">
+                                        <span><b>${h.responsible}</b> (${h.action || 'Cambio'})</span>
+                                        <span style="color: var(--color-text-muted);">${h.date} - ${h.fields}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </details>
+                    `;
+                }
+                auditContainer.innerHTML = auditHtml;
+                auditContainer.style.display = 'block';
+            }
         }
     } else {
         title.textContent = 'Nuevo Proyecto';
         editIdInput.value = '';
         if (galleryTitle) galleryTitle.textContent = 'Previsualizar imágenes';
+        
+        const auditContainer = document.getElementById('project-audit-container');
+        if (auditContainer) {
+            auditContainer.innerHTML = '';
+            auditContainer.style.display = 'none';
+        }
     }
 
     renderProjectGallery();
@@ -265,7 +303,8 @@ async function handleProjectSubmit(e) {
             if (changes.length > 0) {
                 const logEntry = {
                     date: now,
-                    responsible: session.name,
+                    responsible: session.name || session.username || "Usuario",
+                    action: "Edición",
                     fields: changes.join(', ')
                 };
 
@@ -278,7 +317,9 @@ async function handleProjectSubmit(e) {
                     advances,
                     image: imageToSave,
                     images: [...projectImageQueue],
-                    history: [logEntry, ...(old.history || [])].slice(0, 10) // Mantener últimos 10
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: session.name || session.username || "Usuario",
+                    history: [logEntry, ...(old.history || [])].slice(0, 15)
                 };
                 AlertService.notify('Éxito', 'Proyecto actualizado y cambios registrados.', 'success');
             } else {
@@ -299,7 +340,11 @@ async function handleProjectSubmit(e) {
             advances,
             image: imageToSave,
             images: [...projectImageQueue],
-            history: [{ date: now, responsible: session.name, fields: 'Creación inicial' }]
+            createdAt: new Date().toISOString(),
+            createdBy: session.name || session.username || "Usuario",
+            updatedAt: new Date().toISOString(),
+            updatedBy: session.name || session.username || "Usuario",
+            history: [{ date: now, responsible: session.name || session.username || "Usuario", action: "Creación inicial", fields: "Todos" }]
         };
         allProjects.push(newProject);
         AlertService.notify('Éxito', 'Nuevo proyecto registrado satisfactoriamente.', 'success');

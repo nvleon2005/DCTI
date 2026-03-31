@@ -236,6 +236,40 @@ function initMockData() {
         localStorage.setItem('dcti_strategic', JSON.stringify(MOCK_DATA.strategic));
         console.log("Mock Strategic Areas injected");
     }
+
+    // --- MIGRACIÓN: SISTEMA DE AUDITORÍA ---
+    const collections = ['dcti_news', 'dcti_projects', 'dcti_courses', 'dcti_strategic', 'dcti_users'];
+    collections.forEach(key => {
+        let raw = localStorage.getItem(key);
+        if (raw) {
+            try {
+                let items = JSON.parse(raw);
+                let modified = false;
+                items.forEach(item => {
+                    if (!item.createdAt) {
+                        item.createdAt = item.published || new Date().toISOString();
+                        item.createdBy = "Ing.David Acosta";
+                        item.updatedAt = item.createdAt;
+                        item.updatedBy = "Ing.David Acosta";
+                        item.history = [{
+                            date: new Date().toLocaleString('es-VE'),
+                            responsible: "Ing.David Acosta",
+                            action: "Migración Inicial",
+                            fields: "Todos"
+                        }];
+                        modified = true;
+                    }
+                });
+                if (modified) {
+                    localStorage.setItem(key, JSON.stringify(items));
+                    console.log(`Auditoría migrada en ${key}.`);
+                }
+            } catch (e) {
+                console.error(`Error migrando auditoría en ${key}:`, e);
+            }
+        }
+    });
+
     if (!localStorage.getItem('dcti_info')) {
         localStorage.setItem('dcti_info', JSON.stringify(MOCK_DATA.dcti));
         console.log("Mock DCTI Info injected");

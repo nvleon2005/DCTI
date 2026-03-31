@@ -38,6 +38,7 @@ const ReportsView = {
                             <select id="report-domain" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="width: 100%; padding: 11px 15px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; font-weight: 500; font-size: 0.9rem; outline: none; transition: border-color 0.2s; color: #1e293b;" onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(37,99,235,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'">
                                 <option value="users">Directorio de Usuarios</option>
                                 <option value="news">Registro de Publicaciones</option>
+                                <option value="strategic">Ejes de Gestión</option>
                                 <option value="projects">Portafolio de Proyectos</option>
                                 <option value="courses">Gestión Académica</option>
                             </select>
