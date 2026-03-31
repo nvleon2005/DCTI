@@ -156,6 +156,9 @@ function renderModule(id, skipAnimation = false) {
 
         if (id === 'projects') {
             let filteredProjects = viewData.projects;
+            if (typeof window.globalProjectStatusFilter !== 'undefined' && window.globalProjectStatusFilter !== 'Todos' && window.globalProjectStatusFilter !== '') {
+                filteredProjects = filteredProjects.filter(p => p.status === window.globalProjectStatusFilter);
+            }
             if (q) {
                 filteredProjects = filteredProjects.filter(p =>
                     Object.values(p).some(val => val && val.toString().toLowerCase().includes(q))

@@ -2093,7 +2093,7 @@ footer {
     height: auto;
     min-height: 200px;
     background-color: #ffffff;
-    border-bottom: 5px solid #000000;
+    border-left: 5px solid #000000;
     border-radius: 10px 10px 0 0;
     box-shadow: 0 0 10px #a7a7a7;
     text-align: left;
@@ -2163,7 +2163,7 @@ footer {
     border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     position: relative;
-    border-bottom: 5px solid #a01cad;
+    border-left: 5px solid #a01cad;
 }
 
 .eje-contenedor1,
@@ -2511,7 +2511,7 @@ footer {
     border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     position: relative;
-    border-bottom: 5px solid #a01cad;
+    border-left: 5px solid #a01cad;
     display: flex;
     background: #ffffff;
     max-width: 1000px;
@@ -2605,7 +2605,7 @@ footer {
     width: 25%;
     margin: 1%;
     background-color: #fdfdfd;
-    border-bottom: 5px solid #000000;
+    border-left: 5px solid #000000;
     border-radius: 10px 10px 0 0;
     overflow: hidden;
     transition: transform 0.3s ease;
@@ -2732,7 +2732,7 @@ footer {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: var(--transition);
-    border-bottom: 5px solid var(--color-primary-light);
+    border-left: 5px solid var(--color-primary-light);
     display: flex;
     flex-direction: column;
 }
@@ -2919,7 +2919,7 @@ footer {
     max-height: 650px;
     margin: 1%;
     background-color: #fdfdfd;
-    border-bottom: 3px solid #a01cad;
+    border-left: 3px solid #a01cad;
     border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
@@ -3841,7 +3841,7 @@ footer {
     width: 80%;
     min-height: 200px;
     background-color: #ffffff;
-    border-bottom: 5px solid var(--color-primary);
+    border-left: 5px solid var(--color-primary);
     border-radius: 10px 10px 0 0;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
@@ -3890,7 +3890,7 @@ footer {
     border-radius: 5px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     position: relative;
-    border-bottom: 5px solid var(--color-primary-light);
+    border-left: 5px solid var(--color-primary-light);
     display: flex;
     background: #ffffff;
     max-width: 1000px;

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ADMIN DASHBOARD - PROJECTS LOGIC (Local-First v1.0.0)
  * Responsabilidad: Gestión de Proyectos (Iniciativas Estratégicas), Auditoría Detallada y Validación.
  */
@@ -12,9 +12,8 @@ function getLocalProjects() {
             ...p,
             description: p.description || '',
             objectives: p.objectives || '',
-            status: p.status || 'En Proceso',
-            progress: p.progress || 0,
-            featured: p.featured || false,
+            status: ['En Proceso', 'Validado', 'Finalizado'].includes(p.status) ? 'En Progreso' : p.status,
+            advances: p.advances || '',
             image: p.image || 'assets/images/proyectos.png',
             history: [] // Historial de auditoría
         }));
@@ -41,24 +40,7 @@ function saveLocalProjects(projectsArray) {
 
 // --- UTILIDADES DE UI ---
 
-function updateFeaturedState() {
-    const statusSelect = document.getElementById('admin-project-status');
-    const featuredCheckbox = document.getElementById('admin-project-featured');
-    const featuredHint = document.getElementById('featured-hint');
 
-    if (!statusSelect || !featuredCheckbox) return;
-
-    if (statusSelect.value !== 'Validado') {
-        featuredCheckbox.checked = false;
-        featuredCheckbox.disabled = true;
-        if (featuredHint) featuredHint.style.display = 'block';
-    } else {
-        featuredCheckbox.disabled = false;
-        if (featuredHint) featuredHint.style.display = 'none';
-    }
-}
-
-// --- LÓGICA DE MODAL ---
 
 let projectImageQueue = [];
 
@@ -94,9 +76,8 @@ function openProjectModal(id = null) {
             document.getElementById('admin-project-title').value = project.title || '';
             document.getElementById('admin-project-description').value = project.description || '';
             document.getElementById('admin-project-objectives').value = project.objectives || '';
-            document.getElementById('admin-project-status').value = project.status || 'En Proceso';
-            document.getElementById('admin-project-progress').value = project.progress || 0;
-            document.getElementById('admin-project-featured').checked = project.featured || false;
+            document.getElementById('admin-project-status').value = project.status || 'En Progreso';
+            document.getElementById('admin-project-advances').value = project.advances || '';
 
             projectImageQueue = project.images ? [...project.images] : (project.image && project.image !== 'assets/images/proyectos.png' ? [project.image] : []);
         }
@@ -107,8 +88,6 @@ function openProjectModal(id = null) {
     }
 
     renderProjectGallery();
-    // Inicializar estado del checkbox destacado
-    updateFeaturedState();
 }
 
 function closeProjectModal() {
@@ -183,9 +162,7 @@ document.addEventListener('change', async (e) => {
         e.target.value = '';
     }
 
-    if (e.target && e.target.id === 'admin-project-status') {
-        updateFeaturedState();
-    }
+
 });
 
 function renderProjectGallery() {
@@ -247,13 +224,12 @@ async function handleProjectSubmit(e) {
     const description = document.getElementById('admin-project-description').value.trim();
     const objectives = document.getElementById('admin-project-objectives').value.trim();
     const status = document.getElementById('admin-project-status').value;
-    const progress = document.getElementById('admin-project-progress').value;
-    const featured = document.getElementById('admin-project-featured').checked;
+    const advances = document.getElementById('admin-project-advances').value.trim();
     const image = document.getElementById('admin-project-media').value;
 
     // 1. VALIDACIÓN DE OBLIGATORIEDAD ESTRICTA
-    if (!title || !description || !objectives || !status || title === '' || description === '' || objectives === '') {
-        AlertService.notify('Campos Vacíos', 'Los campos no pueden estar vacíos ni contener solo espacios.', 'warning');
+    if (!title || !description || !objectives || !status || !advances) {
+        AlertService.notify('Campos Vacíos', 'Los campos no pueden estar vacíos ni contener solo espacios. Recuerde llenar los Avances Realizados.', 'warning');
         return;
     }
 
@@ -265,11 +241,7 @@ async function handleProjectSubmit(e) {
 
     const imageToSave = projectImageQueue.length > 0 ? projectImageQueue[0] : 'assets/images/proyectos.png';
 
-    // CU-001: Validación de estado "Validado" para ser destacado
-    if (featured && status !== 'Validado') {
-        AlertService.notify('Validación Requerida', 'El proyecto debe estar "Validado" para ser destacado.', 'warning');
-        return;
-    }
+
 
     let allProjects = getLocalProjects();
     const session = JSON.parse(localStorage.getItem('dcti_session')) || { name: 'Admin' };
@@ -287,8 +259,7 @@ async function handleProjectSubmit(e) {
             if (old.description !== description) changes.push('Descripción');
             if (old.objectives !== objectives) changes.push('Objetivos');
             if (old.status !== status) changes.push('Estado');
-            if (old.progress != progress) changes.push('Progreso');
-            if (old.featured !== featured) changes.push('Destacado');
+            if (old.advances !== advances) changes.push('Avances');
             if (old.image !== imageToSave) changes.push('Imagen Principal');
 
             if (changes.length > 0) {
@@ -304,8 +275,7 @@ async function handleProjectSubmit(e) {
                     description,
                     objectives,
                     status,
-                    progress: parseInt(progress),
-                    featured,
+                    advances,
                     image: imageToSave,
                     images: [...projectImageQueue],
                     history: [logEntry, ...(old.history || [])].slice(0, 10) // Mantener últimos 10
@@ -326,8 +296,7 @@ async function handleProjectSubmit(e) {
             description,
             objectives,
             status,
-            progress: parseInt(progress),
-            featured,
+            advances,
             image: imageToSave,
             images: [...projectImageQueue],
             history: [{ date: now, responsible: session.name, fields: 'Creación inicial' }]
@@ -370,41 +339,12 @@ async function deleteProject(id) {
     }
 }
 
-function toggleFeatured(id) {
-    let allProjects = getLocalProjects();
-    const index = allProjects.findIndex(p => p.id == id);
 
-    if (index !== -1) {
-        const project = allProjects[index];
-
-        // Validación de estado Validado para destacar
-        if (!project.featured && project.status !== 'Validado') {
-            AlertService.notify('Validación Requerida', 'El proyecto debe estar "Validado" para ser destacado.', 'warning');
-            return;
-        }
-
-        const session = JSON.parse(localStorage.getItem('dcti_session')) || { name: 'Admin' };
-        project.featured = !project.featured;
-
-        const logEntry = {
-            date: new Date().toLocaleString(),
-            responsible: session.name,
-            fields: 'Estado Destacado'
-        };
-        project.history = [logEntry, ...(project.history || [])].slice(0, 10);
-
-        saveLocalProjects(allProjects);
-        AlertService.notify('Actualizado', `Proyecto ${project.featured ? 'marcado como' : 'removido de'} destacados.`, 'success');
-        renderModule('projects');
-    }
-}
-// EXPORTACIONES GLOBALES
 window.getLocalProjects = getLocalProjects;
 window.saveLocalProjects = saveLocalProjects;
 window.openProjectModal = openProjectModal;
 window.closeProjectModal = closeProjectModal;
 window.handleProjectSubmit = handleProjectSubmit;
 window.deleteProject = deleteProject;
-window.toggleFeatured = toggleFeatured;
 window.setProjectMainPreview = setProjectMainPreview;
 window.removeProjectImage = removeProjectImage;

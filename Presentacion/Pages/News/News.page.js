@@ -1,4 +1,4 @@
-﻿const AdminNewsView = {
+const AdminNewsView = {
     render: (data) => {
         const paginated = data.pagination;
         const news = paginated ? paginated.items : data.news;
@@ -59,7 +59,7 @@
                                 </div>
                             ` : ''}
                             <div style="height: 140px; background: #f1f5f9; overflow: hidden; position: relative;">
-                                <img src="${n.multimedia || 'assets/images/img8.jpg'}" style="width: 100%; height: 100%; object-fit: cover;">
+                                <img src="${Array.isArray(n.multimedia) && n.multimedia.length > 0 ? n.multimedia[0] : (n.multimedia || 'assets/images/img8.jpg')}" style="width: 100%; height: 100%; object-fit: cover;">
                                 <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 4px;">
                                     ${statusArray.map(s => `
                                         <span title="${s}" style="width: 8px; height: 8px; border-radius: 50%; background: ${s === 'Publicada' || s === 'Publicado' ? '#22c55e' : (s === 'Validada' ? '#3b82f6' : '#f59e0b')}"></span>
@@ -133,9 +133,15 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label>Resumen de Portada <span style="color: #ef4444;">*</span></label>
-                                        <textarea id="admin-news-summary" style="width: 100%; padding: 0.8rem; border: 1.5px solid var(--color-border) !important; border-radius: var(--radius-md) !important; height: 100px; font-family: inherit; resize: vertical; background: white !important;" placeholder="Breve extracto para captar la atención..." required></textarea>
+                                        <label>Ubicación en Carrusel Inicio</label>
+                                        <select id="admin-news-carousel-placement" style="width: 100%; padding: 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 0.9rem;">
+                                            <option value="Ninguno">Ninguno</option>
+                                            <option value="Carrusel Principal">Carrusel Principal (Arriba)</option>
+                                            <option value="Carrusel Noticias">Carrusel de Noticias (Medio)</option>
+                                            <option value="Carrusel Miniaturas">Carrusel Miniaturas (Abajo)</option>
+                                        </select>
                                     </div>
+
                                     <div class="form-group">
                                         <label>Contenido Completo <span style="color: #ef4444;">*</span></label>
                                         <textarea id="admin-news-content" style="width: 100%; padding: 0.8rem; border: 1.5px solid var(--color-border) !important; border-radius: var(--radius-md) !important; height: 180px; font-family: inherit; resize: vertical; background: white !important;" placeholder="Escriba la noticia íntegra aquí..." required></textarea>
@@ -151,11 +157,12 @@
                                         <input type="date" id="admin-news-date" value="${today}" required>
                                     </div>
                                     <div class="form-group">
-                                        <label>Imagen Destacada</label>
-                                        <div style="position: relative; height: 100px; border: 2px dashed var(--color-border); border-radius: var(--radius-md); display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; overflow: hidden; transition: 0.2s;" class="upload-area">
-                                            <input type="file" id="admin-news-file" accept="image/*" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
-                                            <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem; color: var(--color-text-muted); margin-bottom: 5px;"></i>
-                                            <span style="font-size: 0.75rem; color: var(--color-text-muted);">Subir imagen local</span>
+                                        <label>Imágenes de la Noticia</label>
+                                        <div style="position: relative; min-height: 100px; border: 2px dashed var(--color-border); border-radius: var(--radius-md); display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; overflow: hidden; transition: 0.2s; padding: 10px;" class="upload-area">
+                                            <input type="file" id="admin-news-file" accept="image/*" multiple style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2;">
+                                            <i class="fas fa-images" style="font-size: 1.5rem; color: var(--color-text-muted); margin-bottom: 5px;"></i>
+                                            <span style="font-size: 0.75rem; color: var(--color-text-muted); text-align: center;">Subir imágenes localmente<br>(Puede seleccionar múltiples)</span>
+                                            <div id="admin-news-images-preview" style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; z-index: 1; pointer-events: none;"></div>
                                             <input type="hidden" id="admin-news-media">
                                         </div>
                                     </div>

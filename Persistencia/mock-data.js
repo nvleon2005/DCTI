@@ -1,4 +1,4 @@
-﻿const MOCK_DATA = {
+const MOCK_DATA = {
     dcti: {
         address: "Av. Alirio Ugarte Pelayo, Sector PDVSA Edif. ESEM, Planta Baja. Maturín, Monagas.",
         phone: "+58 412-1234567",
@@ -78,29 +78,29 @@
         {
             id: 1,
             title: "Plataforma Educativa Monagas Digital",
-            description: "Desarrollo de un sistema de gestión de aprendizaje para escuelas.",
-            objectives: "- Facilitar clases online\n- Seguimiento de estudiantes\n- Recursos digitales",
-            status: "En Desarrollo",
-            progress: 65,
-            multimedia: "assets/images/img5.jpg"
+            description: "Desarrollo de un sistema de gestión de aprendizaje para escuelas del estado Monagas, integrando recursos multimedia y seguimiento académico en línea.",
+            objectives: "- Facilitar clases en línea para todos los niveles\n- Seguimiento individualizado del desempeño estudiantil\n- Proveer una biblioteca de recursos digitales gratuitos",
+            status: "Destacado",
+            advances: "Se completó la plataforma base y fue lanzada exitosamente en 15 escuelas piloto con más de 2.000 estudiantes activos.",
+            image: "assets/images/img5.jpg"
         },
         {
             id: 2,
             title: "AgroTech Monagas",
-            description: "Implementación de sensores IoT para control de cultivos.",
-            objectives: "- Optimizar riego\n- Control de plagas",
-            status: "Implementado",
-            progress: 100,
-            multimedia: "assets/images/img10.jpg"
+            description: "Implementación de sensores IoT para monitoreo y control de cultivos en el estado Monagas, apoyando a pequenos y medianos productores agrícolas.",
+            objectives: "- Optimizar el uso del riego mediante sensores de humedad\n- Control temprano de plagas con alertas automáticas\n- Aumentar el rendimiento de cultivos en un 30%",
+            status: "En Progreso",
+            advances: "Fase de instalación de sensores en 5 fincas piloto completada. Se está procesando la integración con la plataforma de monitoreo central.",
+            image: "assets/images/img10.jpg"
         },
         {
             id: 3,
             title: "Red de Conectividad Estadal",
-            description: "Ampliación de la cobertura de internet en zonas rurales.",
-            objectives: "- Conectar escuelas\n- Puntos Wi-Fi públicos",
-            status: "En Revisión",
-            progress: 20,
-            multimedia: "assets/images/img7.jpg"
+            description: "Proyecto de ampliación de la cobertura de internet de alta velocidad en zonas rurales y comunidades aisladas del estado Monagas.",
+            objectives: "- Conectar al menos 50 escuelas rurales a internet\n- Instalar 20 puntos de acceso Wi-Fi público gratuito\n- Capacitar a comunidades en el uso de la tecnología",
+            status: "A Futuro",
+            advances: "",
+            image: "assets/images/img7.jpg"
         }
     ],
     strategic: [
@@ -175,7 +175,24 @@ function initMockData() {
         try {
             let existingProjects = JSON.parse(existingProjectsRaw);
             let modified = false;
+            const legacyStatusMap = {
+                'En Proceso': 'En Progreso', 'En Desarrollo': 'En Progreso',
+                'En Revisión': 'En Progreso', 'Borrador': 'A Futuro',
+                'Validado': 'Destacado', 'Finalizado': 'Destacado', 'Implementado': 'Destacado'
+            };
             existingProjects.forEach(p => {
+                if (legacyStatusMap[p.status]) {
+                    p.status = legacyStatusMap[p.status];
+                    modified = true;
+                }
+                if (typeof p.progress !== 'undefined') {
+                    delete p.progress;
+                    modified = true;
+                }
+                if (typeof p.featured !== 'undefined') {
+                    delete p.featured;
+                    modified = true;
+                }
                 if (p.multimedia && p.multimedia.startsWith('img/')) {
                     p.multimedia = p.multimedia.replace('img/', 'assets/images/');
                     modified = true;
@@ -183,7 +200,7 @@ function initMockData() {
             });
             if (modified) {
                 localStorage.setItem('dcti_projects', JSON.stringify(existingProjects));
-                console.log("Rutas de imágenes de proyectos locales actualizadas en caché.");
+                console.log("Proyectos migrados al nuevo esquema de estados.");
             }
         } catch (e) { }
     }

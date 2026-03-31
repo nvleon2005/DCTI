@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ADMIN DASHBOARD - NEWS LOGIC (Local-First v1.0.0)
  * Responsabilidad: Gestión de Datos de Noticias (CRUD), Persistencia y Modales.
  */
@@ -53,10 +53,29 @@ function openNewsModal(id = null) {
             document.getElementById('admin-news-headline').value = newsItem.headline || '';
             document.getElementById('admin-news-category').value = newsItem.category || '';
             document.getElementById('admin-news-author').value = newsItem.author || '';
-            document.getElementById('admin-news-summary').value = newsItem.summary || '';
+
             document.getElementById('admin-news-content').value = newsItem.content || '';
-            document.getElementById('admin-news-media').value = newsItem.multimedia || '';
+            document.getElementById('admin-news-media').value = typeof newsItem.multimedia === 'string' ? JSON.stringify([newsItem.multimedia]) : JSON.stringify(newsItem.multimedia || []);
             document.getElementById('admin-news-date').value = newsItem.published || '';
+            
+            const carouselSelect = document.getElementById('admin-news-carousel-placement');
+            if (carouselSelect) carouselSelect.value = newsItem.carouselPlacement || 'Ninguno';
+
+            // Preview
+            const previewContainer = document.getElementById('admin-news-images-preview');
+            const icon = document.querySelector('.upload-area i');
+            const spanText = document.querySelector('.upload-area span');
+            if (previewContainer) {
+                const imagesArray = Array.isArray(newsItem.multimedia) ? newsItem.multimedia : (newsItem.multimedia ? [newsItem.multimedia] : []);
+                previewContainer.innerHTML = imagesArray.map(m => `<img src="${m}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;">`).join('');
+                if (imagesArray.length > 0 && icon && spanText) {
+                    icon.style.display = 'none';
+                    spanText.textContent = `${imagesArray.length} imágenes listas`;
+                } else if (icon && spanText) {
+                    icon.style.display = 'block';
+                    spanText.innerHTML = 'Subir imágenes localmente<br>(Puede seleccionar múltiples)';
+                }
+            }
 
             // Set checkboxes
             const status = newsItem.status || [];
@@ -67,6 +86,19 @@ function openNewsModal(id = null) {
     } else {
         title.textContent = 'Nueva Noticia';
         editIdInput.value = '';
+        const carouselSelect = document.getElementById('admin-news-carousel-placement');
+        if (carouselSelect) carouselSelect.value = 'Ninguno';
+        
+        const previewContainer = document.getElementById('admin-news-images-preview');
+        if (previewContainer) previewContainer.innerHTML = '';
+        
+        const icon = document.querySelector('.upload-area i');
+        const spanText = document.querySelector('.upload-area span');
+        if (icon && spanText) {
+            icon.style.display = 'block';
+            spanText.innerHTML = 'Subir imágenes localmente<br>(Puede seleccionar múltiples)';
+        }
+        
         document.querySelectorAll('input[name="status"]').forEach(cb => cb.checked = false);
     }
 }
@@ -79,31 +111,37 @@ function closeNewsModal() {
 // --- LISTENERS ---
 document.addEventListener('change', async (e) => {
     if (e.target && e.target.id === 'admin-news-file') {
-        const file = e.target.files[0];
-        if (!file) return;
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
 
         // Validar tipo de archivo
-        if (!file.type.startsWith('image/')) {
-            AlertService.notify('Archivo inválido', 'Por favor selecciona una imagen.', 'error');
+        const validFiles = files.filter(file => file.type.startsWith('image/'));
+        if (validFiles.length === 0) {
+            AlertService.notify('Archivo inválido', 'Por favor selecciona imágenes válidas.', 'error');
             return;
         }
 
         try {
-            const base64 = await encodeFileToBase64(file);
-            document.getElementById('admin-news-media').value = base64;
-            // Opcional: Mostrar preview
+            const base64Promises = validFiles.map(file => encodeFileToBase64(file));
+            const base64Results = await Promise.all(base64Promises);
+            
+            // Si ya habia imagenes podriamos sumarlas, pero tradicionalmente un input file reemplaza. Así que reemplazamos.
+            document.getElementById('admin-news-media').value = JSON.stringify(base64Results);
+            
+            // Preview
+            const previewContainer = document.getElementById('admin-news-images-preview');
             const uploadArea = e.target.parentElement;
-            if (uploadArea) {
-                uploadArea.style.backgroundImage = `url(${base64})`;
-                uploadArea.style.backgroundSize = 'cover';
-                uploadArea.style.backgroundPosition = 'center';
+            if (previewContainer && uploadArea) {
+                previewContainer.innerHTML = base64Results.map(base64 => 
+                    `<img src="${base64}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;">`
+                ).join('');
+                
                 uploadArea.querySelector('i').style.display = 'none';
-                uploadArea.querySelector('span').style.color = 'white';
-                uploadArea.querySelector('span').style.textShadow = '0 1px 4px rgba(0,0,0,0.5)';
-                uploadArea.querySelector('span').textContent = 'Imagen lista';
+                uploadArea.querySelector('span').textContent = `${base64Results.length} imágenes listas`;
             }
         } catch (err) {
-            AlertService.notify('Error', 'No se pudo procesar la imagen.', 'error');
+            console.error(err);
+            AlertService.notify('Error', 'No se pudieron procesar las imágenes.', 'error');
         }
     }
 });
@@ -146,21 +184,33 @@ async function handleNewsAdminSubmit(e) {
     const headline = document.getElementById('admin-news-headline').value.trim();
     const category = document.getElementById('admin-news-category').value;
     const author = document.getElementById('admin-news-author').value.trim();
-    const summary = document.getElementById('admin-news-summary').value.trim();
+
     const content = document.getElementById('admin-news-content').value.trim();
-    const media = document.getElementById('admin-news-media').value;
+    const mediaRaw = document.getElementById('admin-news-media').value;
     const date = document.getElementById('admin-news-date').value;
+    const carouselSelect = document.getElementById('admin-news-carousel-placement');
+    const carouselPlacement = carouselSelect ? carouselSelect.value : 'Ninguno';
 
     const status = Array.from(document.querySelectorAll('input[name="status"]:checked')).map(cb => cb.value);
 
+    // Parse media array safely
+    let mediaArray = [];
+    if (mediaRaw) {
+        try {
+            mediaArray = JSON.parse(mediaRaw);
+        } catch (e) {
+            mediaArray = [mediaRaw]; // fallback if it was just a base64 string
+        }
+    }
+
     // VALIDACIÓN COMPLETA
-    if (!headline || !category || !author || !summary || !content || !date || status.length === 0) {
+    if (!headline || !category || !author || !content || !date || status.length === 0) {
         AlertService.notify('Campos Vacíos', 'Por favor complete todos los campos obligatorios (*) y seleccione al menos un estado.', 'warning');
         return;
     }
 
-    if (!editId && !media) {
-        AlertService.notify('Imagen Requerida', 'Toda noticia nueva debe poseer una imagen destacada. Por favor, suba una imagen.', 'warning');
+    if (!editId && mediaArray.length === 0) {
+        AlertService.notify('Imagen Requerida', 'Toda noticia nueva debe poseer al menos una imagen destacada. Por favor, suba una imagen.', 'warning');
         return;
     }
 
@@ -175,9 +225,9 @@ async function handleNewsAdminSubmit(e) {
                 headline,
                 category,
                 author,
-                summary,
                 content,
-                multimedia: media || allNews[index].multimedia, // Mantener si no se subió una nueva
+                multimedia: mediaArray.length > 0 ? mediaArray : allNews[index].multimedia, // Mantener si no se subió una nueva
+                carouselPlacement,
                 published: date,
                 status
             };
@@ -191,9 +241,9 @@ async function handleNewsAdminSubmit(e) {
             headline,
             category,
             author,
-            summary,
             content,
-            multimedia: media || 'assets/images/img8.jpg',
+            multimedia: mediaArray.length > 0 ? mediaArray : ['assets/images/img8.jpg'],
+            carouselPlacement,
             published: date,
             status
         };

@@ -1,4 +1,4 @@
-﻿const ProjectsView = {
+const ProjectsView = {
     render: (data) => {
         // En este punto, renderModule ya debió sincronizar MOCK_DATA.projects con localStorage si existe getLocalProjects
         const paginated = data.pagination;
@@ -29,14 +29,9 @@
                 <div style="display: flex; justify-content: flex-start; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: var(--space-lg);">
                         <select onchange="window.globalProjectStatusFilter = this.value; if(typeof changePage === 'function'){changePage('projects', 1)} else {renderModule('projects')}" style="padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
                             <option value="Todos" ${window.globalProjectStatusFilter === 'Todos' || !window.globalProjectStatusFilter ? 'selected' : ''}>Todos los Estados</option>
-                            <option value="En Proceso" ${window.globalProjectStatusFilter === 'En Proceso' ? 'selected' : ''}>En Proceso</option>
-                            <option value="Validado" ${window.globalProjectStatusFilter === 'Validado' ? 'selected' : ''}>Validados</option>
-                            <option value="Borrador" ${window.globalProjectStatusFilter === 'Borrador' ? 'selected' : ''}>Borradores</option>
-                        </select>
-                        <select onchange="window.globalProjectFeaturedFilter = this.value; if(typeof changePage === 'function'){changePage('projects', 1)} else {renderModule('projects')}" style="padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
-                            <option value="Todos" ${window.globalProjectFeaturedFilter === 'Todos' || !window.globalProjectFeaturedFilter ? 'selected' : ''}>Cualquier Relevancia</option>
-                            <option value="Destacados" ${window.globalProjectFeaturedFilter === 'Destacados' ? 'selected' : ''}>Solo Destacados</option>
-                            <option value="Regulares" ${window.globalProjectFeaturedFilter === 'Regulares' ? 'selected' : ''}>Solo Regulares</option>
+                            <option value="Destacado" ${window.globalProjectStatusFilter === 'Destacado' ? 'selected' : ''}>Destacados</option>
+                            <option value="En Progreso" ${window.globalProjectStatusFilter === 'En Progreso' ? 'selected' : ''}>En Progreso</option>
+                            <option value="A Futuro" ${window.globalProjectStatusFilter === 'A Futuro' ? 'selected' : ''}>A Futuro</option>
                         </select>
                 </div>
 
@@ -45,7 +40,7 @@
             const coverImage = (p.images && p.images.length > 0) ? (p.images[0].image || p.images[0]) : (p.image || 'assets/images/img8.jpg');
             return `
                         <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative;">
-                            ${p.featured ? `
+                            ${p.status === 'Destacado' ? `
                                 <div style="position: absolute; top: 12px; left: 12px; background: #f59e0b; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                                     <i class="fas fa-star"></i> DESTACADO
                                 </div>
@@ -55,7 +50,7 @@
                             </div>
                             <div style="padding: var(--space-md); flex: 1; display: flex; flex-direction: column;">
                                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-                                    <span style="font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; font-weight: 700; background: ${p.status === 'Validado' ? '#dcfce7' : (p.status === 'En Proceso' ? '#fef9c3' : '#f3f4f6')}; color: ${p.status === 'Validado' ? '#166534' : (p.status === 'En Proceso' ? '#854d0e' : '#374151')}; border: 1px solid ${p.status === 'Validado' ? '#bbf7d0' : (p.status === 'En Proceso' ? '#fef08a' : '#e5e7eb')};">
+                                    <span style="font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; font-weight: 700; background: ${p.status === 'Destacado' ? '#fef3c7' : (p.status === 'En Progreso' ? '#dbeafe' : '#f3f4f6')}; color: ${p.status === 'Destacado' ? '#b45309' : (p.status === 'En Progreso' ? '#1e40af' : '#374151')}; border: 1px solid ${p.status === 'Destacado' ? '#fde68a' : (p.status === 'En Progreso' ? '#bfdbfe' : '#e5e7eb')};">
                                         ${p.status}
                                     </span>
                                     <div style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 600;">ID: #${p.id}</div>
@@ -64,18 +59,12 @@
                                 <h3 style="font-size: 0.95rem; color: var(--color-text-main); margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.8em;">${p.title}</h3>
                                 <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 12px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 3em;">${p.description}</p>
                                 
-                                <div style="margin-bottom: 15px; margin-top: auto;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; font-weight: 600;">
-                                        <span>Progreso</span>
-                                        <span>${p.progress}%</span>
-                                    </div>
-                                    <div style="width: 100%; height: 6px; background: #eee; border-radius: 10px; overflow: hidden;">
-                                        <div style="width: ${p.progress}%; height: 100%; background: var(--color-primary); border-radius: 10px; transition: width 0.3s ease;"></div>
-                                    </div>
+                                <div style="margin-bottom: 15px; margin-top: auto; padding-top: 10px; border-top: 1px dashed #e2e8f0;">
+                                    <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 6px; font-weight: 700;">Últimos Avances:</div>
+                                    <p style="font-size: 0.8rem; color: var(--color-text-main); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.8em;">${p.advances || 'Sin registrar...'}</p>
                                 </div>
     
                                 <div style="display: flex; gap: 8px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
-                                    <button onclick="toggleFeatured(${p.id})" title="${p.featured ? 'Quitar Destacado' : 'Destacar'}" style="flex: 0 0 auto; width: 35px; background: ${p.featured ? '#fffbeb' : 'white'}; border: 1px solid ${p.featured ? '#fde68a' : 'var(--color-border)'}; border-radius: 6px; cursor: pointer; color: ${p.featured ? '#f59e0b' : '#cbd5e1'}; font-size: 1rem; transition: 0.2s;"><i class="${p.featured ? 'fas' : 'far'} fa-star"></i></button>
                                     <button onclick="openProjectModal(${p.id})" title="Editar" style="flex: 1; background: none; border: 1px solid var(--color-border); padding: 8px; border-radius: 6px; cursor: pointer; color: var(--color-text-main); transition: 0.2s;"><i class="fas fa-edit"></i></button>
                                     <button onclick="deleteProject(${p.id})" title="Eliminar" style="flex: 1; background: none; border: 1px solid #fee2e2; color: #ef4444; padding: 8px; border-radius: 6px; cursor: pointer; transition: 0.2s;"><i class="fas fa-trash-alt"></i></button>
                                 </div>
@@ -151,28 +140,20 @@
                                         <textarea id="admin-project-objectives" placeholder="Metas a alcanzar..." style="width: 100%; height: 120px; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; resize: vertical;" required></textarea>
                                     </div>
 
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
                                         <div class="form-group">
                                             <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Estado <span style="color: #ef4444;">*</span></label>
                                             <select id="admin-project-status" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; background-color: white; font-weight: 600;" required>
-                                                <option value="Borrador">Borrador</option>
-                                                <option value="En Proceso">En Proceso</option>
-                                                <option value="Validado">Validar Proyecto (Listo para Destacar)</option>
+                                                <option value="Destacado">Destacado (Completado y Relevante)</option>
+                                                <option value="En Progreso">En Progreso (En desarrollo actual)</option>
+                                                <option value="A Futuro">A Futuro (Programado para después)</option>
                                             </select>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Progreso (%)</label>
-                                            <input type="number" id="admin-project-progress" min="0" max="100" value="0" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
                                         </div>
                                     </div>
 
-                                    <div class="form-group" style="display: flex; flex-direction: column; gap: 5px; padding-top: 5px;">
-                                        <div style="display: flex; align-items: center; gap: 10px;">
-                                            <input type="checkbox" id="admin-project-featured" style="width: 20px; height: 20px;">
-                                            <label for="admin-project-featured" style="font-size: 0.9rem; font-weight: 700; color: var(--color-primary);">Marcar como Destacado (Visible en el Portal)</label>
-                                        </div>
-                                        <span id="featured-hint" style="font-size: 0.75rem; color: #ef4444; margin-left: 30px; display: none;">* Requiere estado "Validar Proyecto"</span>
+                                    <div class="form-group">
+                                        <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Avances Realizados <span style="color: #ef4444;">*</span></label>
+                                        <textarea id="admin-project-advances" placeholder="Describa los avances actuales del proyecto..." style="width: 100%; height: 80px; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; resize: vertical;" required></textarea>
                                     </div>
 
                                     <div class="form-group" style="display: flex; gap: 15px; margin-top: auto; padding-top: 15px; border-top: 1px solid #eee;">

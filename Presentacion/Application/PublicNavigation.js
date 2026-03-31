@@ -1,4 +1,4 @@
-﻿function initPublicNavigation() {
+function initPublicNavigation() {
     // --- INTEGRACIÓN DEL ESTADO DE SESIÓN (USER PILL) ---
 
     const authMenuContainer = document.getElementById('public-auth-menu');
@@ -176,7 +176,7 @@ if (document.readyState === 'loading') {
             const badgeColor = cuposDisponibles > 0 ? '#10b981' : '#ef4444';
 
             html += `
-                <div class="course-item" style="width: 100% !important; max-width: none !important; margin: 0 !important; display: flex; flex-direction: column; overflow: hidden; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background: white; transition: transform 0.3s ease;">
+                <div class="course-item" style="border-left: 5px solid #530e90; width: 100% !important; max-width: none !important; margin: 0 !important; display: flex; flex-direction: column; overflow: hidden; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background: white; transition: transform 0.3s ease;">
                     <div style="height: 200px; width: 100%; position: relative;">
                         <img src="${coverImage}" alt="${course.nombreCurso}" style="width: 100%; height: 100%; object-fit: cover;">
                         <span style="position: absolute; top: 10px; right: 10px; background: ${badgeColor}; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold;">
@@ -604,14 +604,18 @@ if (document.readyState === 'loading') {
                     </div>
                     <div class="noticias" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; align-items: stretch; padding: 0 2% 2% 2%;">
                         ${catNewsPaged.map(n => {
-                    const media = n.multimedia || 'assets/images/img8.jpg';
+                    const mediaArray = Array.isArray(n.multimedia) && n.multimedia.length > 0 ? n.multimedia : [n.multimedia || 'assets/images/img8.jpg'];
+                    const coverMedia = mediaArray[0];
                     return `
                             <div class="noticia-card" style="cursor:pointer; width: 300px; max-width: 30%; margin: 1%; background-color: #fdfdfd; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column;" onclick="window.showNewsDetail(${n.id})">
-                                <img src="${media}" alt="${n.headline}" style="width: 100%; height: 200px; object-fit: cover;">
-                                <div class="noticia-card-body" style="padding: 15px; flex-grow: 1;">
-                                    <a onclick="event.preventDefault(); window.showNewsDetail(${n.id})" class="redireccion" style="cursor:pointer; text-decoration: none;">
+                                <img class="discrete-fade-img" data-index="0" data-multimedia='${JSON.stringify(mediaArray)}' src="${coverMedia}" alt="${n.headline}" style="width: 100%; height: 200px; object-fit: cover; transition:opacity 1s ease-in-out;">
+                                <div class="noticia-card-body" style="padding: 15px; flex-grow: 1; display: flex; flex-direction: column;">
+                                    <a onclick="event.preventDefault(); window.showNewsDetail(${n.id})" class="redireccion" style="cursor:pointer; text-decoration: none; margin-bottom: 10px;">
                                         <h2 style="margin: 0; color: #0656c5; font-size: 1.1rem; line-height: 1.3;">${n.headline}</h2>
                                     </a>
+                                    <p style="margin: 0; color: #475569; font-size: 0.9rem; line-height: 1.5; flex-grow: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
+                                        ${n.content || ''}
+                                    </p>
                                 </div>
                             </div>`;
                 }).join('')}
@@ -646,14 +650,18 @@ if (document.readyState === 'loading') {
                     </div>
                     <div class="noticias" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; align-items: stretch; padding: 0 2% 2% 2%;">
                         ${otherNewsPaged.map(n => {
-                const media = n.multimedia || 'assets/images/img8.jpg';
+                const mediaArray = Array.isArray(n.multimedia) && n.multimedia.length > 0 ? n.multimedia : [n.multimedia || 'assets/images/img8.jpg'];
+                const coverMedia = mediaArray[0];
                 return `
                             <div class="noticia-card" style="cursor:pointer; width: 300px; max-width: 30%; margin: 1%; background-color: #fdfdfd; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column;" onclick="window.showNewsDetail(${n.id})">
-                                <img src="${media}" alt="${n.headline}" style="width: 100%; height: 200px; object-fit: cover;">
-                                <div class="noticia-card-body" style="padding: 15px; flex-grow: 1;">
-                                    <a onclick="event.preventDefault(); window.showNewsDetail(${n.id})" class="redireccion" style="cursor:pointer; text-decoration: none;">
+                                <img class="discrete-fade-img" data-index="0" data-multimedia='${JSON.stringify(mediaArray)}' src="${coverMedia}" alt="${n.headline}" style="width: 100%; height: 200px; object-fit: cover; transition:opacity 1s ease-in-out;">
+                                <div class="noticia-card-body" style="padding: 15px; flex-grow: 1; display: flex; flex-direction: column;">
+                                    <a onclick="event.preventDefault(); window.showNewsDetail(${n.id})" class="redireccion" style="cursor:pointer; text-decoration: none; margin-bottom: 10px;">
                                         <h2 style="margin: 0; color: #0656c5; font-size: 1.1rem; line-height: 1.3;">${n.headline}</h2>
                                     </a>
+                                    <p style="margin: 0; color: #475569; font-size: 0.9rem; line-height: 1.5; flex-grow: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
+                                        ${n.content || ''}
+                                    </p>
                                 </div>
                             </div>`;
             }).join('')}
@@ -680,7 +688,16 @@ if (document.readyState === 'loading') {
         const news = getPublicNews().find(n => n.id == id);
         if (!news) return;
         const dateStr = news.published ? new Date(news.published).toLocaleDateString('es-VE') : 'N/A';
-        const media = news.multimedia || 'assets/images/img8.jpg';
+        const mediaArray = Array.isArray(news.multimedia) && news.multimedia.length > 0 ? news.multimedia : [news.multimedia || 'assets/images/img8.jpg'];
+        
+        let galleryHtml = '';
+        if(mediaArray.length > 1) {
+            galleryHtml = `
+            <div style="display:flex; gap:10px; margin-top:15px; overflow-x:auto; padding-bottom:10px;">
+                ${mediaArray.map(m => `<img src="${m}" style="height:80px; width:120px; object-fit:cover; border-radius:8px; border: 2px solid #e2e8f0; cursor:pointer; transition: 0.2s;" onmouseover="this.style.borderColor='#530e90'" onclick="document.getElementById('main-detail-img').src='${m}'">`).join('')}
+            </div>`;
+        }
+
         content.innerHTML = `
         <div style="background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.05);padding:30px;">
             <span style="background:rgba(83,14,144,0.1);color:#530e90;padding:5px 12px;border-radius:20px;font-size:0.8rem;font-weight:bold;margin-bottom:15px;display:inline-block;">${news.category || 'General'}</span>
@@ -689,10 +706,11 @@ if (document.readyState === 'loading') {
                 <span><i class="far fa-calendar-alt"></i> ${dateStr}</span>
                 <span><i class="fas fa-user-edit"></i> ${news.author || 'DCTI'}</span>
             </div>
-            <div style="width:100%;max-height:450px;overflow:hidden;border-radius:8px;margin-bottom:30px;">
-                <img src="${media}" alt="${news.headline}" style="width:100%;object-fit:cover;">
+            <div style="width:100%;max-height:450px;overflow:hidden;border-radius:8px;margin-bottom:${mediaArray.length > 1 ? '5px' : '30px'};">
+                <img id="main-detail-img" src="${mediaArray[0]}" alt="${news.headline}" style="width:100%;height:100%;object-fit:cover;max-height:450px;">
             </div>
-            <h3 style="color:#475569;font-size:1.2rem;margin-bottom:20px;font-style:italic;border-left:4px solid #530e90;padding-left:15px;">${news.summary || ''}</h3>
+            ${galleryHtml}
+
             <div style="color:#334155;line-height:1.8;font-size:1.05rem;white-space:pre-wrap;">${news.content || ''}</div>
         </div>`;
         grid.classList.remove('public-active'); grid.classList.add('public-hidden');
@@ -722,11 +740,14 @@ if (document.readyState === 'loading') {
 
     function getPublicProjects() {
         const allProj = JSON.parse(localStorage.getItem('dcti_projects')) || [];
-        return allProj.filter(p =>
-            p.status === 'En Proceso' || p.status === 'Validado' ||
-            p.status === 'En Desarrollo' || p.status === 'Implementado' ||
-            p.status === 'En Revisión' || p.status === 'Finalizado'
-        );
+        const validStatuses = ['Destacado', 'En Progreso', 'A Futuro'];
+        const filtered = allProj.filter(p => validStatuses.includes(p.status));
+        // Proyectos Destacados siempre primero
+        return filtered.sort((a, b) => {
+            if (a.status === 'Destacado' && b.status !== 'Destacado') return -1;
+            if (a.status !== 'Destacado' && b.status === 'Destacado') return 1;
+            return 0;
+        });
     }
 
     window.publicChangeProjPage = function (newPage) {
@@ -761,12 +782,13 @@ if (document.readyState === 'loading') {
         chunkedProjects.forEach(chunk => {
             html += `<section class="course-container-noticia">`;
             chunk.forEach(p => {
-                const media = p.multimedia || 'assets/images/img10.jpg';
+                const media = (p.images && p.images.length > 0) ? p.images[0] : (p.image || 'assets/images/img10.jpg');
 
                 html += `
                 <div class="proyecto-card" style="cursor:pointer;" onclick="window.showProjDetail(${p.id})">
                     <img src="${media}" alt="${p.title}">
                     <div class="proyecto-card-body">
+                        <span style="font-size:0.7rem; font-weight:800; padding: 2px 8px; border-radius:12px; background:${p.status === 'Destacado' ? '#fef3c7' : (p.status === 'En Progreso' ? '#dbeafe' : '#f3f4f6')}; color:${p.status === 'Destacado' ? '#b45309' : (p.status === 'En Progreso' ? '#1e40af' : '#6b7280')}; display:inline-block; margin-bottom:6px;">${p.status}</span>
                         <h2>${p.title}</h2>
                     </div>
                 </div>`;
@@ -795,26 +817,37 @@ if (document.readyState === 'loading') {
         if (!list || !detail || !content) return;
         const p = getPublicProjects().find(x => x.id == id);
         if (!p) return;
-        const media = p.multimedia || 'assets/images/img10.jpg';
-        const progress = p.progress || 0;
-        let progColor = '#3b82f6';
-        if (progress >= 100) progColor = '#10b981';
-        else if (progress < 30) progColor = '#f59e0b';
+        const media = (p.images && p.images.length > 0) ? p.images[0] : (p.image || 'assets/images/img10.jpg');
+        const statusColors = {
+            'Destacado':  { bg: '#fef3c7', color: '#b45309' },
+            'En Progreso':{ bg: '#dbeafe', color: '#1e40af' },
+            'A Futuro':   { bg: '#f3f4f6', color: '#6b7280' }
+        };
+        const sc = statusColors[p.status] || { bg: '#f3f4f6', color: '#6b7280' };
         content.innerHTML = `
         <div style="background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.05);padding:30px;">
             <div style="width:100%;max-height:400px;overflow:hidden;border-radius:8px;margin-bottom:25px;">
                 <img src="${media}" alt="${p.title}" style="width:100%;object-fit:cover;">
             </div>
-            <span style="background:rgba(0,0,0,0.08);padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:bold;">${p.status}</span>
-            <h1 style="color:#1e293b;font-size:1.8rem;margin:15px 0;">${p.title}</h1>
-            <p style="color:#475569;line-height:1.7;margin-bottom:20px;">${p.description || ''}</p>
-            ${p.objectives ? `<h3 style="color:#530e90;margin-bottom:10px;">Objetivos Estratégicos</h3><p style="white-space:pre-wrap;color:#334155;">${p.objectives}</p>` : ''}
-            <div style="margin-top:20px;">
-                <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:#64748b;margin-bottom:6px;"><span>Progreso del Proyecto</span><span style="font-weight:bold;color:${progColor}">${progress}%</span></div>
-                <div style="width:100%;background:#e2e8f0;border-radius:10px;height:10px;overflow:hidden;">
-                    <div style="width:${progress}%;background:${progColor};height:100%;border-radius:10px;"></div>
-                </div>
+            <span style="background:${sc.bg};color:${sc.color};padding:4px 14px;border-radius:20px;font-size:0.8rem;font-weight:800;display:inline-block;margin-bottom:10px;">${p.status}</span>
+            <h1 style="color:#1e293b;font-size:1.8rem;margin:10px 0 20px 0;">${p.title}</h1>
+
+            <div style="margin-bottom:25px;">
+                <h3 style="color:#530e90;margin-bottom:10px;font-size:1.1rem;"><i class="fas fa-align-left" style="margin-right:8px;"></i>Descripción</h3>
+                <p style="color:#475569;line-height:1.7;white-space:pre-wrap;">${p.description || 'Sin descripción registrada.'}</p>
             </div>
+
+            ${p.objectives ? `
+            <div style="margin-bottom:25px;padding:20px;background:#f8f5ff;border-radius:8px;border-left:4px solid #530e90;">
+                <h3 style="color:#530e90;margin-bottom:10px;font-size:1.1rem;"><i class="fas fa-bullseye" style="margin-right:8px;"></i>Objetivos Estratégicos</h3>
+                <p style="white-space:pre-wrap;color:#334155;line-height:1.7;">${p.objectives}</p>
+            </div>` : ''}
+
+            ${p.advances ? `
+            <div style="margin-bottom:10px;padding:20px;background:#f0fdf4;border-radius:8px;border-left:4px solid #22c55e;">
+                <h3 style="color:#15803d;margin-bottom:10px;font-size:1.1rem;"><i class="fas fa-check-double" style="margin-right:8px;"></i>Avances Realizados</h3>
+                <p style="white-space:pre-wrap;color:#334155;line-height:1.7;">${p.advances}</p>
+            </div>` : ''}
         </div>`;
         list.classList.remove('public-active'); list.classList.add('public-hidden');
         detail.classList.remove('public-hidden'); detail.classList.add('public-active');
@@ -885,7 +918,7 @@ if (document.readyState === 'loading') {
             const shortDesc = description.length > 120 ? description.substring(0, 120) + '...' : description;
 
             html += `
-                <article style="display: flex; flex-direction: column; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; width: 350px; max-width: 100%; transition: transform 0.2s ease; margin-bottom: 20px;">
+                <article style="display: flex; flex-direction: column; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; border-left: 5px solid #530e90; width: 350px; max-width: 100%; transition: transform 0.2s ease; margin-bottom: 20px;">
                     <div style="width: 100%; height: 200px; overflow: hidden; cursor: pointer;" onclick="if(typeof openEjeModal === 'function') openEjeModal(${globalIndex})">
                         <img src="${bgMedia}" alt="${title}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                     </div>
@@ -960,21 +993,36 @@ if (document.readyState === 'loading') {
         const projs = getPublicProjects();
         const courses = getPublicCourses();
 
+        // Helper func to safely get media array
+        function getMediaArray(item) {
+            if (Array.isArray(item.multimedia)) return item.multimedia;
+            return item.multimedia ? [item.multimedia] : [];
+        }
+
         // 1. Carrusel Principal Hero
         if (principal) {
             let heroSlides = [];
-            news.slice(0, 2).forEach(n => heroSlides.push({ img: n.multimedia || 'assets/images/img15.jpg', title: n.headline }));
-            projs.slice(0, 2).forEach(p => heroSlides.push({ img: p.multimedia || 'assets/images/img4.jpg', title: p.title }));
+            const principalNews = news.filter(n => n.carouselPlacement === 'Carrusel Principal');
+            principalNews.slice(0, 5).forEach(n => {
+                const imgs = getMediaArray(n);
+                if (imgs.length === 0) imgs.push('assets/images/img15.jpg');
+                imgs.forEach(img => heroSlides.push({ img, title: n.headline }));
+            });
+            
+            // Fill with projects if not enough
+            if (heroSlides.length < 2) {
+                projs.slice(0, 2).forEach(p => heroSlides.push({ img: Array.isArray(p.multimedia)?p.multimedia[0]:(p.multimedia || 'assets/images/img4.jpg'), title: p.title }));
+            }
             if (heroSlides.length === 0) {
                 heroSlides = [
                     { img: 'assets/images/img3.jpg', title: 'Innovación Tecnológica' },
                     { img: 'assets/images/img8.jpg', title: 'Monagas Potencia Digital' }
                 ];
             }
-            const n = heroSlides.length;
-            principal.style.width = (n * 100) + '%';
+            const nCount = heroSlides.length;
+            principal.style.width = (nCount * 100) + '%';
             principal.innerHTML = heroSlides.map(slide => `
-            <div class="ccp" style="width:calc(100%/${n});">
+            <div class="ccp" style="width:calc(100%/${nCount});">
                 <div class="imgc"><img src="${slide.img}" alt="${slide.title}" style="width:100%;height:100%;object-fit:cover;"></div>
                 <div class="tc" style="background:rgba(83,14,144,0.8);">
                     <h2 style="color:white;margin:0;">${slide.title.length > 50 ? slide.title.substring(0, 50) + '...' : slide.title}</h2>
@@ -992,31 +1040,37 @@ if (document.readyState === 'loading') {
         }
 
         // 2. Carrusel de Noticias (Sección media)
-        // La estructura original usa .noticia-contenedor con width:300% y 3 .noticia de width:calc(100%/3)
-        // El contenedor padre .noticia-contenedor es el slider - necesita width = (count * 100/3)%
         if (noticiasG) {
-            const topNews = news.slice(0, 3);
+            let topNews = news.filter(n => n.carouselPlacement === 'Carrusel Noticias' || n.category === 'Carrusel de Noticias');
+            if (topNews.length === 0) topNews = news; // Fallback to all published news to not break layout
+            
+            topNews = topNews.slice(0, 6); // Up to 6
+
             if (topNews.length > 0) {
                 const nCount = topNews.length;
-                // Si hay menos de 3 noticias, el contenedor debe ajustarse para no dejar huecos
-                // Pero manteniendo la compatibilidad con el CSS que espera 300% para carrusel
                 const containerWidth = Math.max(3, nCount) * 100;
                 noticiasG.style.width = containerWidth + '%';
 
-                noticiasG.innerHTML = topNews.map(n => `
-                <article class="noticia" style="width: calc(100% / ${Math.max(3, nCount)}); cursor:pointer;" onclick="document.querySelector('[data-target=view-noticias]').click(); window.showNewsDetail(${n.id})">
-                    <img src="${n.multimedia || 'assets/images/img8.jpg'}" alt="${n.headline}">
-                    <div class="contenido-noticia">
-                        <h2 style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${n.headline}</h2>
-                        <p style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${n.summary || ''}</p>
-                    </div>
-                </article>`).join('');
-                // Inicializar el carrusel de noticias con dots
+                noticiasG.innerHTML = topNews.map(n => {
+                    const imgs = getMediaArray(n);
+                    if (imgs.length === 0) imgs.push('assets/images/img8.jpg');
+                    const coverMedia = imgs[0];
+
+                    return `
+                    <article class="noticia" style="width: calc(100% / ${Math.max(3, nCount)}); cursor:pointer;" onclick="document.querySelector('[data-target=view-noticias]').click(); window.showNewsDetail(${n.id})">
+                        <img src="${coverMedia}" alt="${n.headline}" data-multimedia='${JSON.stringify(imgs)}' class="discrete-fade-img" data-index="0" style="transition: opacity 0.5s ease-in-out;">
+                        <div class="contenido-noticia">
+                            <h2 style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${n.headline}</h2>
+                            <p style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${n.summary || ''}</p>
+                        </div>
+                    </article>`;
+                }).join('');
+                
                 if (typeof window.initCarruselNoticias === 'function') {
                     window.initCarruselNoticias();
                 }
             } else {
-                noticiasG.innerHTML = '<div style="padding:20px;text-align:center;width:100%;">No hay noticias recientes.</div>';
+                noticiasG.innerHTML = '<div style="padding:20px;text-align:center;width:100%;">No hay noticias para mostrar en este carrusel.</div>';
             }
         }
 
@@ -1025,6 +1079,13 @@ if (document.readyState === 'loading') {
         // Cada .miniaturasc tiene width: calc(100%/4) del contenedor (que es 200% del viewport)
         if (miniatura) {
             let mix = [];
+            const bottomNews = news.filter(n => n.carouselPlacement === 'Carrusel Miniaturas');
+            bottomNews.slice(0, 4).forEach(n => mix.push({
+                img: Array.isArray(n.multimedia) && n.multimedia.length > 0 ? n.multimedia[0] : (n.multimedia || 'assets/images/img8.jpg'),
+                title: n.headline,
+                type: 'Noticia',
+                link: `document.querySelector('[data-target=view-noticias]').click(); window.showNewsDetail(${n.id});`
+            }));
             courses.slice(0, 4).forEach(c => mix.push({
                 img: (c.images && c.images[0]) ? c.images[0] : 'assets/images/img5.jpg',
                 title: c.name,
@@ -1032,7 +1093,7 @@ if (document.readyState === 'loading') {
                 link: "document.querySelector('[data-target=view-cursos]').click();"
             }));
             projs.slice(0, 4).forEach(p => mix.push({
-                img: p.multimedia || 'assets/images/img10.jpg',
+                img: Array.isArray(p.multimedia)?p.multimedia[0]:(p.multimedia || 'assets/images/img10.jpg'),
                 title: p.title,
                 type: 'Proyecto',
                 link: `document.querySelector('[data-target=view-proyectos]').click(); window.showProjDetail(${p.id});`
@@ -1080,6 +1141,30 @@ if (document.readyState === 'loading') {
                 window.initCarruselMiniaturas();
             }
         }
+        
+        // Inicializar intervalo de paginación discreta para noticias con múltiples imágenes (cambiando src)
+        if (window._discreteFadeInterval) clearInterval(window._discreteFadeInterval);
+        window._discreteFadeInterval = setInterval(() => {
+            document.querySelectorAll('.discrete-fade-img').forEach(img => {
+                const arrStr = img.getAttribute('data-multimedia');
+                if(!arrStr) return;
+                try {
+                    const arr = JSON.parse(arrStr);
+                    if (arr.length <= 1) return;
+                    let idx = parseInt(img.getAttribute('data-index') || '0');
+                    idx = (idx + 1) % arr.length;
+                    
+                    img.style.opacity = '0';
+                    setTimeout(() => {
+                        img.src = arr[idx];
+                        img.onload = () => { img.style.opacity = '1'; }; // fade in when loaded
+                        if(img.complete) img.style.opacity = '1'; // fallback
+                    }, 500);
+                    
+                    img.setAttribute('data-index', idx);
+                } catch(e) {}
+            });
+        }, 4000); // 4 segundos por slide
     }
 
 
