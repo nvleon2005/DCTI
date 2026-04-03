@@ -51,6 +51,7 @@
         "Presentacion/Controllers/Users/Users.controller.js",
         "Presentacion/Controllers/News/News.controller.js",
         "Presentacion/Controllers/Courses/Courses.controller.js",
+        "Presentacion/Controllers/Courses/Certifier.js",
 
         "Presentacion/main.js"
 

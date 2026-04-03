@@ -1,4 +1,4 @@
-﻿// courses-logic.js
+// courses-logic.js
 // Lógica de Persistencia y Negocio para el Módulo de Cursos (Validaciones, Tags, Auditoría & Regulación)
 
 // ==========================================
@@ -14,22 +14,32 @@ const DEFAULT_COURSES = [
         id: 1,
         nombreCurso: "Python para Análisis de Datos",
         descripcion: "Dominio de librerías Pandas y NumPy.",
+        objetivos: "Aplicar técnicas de ciencia de datos mediante el entorno Python.",
+        areaTematica: "Tecnología e Informática",
+        modalidad: "Virtual",
+        duracion: "120 horas",
         fechaInicio: "2024-05-01",
         fechaFin: "2024-06-15",
         cupoMaximo: 45,
         estadoCurso: "Publicado",
         images: ["assets/images/img9.jpg"],
+        activaciones: [{ id: 1, label: "Activación 1 (2024-05-01 a 2024-06-15)" }],
         auditLogs: [{ fecha: new Date().toISOString(), estado: "Publicado", motivo: "Creación inicial del curso", autor: "Sistema" }]
     },
     {
         id: 2,
         nombreCurso: "Gestión de Proyectos I+D",
         descripcion: "Metodologías ágiles en ciencia y tecnología.",
+        objetivos: "Implementar Scrum en el desarrollo de productos tecnológicos.",
+        areaTematica: "Gestión Estratégica",
+        modalidad: "Híbrido",
+        duracion: "40 horas",
         fechaInicio: "2024-03-10",
         fechaFin: "2024-04-20",
         cupoMaximo: 25,
         estadoCurso: "Finalizado",
         images: ["assets/images/img10.jpg"],
+        activaciones: [{ id: 1, label: "Activación 1 (2024-03-10 a 2024-04-20)" }],
         auditLogs: [{ fecha: new Date().toISOString(), estado: "Finalizado", motivo: "Cierre de ciclo formal", autor: "Sistema" }]
     }
 ];
@@ -52,7 +62,14 @@ if (!localStorage.getItem(PARTICIPATIONS_STORAGE_KEY)) {
 // ==========================================
 
 function getLocalCourses() {
-    return JSON.parse(localStorage.getItem(COURSES_STORAGE_KEY)) || [];
+    let courses = JSON.parse(localStorage.getItem(COURSES_STORAGE_KEY)) || [];
+    courses = courses.map(c => {
+        if (!c.activaciones) {
+            c.activaciones = [{ id: 1, label: `Activación 1 (${c.fechaInicio} a ${c.fechaFin})` }];
+        }
+        return c;
+    });
+    return courses;
 }
 
 function saveLocalCourses(coursesArray) {
@@ -64,7 +81,7 @@ function saveLocalCourses(coursesArray) {
         }
     } catch (e) {
         if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-            AlertService.notify('Almacenamiento Lleno', 'No hay espacio para guardar los datos. Intente borrar otros registros o subir imágenes más pequeñas.', 'error');
+            AlertService.error('No hay espacio para guardar los datos. Intente borrar otros registros o subir imágenes más pequeñas.', 'Almacenamiento Lleno');
         } else {
             console.error('Error guardando cursos en localStorage:', e);
         }
@@ -104,6 +121,53 @@ function logCourseStateChange(course, nuevoEstado, motivo = "Cambio realizado po
 }
 
 // ==========================================
+// 4.1 AUTOCOMPLETE: ÁREA TEMÁTICA
+// ==========================================
+
+const COURSE_AREAS = ['Tecnología e Informática', 'Gestión Estratégica', 'Innovación y Desarrollo', 'Ofimática'];
+
+function showCourseAreas() {
+    const dropdown = document.getElementById('course-area-dropdown');
+    if (dropdown) {
+        filterCourseAreas(document.getElementById('admin-course-area')?.value || '');
+        dropdown.style.display = 'block';
+    }
+}
+
+function hideCourseAreas() {
+    const dropdown = document.getElementById('course-area-dropdown');
+    if (dropdown) dropdown.style.display = 'none';
+}
+
+function filterCourseAreas(query) {
+    const dropdown = document.getElementById('course-area-dropdown');
+    if (!dropdown) return;
+    dropdown.style.display = 'block';
+
+    const options = dropdown.querySelectorAll('.ca-option');
+    const hint = document.getElementById('ca-custom-hint');
+    const q = query.toLowerCase().trim();
+    let anyVisible = false;
+
+    options.forEach(opt => {
+        const text = opt.textContent.trim().toLowerCase();
+        const match = !q || text.includes(q);
+        opt.style.display = match ? 'flex' : 'none';
+        if (match) anyVisible = true;
+    });
+
+    // Show custom hint if user typed something not in the list
+    if (hint) hint.style.display = (q && !anyVisible) ? 'block' : 'none';
+    if (!anyVisible && q && hint) hint.style.display = 'block';
+}
+
+function selectCourseArea(value) {
+    const input = document.getElementById('admin-course-area');
+    if (input) input.value = value;
+    hideCourseAreas();
+}
+
+// ==========================================
 // 5. MODAL MULTI-ENTIDAD (Lógica UI)
 // ==========================================
 
@@ -133,10 +197,19 @@ function openCourseModal(id = null) {
         if (course) {
             document.getElementById('admin-course-name').value = course.nombreCurso;
             document.getElementById('admin-course-description').value = course.descripcion;
+            if(document.getElementById('admin-course-objetivos')) document.getElementById('admin-course-objetivos').value = course.objetivos || '';
+            if(document.getElementById('admin-course-area')) document.getElementById('admin-course-area').value = course.areaTematica || 'Tecnología e Informática';
+            if(document.getElementById('admin-course-modalidad')) document.getElementById('admin-course-modalidad').value = course.modalidad || 'Virtual';
+            if(document.getElementById('admin-course-duracion')) document.getElementById('admin-course-duracion').value = course.duracion || '';
+            if(document.getElementById('admin-course-instructor')) document.getElementById('admin-course-instructor').value = course.instructor || '';
+            if(document.getElementById('admin-course-instructor-cargo')) document.getElementById('admin-course-instructor-cargo').value = course.instructorCargo || '';
             document.getElementById('admin-course-start').value = course.fechaInicio;
             document.getElementById('admin-course-end').value = course.fechaFin;
             document.getElementById('admin-course-quota').value = course.cupoMaximo;
             document.getElementById('admin-course-status').value = course.estadoCurso;
+            if (document.getElementById('admin-course-carousel')) {
+                document.getElementById('admin-course-carousel').value = course.carouselPlacement || 'Ninguno';
+            }
 
             // Cargar Imágenes (Cola Base64 String - Compatibilidad backward)
             if (course.images && Array.isArray(course.images)) {
@@ -149,7 +222,7 @@ function openCourseModal(id = null) {
                 inputs.forEach(el => el.disabled = true);
                 document.getElementById('btn-reactivate-course').style.display = 'inline-block';
                 document.getElementById('btn-save-course').style.display = 'none';
-                AlertService.notify('Modo Lectura', 'El curso está Finalizado. Los datos han sido congelados por control de auditoría.', 'warning');
+                AlertService.warning('El curso está Finalizado. Los datos han sido congelados por control de auditoría.', 'Modo Lectura');
             } else {
                 document.getElementById('btn-save-course').style.display = 'inline-block';
             }
@@ -171,6 +244,11 @@ function openCourseModal(id = null) {
         document.getElementById('course-modal-title').textContent = "Nuevo Curso";
         document.getElementById('course-gallery-title').textContent = "Previsualizar imágenes";
         document.getElementById('admin-course-status').value = "Borrador"; // default
+        if(document.getElementById('admin-course-area')) document.getElementById('admin-course-area').value = 'Tecnología e Informática';
+        if(document.getElementById('admin-course-modalidad')) document.getElementById('admin-course-modalidad').value = 'Virtual';
+        if (document.getElementById('admin-course-carousel')) {
+            document.getElementById('admin-course-carousel').value = "Ninguno";
+        }
         document.getElementById('btn-save-course').style.display = 'inline-block';
 
         // Bloquear tabs que requieren ID del curso para relacionarse (Alumnos)
@@ -203,7 +281,7 @@ function changeCourseStatusToReactivate() {
     document.getElementById('btn-reactivate-course').style.display = 'none';
     document.getElementById('btn-save-course').style.display = 'inline-block';
 
-    AlertService.notify('Curso Reactivado', 'El ciclo se ha abierto para edición. Al guardar se registrará en la auditoría.', 'success');
+    AlertService.success('El ciclo se ha abierto para edición. Al guardar se registrará en la auditoría.', 'Curso Reactivado');
 }
 
 
@@ -247,41 +325,55 @@ async function handleCourseSubmit(e) {
     const id = document.getElementById('edit-course-id').value;
     const nombreCurso = document.getElementById('admin-course-name').value.trim();
     const descripcion = document.getElementById('admin-course-description').value.trim();
+    const objetivos = document.getElementById('admin-course-objetivos') ? document.getElementById('admin-course-objetivos').value.trim() : '';
+    const areaTematica = document.getElementById('admin-course-area') ? document.getElementById('admin-course-area').value : 'Tecnología e Informática';
+    const modalidad = document.getElementById('admin-course-modalidad') ? document.getElementById('admin-course-modalidad').value : 'Virtual';
+    const duracion = document.getElementById('admin-course-duracion') ? document.getElementById('admin-course-duracion').value.trim() : '';
+    const instructor = document.getElementById('admin-course-instructor') ? document.getElementById('admin-course-instructor').value.trim() : '';
+    const instructorCargo = document.getElementById('admin-course-instructor-cargo') ? document.getElementById('admin-course-instructor-cargo').value.trim() : '';
     const fechaInicio = document.getElementById('admin-course-start').value;
     const fechaFin = document.getElementById('admin-course-end').value;
     const cupoMaximo = parseInt(document.getElementById('admin-course-quota').value, 10);
     const estadoCurso = document.getElementById('admin-course-status').value;
+    const carouselPlacement = document.getElementById('admin-course-carousel') ? document.getElementById('admin-course-carousel').value : 'Ninguno';
     const fechaLiberacionMateriales = document.getElementById('admin-course-materials-date') ? document.getElementById('admin-course-materials-date').value : '';
 
     // Validación Anti-Espacios Vacíos (Hard Stop)
-    if (!nombreCurso || !descripcion) {
-        AlertService.notify('Campos Vacíos', 'El nombre y descripción no pueden contener únicamente espacios en blanco.', 'error');
+    if (!nombreCurso || !descripcion || !objetivos) {
+        AlertService.error('El nombre, la descripción y los objetivos no pueden contener únicamente espacios en blanco o estar vacíos.', 'Campos Vacíos');
         return;
     }
 
     // Validación COHERENCIA TEMPORAL (Hard Stop)
     if (new Date(fechaInicio) >= new Date(fechaFin)) {
-        AlertService.notify('Error Temporal', 'La Fecha de Inicio debe ser estrictamente anterior a la Fecha de Fin.', 'error');
+        AlertService.error('La Fecha de Inicio debe ser estrictamente anterior a la Fecha de Fin.', 'Error Temporal');
         return;
     }
 
     // Validación CAPACIDAD (Hard Stop)
     if (isNaN(cupoMaximo) || cupoMaximo <= 0) {
-        AlertService.notify('Error de Capacidad', 'El Cupo Máximo debe ser un número entero estrictamente positivo (> 0).', 'error');
+        AlertService.error('El Cupo Máximo debe ser un número entero estrictamente positivo (> 0).', 'Error de Capacidad');
+        return;
+    }
+
+    // El curso no puede ser publicado automáticamente al momento de su creación
+    if (!id && estadoCurso === 'Publicado') {
+        AlertService.warning('El curso no puede ser publicado automáticamente al momento de su creación. Se guardará como Borrador.', 'Validación de Estado');
+        document.getElementById('admin-course-status').value = 'Borrador';
         return;
     }
 
     // Validación de Imágenes mínimas requeridas (Hard Stop)
     if (courseImageQueue.length === 0) {
         if (!id) {
-            AlertService.notify('Imagen Requerida', 'La oferta académica debe tener al menos una imagen promocional asociada.', 'error');
+            AlertService.error('La oferta académica debe tener al menos una imagen promocional asociada.', 'Imagen Requerida');
             return;
         } else {
             // Si está editando, verificamos si ya tenía imágenes y las borró todas
             const allCoursesForCheck = getLocalCourses();
             const editingCourse = allCoursesForCheck.find(c => c.id == id);
             if (!editingCourse || !editingCourse.images || editingCourse.images.length === 0) {
-                AlertService.notify('Imagen Requerida', 'El curso debe conservar o tener una nueva imagen promocional asociada.', 'error');
+                AlertService.error('El curso debe conservar o tener una nueva imagen promocional asociada.', 'Imagen Requerida');
                 return;
             }
         }
@@ -295,44 +387,74 @@ async function handleCourseSubmit(e) {
             const currentCourse = allCourses[index];
             const previousState = currentCourse.estadoCurso;
 
+            if (previousState === 'Finalizado' && document.getElementById('admin-course-status').disabled) {
+                 AlertService.error('No se puede modificar un curso finalizado. Debe reactivarlo primero.', 'Acción Bloqueada');
+                 return;
+            }
+
+            let activaciones = currentCourse.activaciones || [];
+            
+            // Detectar si el curso fue reactivado: viene de Finalizado y pasa a otro estado, 
+            // habiéndose habilitado el formulario y cambiado fechas
+            if (previousState === 'Finalizado' && estadoCurso !== 'Finalizado') {
+                const nuevaActivacionId = activaciones.length + 1;
+                activaciones.push({ id: nuevaActivacionId, label: `Activación ${nuevaActivacionId} (${fechaInicio} a ${fechaFin})` });
+            }
+
             // Construimos el update manteniendo compatibilidad
             allCourses[index] = {
                 ...currentCourse,
                 nombreCurso,
                 descripcion,
+                objetivos,
+                areaTematica,
+                modalidad,
+                duracion,
+                instructor,
+                instructorCargo,
                 fechaInicio,
                 fechaFin,
                 cupoMaximo,
                 estadoCurso,
+                carouselPlacement,
                 images: courseImageQueue.length > 0 ? courseImageQueue : currentCourse.images,
                 materiales: courseMaterialsQueue,
-                fechaLiberacionMateriales
+                fechaLiberacionMateriales,
+                activaciones
             };
 
             // Verificar si hubo un cambio de Estado para activar la Función Log Audit
             if (previousState !== estadoCurso) {
                 logCourseStateChange(allCourses[index], estadoCurso, `Modificación manual de estado (Anterior: ${previousState})`);
             }
-            AlertService.notify('Curso Actualizado', 'La ficha pedagógica se ha guardado correctamente.', 'success');
+            AlertService.success('La ficha pedagógica se ha guardado correctamente.', 'Curso Actualizado');
         }
     } else {
         const newCourse = {
             id: Date.now(),
             nombreCurso,
             descripcion,
+            objetivos,
+            areaTematica,
+            modalidad,
+            duracion,
+            instructor,
+            instructorCargo,
             fechaInicio,
             fechaFin,
             cupoMaximo,
             estadoCurso,
+            carouselPlacement,
             images: courseImageQueue,
             materiales: courseMaterialsQueue,
             fechaLiberacionMateriales,
+            activaciones: [{ id: 1, label: `Activación 1 (${fechaInicio} a ${fechaFin})` }],
             auditLogs: []
         };
         // Auditoria Inicial de Registro
         logCourseStateChange(newCourse, estadoCurso, "Creación Inicial en Sistema");
         allCourses.push(newCourse);
-        AlertService.notify('Curso Publicado', 'La nueva oferta de formación se ha emitido correctamente.', 'success');
+        AlertService.success('La nueva oferta de formación se ha emitido correctamente.', 'Curso Publicado');
     }
 
     try {
@@ -358,11 +480,11 @@ function handleCourseImageUpload(event) {
         const fileExt = file.name.split('.').pop().toLowerCase();
 
         if (!validExtensions.includes(fileExt)) {
-            AlertService.notify('Formato Inválido', `El archivo ${file.name} no es una imagen válida. Use JPG, PNG o WEBP.`, 'error');
+            AlertService.error(`El archivo ${file.name} no es una imagen válida. Use JPG, PNG o WEBP.`, 'Formato Inválido');
             continue;
         }
         if (courseImageQueue.length >= 4) {
-            AlertService.notify('Límite Alcanzado', 'Solo se permite un máximo de 4 imágenes por curso.', 'warning');
+            AlertService.warning('Solo se permite un máximo de 4 imágenes por curso.', 'Límite Alcanzado');
             break;
         }
 
@@ -418,7 +540,7 @@ function renderCourseGallery() {
 
 function removeCourseImage(index) {
     if (document.getElementById('edit-course-id').value && courseImageQueue.length === 1) {
-        AlertService.notify('Acción Bloqueada', 'No puedes eliminar la última imagen de un curso. Sube otra primero.', 'warning');
+        AlertService.warning('No puedes eliminar la última imagen de un curso. Sube otra primero.', 'Acción Bloqueada');
         return;
     }
     courseImageQueue.splice(index, 1);
@@ -443,7 +565,7 @@ function toggleParticipantStatus(participationId, newStatus, courseId) {
     if (index !== -1) {
         participations[index].estado = newStatus;
         localStorage.setItem(PARTICIPATIONS_STORAGE_KEY, JSON.stringify(participations));
-        AlertService.notify('Estado Actualizado', `El participante ahora está ${newStatus}.`, 'success');
+        AlertService.success(`El participante ahora está ${newStatus}.`, 'Estado Actualizado');
         if (typeof CoursesView !== 'undefined' && typeof CoursesView.renderParticipants === 'function') {
             CoursesView.renderParticipants(courseId);
         }
@@ -461,7 +583,7 @@ async function removeParticipant(participationId, courseId) {
     let participations = getLocalParticipations();
     participations = participations.filter(p => p.id !== participationId);
     localStorage.setItem(PARTICIPATIONS_STORAGE_KEY, JSON.stringify(participations));
-    AlertService.notify('Retirado', 'Participante retirado del curso exitosamente.', 'success');
+    AlertService.success('Participante retirado del curso exitosamente.', 'Retirado');
     if (typeof CoursesView !== 'undefined' && typeof CoursesView.renderParticipants === 'function') {
         CoursesView.renderParticipants(courseId);
     }
@@ -479,7 +601,7 @@ function tryDownloadMaterial(materialId, courseId) {
     const adminMode = sessionData.role === 'admin';
 
     if (adminMode) {
-        AlertService.notify('Simulación de Descarga', `El material ${materialId} del curso ha sido empaquetado y descargado. Permiso otorgado vía Token de Administrador.`, 'success');
+        AlertService.success(`El material ${materialId} del curso ha sido empaquetado y descargado. Permiso otorgado vía Token de Administrador.`, 'Simulación de Descarga');
         return;
     }
 
@@ -487,7 +609,7 @@ function tryDownloadMaterial(materialId, courseId) {
     const isEnrolledAndActive = participations.some(p => p.courseId == courseId && (p.userId === sessionEmail || p.userId === sessionUsername) && (p.estado === "Activo" || p.estado === "Aprobado"));
 
     if (!isEnrolledAndActive) {
-        AlertService.notify('Acceso Restringido', 'Integridad de Recursos: Acceso denegado por Ley sobre Derecho de Autor. No posees una inscripción activa en este módulo.', 'error');
+        AlertService.error('Integridad de Recursos: Acceso denegado por Ley sobre Derecho de Autor. No posees una inscripción activa en este módulo.', 'Acceso Restringido');
         return;
     }
 
@@ -499,13 +621,13 @@ function tryDownloadMaterial(materialId, courseId) {
         releaseDate.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
         if (today < releaseDate) {
-            AlertService.notify('Material Programado', `Este bloque de materiales ha sido configurado por el Docente para estar disponible a partir del ${course.fechaLiberacionMateriales}.`, 'warning');
+            AlertService.warning(`Este bloque de materiales ha sido configurado por el Docente para estar disponible a partir del ${course.fechaLiberacionMateriales}.`, 'Material Programado');
             return;
         }
     }
 
     const matName = course.materiales?.find(m => m.id === materialId)?.name || 'material_curso';
-    AlertService.notify('Material Liberado', `Descarga del registro pedagógico #${materialId} iniciada satisfactoriamente. (Identificador Criptográfico asignado p/Trazabilidad)`, 'success');
+    AlertService.success(`Descarga del registro pedagógico #${materialId} iniciada satisfactoriamente. (Identificador Criptográfico asignado p/Trazabilidad)`, 'Material Liberado');
 
     // Generar archivo simulado y forzar descarga en el navegador con la extensión cambiada a .txt preventivamente
     const mockContent = "Este es un documento generado por el simulador del Portal DCTI para validar la funcionalidad de descarga de materiales protegidos.";
@@ -533,7 +655,7 @@ function handleCourseMaterialUpload(event) {
         const fileExt = file.name.split('.').pop().toLowerCase();
 
         if (!validExtensions.includes(fileExt)) {
-            AlertService.notify('Formato Inválido', `El archivo "${file.name}" posee una extensión no autorizada.`, 'error');
+            AlertService.error(`El archivo "${file.name}" posee una extensión no autorizada.`, 'Formato Inválido');
             continue;
         }
 
@@ -557,7 +679,7 @@ function handleCourseMaterialUpload(event) {
     }
 
     renderCourseMaterialsGallery();
-    AlertService.notify('Material Anexado', 'Documento agregado a la cola de encriptación exitosamente.', 'info');
+    AlertService.info('Documento agregado a la cola de encriptación exitosamente.', 'Material Anexado');
 }
 
 function renderCourseMaterialsGallery() {
@@ -607,7 +729,7 @@ async function deleteCourse(id) {
     // REGLA DE INTEGRIDAD REFERENCIAL
     const participations = getLocalParticipations().filter(p => p.courseId == id);
     if (participations.length > 0) {
-        AlertService.notify('Bloqueo Referencial (SQL Fk Violada)', `No se puede eliminar de forma física este curso porque ya posee ${participations.length} registro(s) atado(s) en la tabla de Participación. Cambie su estado a Finalizado o Borrador para ocultarlo de la oferta académica externa.`, 'error');
+        AlertService.error(`No se puede eliminar de forma física este curso porque ya posee ${participations.length} registro(s) atado(s) en la tabla de Participación. Cambie su estado a Finalizado o Borrador para ocultarlo de la oferta académica externa.`, 'Bloqueo Referencial (SQL Fk Violada)');
         return;
     }
 
@@ -621,7 +743,35 @@ async function deleteCourse(id) {
     let courses = getLocalCourses();
     courses = courses.filter(c => c.id != id);
     saveLocalCourses(courses);
-    AlertService.notify('Eliminado', 'Curso destruido de los registros.', 'success');
+    AlertService.success('Curso destruido de los registros.', 'Eliminado');
+}
+
+async function toggleCoursePublish(id, action) {
+    const todos = getLocalCourses();
+    const curso = todos.find(c => c.id == id);
+    if (!curso) return;
+
+    const previousState = curso.estadoCurso;
+    if (previousState === 'Finalizado') {
+        AlertService.warning('Los cursos finalizados no pueden reactivarse desde aquí. Abra el panel de edición.', 'Acción Bloqueada');
+        return;
+    }
+
+    const newState = action === 'Publicar' ? 'Publicado' : 'Borrador';
+
+    const confirmed = await AlertService.confirm(
+        `Confirmar ${action}`,
+        `¿Está seguro de que desea ${action.toLowerCase()} el curso "${curso.nombreCurso}"?`,
+        action, 'Cancelar', true
+    );
+
+    if (!confirmed) return;
+
+    curso.estadoCurso = newState;
+    logCourseStateChange(curso, newState, `Cambio rápido de estado (Anterior: ${previousState})`);
+    
+    saveLocalCourses(todos);
+    AlertService.success(`El curso ha sido ${newState === 'Publicado' ? 'publicado' : 'desactivado (Borrador)'} exitosamente.`, 'Estado Actualizado');
 }
 
 function filterCoursesAdmin(category, resetPage = true) {

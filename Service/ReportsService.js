@@ -28,14 +28,30 @@ function getReportData(domain, filters = {}) {
                 const statStr = Array.isArray(n.status) ? n.status.join(' ').toLowerCase() : (n.status || '').toLowerCase();
                 return statStr.includes('publicad'); // FIXED: Removed 'validad' as News only use Publicada/Borrador
             });
-            rawData = news.map(n => ({
-                ID: n.id,
-                Titular: n.headline,
-                Categoría: n.category || 'General',
-                Autor: n.author || 'Desconocido',
-                Publicación: n.published || 'N/A',
-                Status: Array.isArray(n.status) ? n.status.join(' | ') : (n.status || 'Borrador')
-            }));
+            rawData = news.map(n => {
+                let pubDate = n.published || 'N/A';
+                if (pubDate !== 'N/A') {
+                    // Si viene como Date object, ISO o toLocaleString
+                    try {
+                        const d = new Date(pubDate);
+                        if (!isNaN(d)) {
+                            pubDate = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                        } else if (typeof pubDate === 'string') {
+                            // En caso de fallar parse manual, intentar cortar segundos si viene formato DD/MM/YYYY HH:mm:ss
+                            pubDate = pubDate.replace(/:\d{2}(\s?[AaPpmM]*)$/, '$1');
+                        }
+                    } catch(e) { /* fallback original */ }
+                }
+                
+                return {
+                    ID: n.id,
+                    Titular: n.headline,
+                    Categoría: n.category || 'General',
+                    Autor: n.author || 'Desconocido',
+                    Publicación: pubDate,
+                    Status: Array.isArray(n.status) ? n.status.join(' | ') : (n.status || 'Borrador')
+                };
+            });
             break;
         case 'strategic':
             const allStrategic = typeof getLocalStrategic === 'function' ? getLocalStrategic() : [];
@@ -413,32 +429,73 @@ function logExportAudit(domain, format, count) {
     localStorage.setItem('dcti_export_logs', JSON.stringify(logs));
 }
 
-function exportReportToCSV() {
+async function exportReportToExcel() {
     if (currentReportData.length === 0) {
         AlertService.notify('Bloqueo de Exportación', 'El conjunto de datos se encuentra vacío. Ejecute primero una consulta.', 'warning');
         return;
     }
 
-    const keys = Object.keys(currentReportData[0]);
-    // El carácter BOM \uFEFF y el delimitador ';' garantizan lectura perfecta de acentos en Microsoft Excel (Español)
-    let csvContent = "\uFEFF"
-        + keys.map(k => k.replace(/_/g, ' ')).join(";") + "\n"
-        + currentReportData.map(e => keys.map(k => `"${(e[k] || '').toString().replace(/"/g, '""')}"`).join(";")).join("\n");
+    if (typeof ExcelJS === 'undefined') {
+        AlertService.notify('Error de librería', 'El motor de Excel (ExcelJS) no está disponible. Verifique su conexión o contacte al administrador.', 'error');
+        return;
+    }
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
+    try {
+        const workbook = new ExcelJS.Workbook();
+        workbook.creator = 'Portal DCTI';
+        workbook.created = new Date();
 
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `DataSec_DCTI_${currentReportDomain.toUpperCase()}_${Date.now()}.csv`);
+        const sheet = workbook.addWorksheet('Reporte ' + currentReportDomain.toUpperCase());
+        const keys = Object.keys(currentReportData[0]);
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+        // Definir y estilizar encabezados
+        sheet.columns = keys.map(k => ({
+            header: k.replace(/_/g, ' '),
+            key: k,
+            width: 30 // Set a generous default width
+        }));
 
-    logExportAudit(currentReportDomain, 'CSV_EXCEL', currentReportData.length);
-    AlertService.notify('Exportación Concedida', 'Extracción analítica a Microsoft Excel materializada con soporte de caracteres especiales.', 'success');
+        const headerRow = sheet.getRow(1);
+        headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+        headerRow.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF530E90' } // Violeta institucional DCTI
+        };
+        headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+        headerRow.height = 25;
+
+        // Agregar filas con los datos de forma limpia
+        currentReportData.forEach(item => {
+            const row = sheet.addRow(item);
+            row.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+            // Optional alternate background coloring could go here based on row number
+        });
+
+        // Escribir a buffer binario para Web Browser
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}`;
+        link.setAttribute("download", `DataSec_DCTI_${currentReportDomain.toUpperCase()}_${dateStr}.xlsx`);
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        logExportAudit(currentReportDomain, 'XLSX', currentReportData.length);
+        AlertService.notify('Exportación Concedida', 'Módulo analítico enrutado y descargado exitosamente como Microsoft Excel (.xlsx).', 'success');
+
+    } catch (error) {
+        console.error("Error generating Excel output:", error);
+        AlertService.notify('Falló Exportación', 'No se pudo generar el archivo Excel.', 'error');
+    }
 }
 
 let savedPDFHtml = '';
@@ -464,59 +521,51 @@ function previewReportPDF() {
 
     const htmlContent = `
         <style>
-            .doc-print-area { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; max-width: 800px; margin: 0 auto; }
-            .doc-header { text-align: center; border-bottom: 3px solid #0f172a; padding-bottom: 20px; margin-bottom: 30px; position: relative; }
-            .doc-header h1 { margin: 0 0 5px 0; font-size: 20px; letter-spacing: 1px; }
-            .doc-header p { margin: 0; font-size: 13px; color: #475569; }
-            .doc-title { margin-top: 15px; font-weight: bold; font-size: 16px; text-transform: uppercase; }
-            .doc-meta { background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 30px; font-size: 12px; }
-            .doc-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 40px; }
-            .doc-table th, .doc-table td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }
-            .doc-table th { background-color: #f1f5f9; color: #0f172a; text-transform: uppercase; font-weight: 700; }
-            .doc-footer { text-align: center; font-size: 9px; color: #94a3b8; border-top: 1px solid #cbd5e1; padding-top: 15px; margin-top: 50px; }
-            .doc-signature-box { float: right; width: 250px; text-align: center; margin-top: 40px; border-top: 1px dotted #1e293b; padding-top: 5px; font-size: 11px; font-style: italic; }
-            @media print {
-                body { margin: 0; padding: 20px; }
-                .doc-print-area { max-width: 100%; }
-            }
+            .doc-print-area { font-family: 'Helvetica', 'Segoe UI', sans-serif; color: #0f172a; width: 100%; margin: 0 auto; box-sizing: border-box; }
+            .doc-top-bar { background-color: #530E90; color: white; padding: 25px 20px; margin-bottom: 25px; border-radius: 8px 8px 0 0; }
+            .doc-top-bar h1 { margin: 0 0 8px 0; font-size: 22px; font-weight: bold; letter-spacing: 0.5px; }
+            .doc-top-bar p { margin: 0 0 4px 0; font-size: 14px; opacity: 0.9; }
+            .doc-info { padding: 0 20px; margin-bottom: 30px; }
+            .doc-info h2 { font-size: 20px; font-weight: bold; margin: 0 0 15px 0; color: #0f172a; text-transform: uppercase; }
+            .doc-info p { margin: 0 0 6px 0; font-size: 13px; color: #334155; }
+            .doc-table-wrapper { padding: 0 20px; overflow-x: auto; }
+            .doc-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 40px; }
+            .doc-table th, .doc-table td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; vertical-align: middle; }
+            .doc-table th { background-color: #530E90; color: white; text-align: center; text-transform: uppercase; font-weight: bold; }
+            .doc-table tbody tr:nth-child(even) { background-color: #f8fafc; }
+            .doc-footer { text-align: center; font-size: 10px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 15px; margin: 30px 20px 10px 20px; }
         </style>
         <div class="doc-print-area">
-            <div class="doc-header">
+            <div class="doc-top-bar">
                 <h1>DIRECCIÓN DE CIENCIA, TECNOLOGÍA E INNOVACIÓN</h1>
-                <p>República Bolivariana de Venezuela - Estado Monagas</p>
-                <div class="doc-title">REPORTE OFICIAL: ${domainLabel}</div>
+                <p>GOBIERNO DEL ESTADO MONAGAS</p>
+                <p>Portal de Gestión Administrativa</p>
             </div>
             
-            <div class="doc-meta">
-                <strong>Fecha y Hora Criptográfica:</strong> ${new Date().toLocaleString()}<br>
-                <strong>Generado Por:</strong> ${session.name || session.username || session.email || 'Sistema'}<br>
-                <strong>Motor Institucional:</strong> Dashware Export v4.0 (DCTI)<br>
-                <strong>Registros Consolidados:</strong> ${currentReportData.length}
+            <div class="doc-info">
+                <h2>DOCUMENTO OFICIAL: ${domainLabel}</h2>
+                <p><strong>Fecha y Hora de Emisión:</strong> ${(() => {
+                    const now = new Date();
+                    return `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                })()}</p>
+                <p><strong>Oficial a Cargo:</strong> ${session.name || session.username || session.email || 'Administrador del Sistema'}</p>
+                <p><strong>Registros Consolidados:</strong> ${currentReportData.length}</p>
             </div>
             
-            <div style="font-size: 11px; margin-bottom: 20px; color: #475569; border-left: 3px solid var(--color-primary); padding-left: 10px;">
-                <strong>Nota:</strong> Los datos exportados reflejan estrictamente el filtro actual y en el caso de Noticias/Proyectos, cumplen con la validación de publicación.
+            <div class="doc-table-wrapper">
+                <table class="doc-table">
+                    <thead>
+                        <tr>${keys.map(k => `<th>${k.replace(/_/g, ' ')}</th>`).join('')}</tr>
+                    </thead>
+                    <tbody>
+                        ${currentReportData.map(row => `<tr>${keys.map(k => `<td>${row[k]}</td>`).join('')}</tr>`).join('')}
+                    </tbody>
+                </table>
             </div>
-            
-            <table class="doc-table">
-                <thead>
-                    <tr>${keys.map(k => `<th>${k.replace(/_/g, ' ')}</th>`).join('')}</tr>
-                </thead>
-                <tbody>
-                    ${currentReportData.map(row => `<tr>${keys.map(k => `<td>${row[k]}</td>`).join('')}</tr>`).join('')}
-                </tbody>
-            </table>
-            
-            <div class="doc-signature-box">
-                Firmado Electrónicamente por la Plataforma<br>
-                <strong>Comité Administrativo DCTI</strong>
-            </div>
-            
-            <div style="clear: both;"></div>
             
             <div class="doc-footer">
-                ESTE DOCUMENTO CONTIENE INFORMACIÓN PARA USO OFICIAL Y ESTÁ AMPARADO BAJO LA LEY ESPECIAL CONTRA DELITOS INFORMÁTICOS.<br>
-                ID DE TRAZABILIDAD SHA-256 ESTIMADO: ${btoa(Date.now().toString() + currentReportDomain).toUpperCase()}
+                ESTE DOCUMENTO CONTIENE INFORMACIÓN PARA USO OFICIAL<br>
+                ID DE TRAZABILIDAD SHA-256 ESTIMADO: ${btoa(currentReportDomain + Date.now().toString()).toUpperCase().substring(0, 32)}
             </div>
         </div>
     `;
@@ -542,26 +591,106 @@ function previewReportPDF() {
 }
 
 function executePDFPrint() {
-    if (!savedPDFHtml) return;
+    if (!currentReportData || currentReportData.length === 0) return;
 
     document.getElementById('report-preview-modal').style.display = 'none';
 
-    const printWindow = window.open('', '', 'height=800,width=1000');
-    if (printWindow) {
-        printWindow.document.write(savedPDFHtml);
-        printWindow.document.close();
-        printWindow.focus();
-
-        logExportAudit(currentReportDomain, 'PDF_FORMAL', currentReportData.length);
-
-        setTimeout(() => {
-            printWindow.print();
-            printWindow.close();
-            if (typeof AlertService !== 'undefined') {
-                AlertService.notify('Documento Emitido', 'El documento corporativo oficial ha sido procesado mediante el subsistema de impresión.', 'success');
+    try {
+        const { jsPDF } = window.jspdf;
+        // Usamos formato horizontal para que las tablas con muchas columnas (ej. Proyectos) quepan perfecto
+        const doc = new jsPDF({ orientation: 'landscape', format: 'letter' });
+        
+        const session = JSON.parse(localStorage.getItem('dcti_session')) || {};
+        const domainNames = {
+            'users': 'Directorio de Usuarios',
+            'news': 'Registro de Publicaciones',
+            'projects': 'Portafolio de Proyectos',
+            'courses': 'Gestión Académica',
+            'strategic': 'Ejes de Gestión (Organigrama Institucional)'
+        };
+        const domainLabel = domainNames[currentReportDomain] || currentReportDomain;
+        
+        // --- 1. CABECERA INSTITUCIONAL VIOLETA ---
+        doc.setFillColor(83, 14, 144); // #530E90 (Violeta DCTI)
+        doc.rect(0, 0, doc.internal.pageSize.width, 30, 'F');
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.text("DIRECCIÓN DE CIENCIA, TECNOLOGÍA E INNOVACIÓN", 15, 14);
+        
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.text("GOBIERNO DEL ESTADO MONAGAS", 15, 21);
+        doc.text("Portal de Gestión Administrativa", 15, 26);
+        
+        // --- 2. INFORMACIÓN DEL REPORTE ---
+        doc.setTextColor(15, 23, 42);
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.text(`DOCUMENTO OFICIAL: ${domainLabel}`, 15, 45);
+        
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        const now = new Date();
+        const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        
+        doc.text(`Fecha y Hora de Emisión: ${dateStr}`, 15, 55);
+        doc.text(`Oficial a Cargo: ${session.name || session.username || session.email || 'Administrador del Sistema'}`, 15, 61);
+        doc.text(`Registros Consolidados: ${currentReportData.length}`, 15, 67);
+        
+        // --- 3. CREAR TABLA VECTORIAL ---
+        const keys = Object.keys(currentReportData[0]);
+        const bodyData = currentReportData.map(row => keys.map(k => row[k]));
+        
+        doc.autoTable({
+            startY: 75,
+            head: [keys.map(k => k.replace(/_/g, ' '))],
+            body: bodyData,
+            theme: 'grid',
+            headStyles: { 
+                fillColor: [83, 14, 144], 
+                textColor: 255, 
+                fontStyle: 'bold',
+                halign: 'center'
+            },
+            bodyStyles: {
+                valign: 'middle'
+            },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+            styles: { fontSize: 9, cellPadding: 5, overflow: 'linebreak' },
+            margin: { top: 75, bottom: 25 },
+            didDrawPage: function (data) {
+                // FOOTER
+                const str = "Página " + doc.internal.getNumberOfPages();
+                doc.setFontSize(8);
+                doc.setTextColor(100, 116, 139);
+                doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+                
+                // Sello de Trazabilidad Criptográfico
+                const traceId = btoa(currentReportDomain + Date.now().toString()).toUpperCase().substring(0, 32);
+                doc.text(`ID TRAZABILIDAD SHA-256: ${traceId}`, doc.internal.pageSize.width - data.settings.margin.right - 95, doc.internal.pageSize.height - 10);
+                
+                // Línea divisoria footer
+                doc.setDrawColor(203, 213, 225);
+                doc.line(data.settings.margin.left, doc.internal.pageSize.height - 15, doc.internal.pageSize.width - data.settings.margin.right, doc.internal.pageSize.height - 15);
             }
-        }, 500);
-    } else {
-        AlertService.notify('Ventana Bloqueada', 'Su navegador ha bloqueado la ventana emergente de impresión. Por favor habilítelas para el portal.', 'error');
+        });
+        
+        // --- 4. EXPORTAR EL ARCHIVO ---
+        const fileDateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}`;
+        doc.save(`Documento_DCTI_${currentReportDomain.toUpperCase()}_${fileDateStr}.pdf`);
+        
+        logExportAudit(currentReportDomain, 'PDF_VECTOR_JSPDF', currentReportData.length);
+        
+        if (typeof AlertService !== 'undefined') {
+            AlertService.notify('Documento Generado', 'El reporte profesional PDF ha sido ensamblado y descargado exitosamente.', 'success');
+        }
+        
+    } catch (error) {
+        console.error("Error al renderizar JS-PDF:", error);
+        if (typeof AlertService !== 'undefined') {
+            AlertService.notify('Renderizado Fallido', 'Hubo un error cargando las librerías PDF interactivas.', 'error');
+        }
     }
 }

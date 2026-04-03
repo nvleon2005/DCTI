@@ -155,7 +155,7 @@ if (document.readyState === 'loading') {
             return;
         }
 
-        gridCursos.style.display = 'grid'; // Restaurar grid por si estaba en block por empty state
+        gridCursos.style.display = 'flex'; // Restaurar flex por si estaba en block por empty state
 
         // Lógica de paginación
         const totalPages = Math.ceil(allPublished.length / coursesPerPage);
@@ -176,7 +176,7 @@ if (document.readyState === 'loading') {
             const badgeColor = cuposDisponibles > 0 ? '#10b981' : '#ef4444';
 
             html += `
-                <div class="course-item" style="border-left: 5px solid #530e90; width: 100% !important; max-width: none !important; margin: 0 !important; display: flex; flex-direction: column; overflow: hidden; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background: white; transition: transform 0.3s ease;">
+                <div class="course-item" style="border-left: 5px solid #530e90; flex: 1 1 300px; max-width: 320px; margin: 1%; display: flex; flex-direction: column; overflow: hidden; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background: white; transition: transform 0.3s ease;">
                     <div style="height: 200px; width: 100%; position: relative;">
                         <img src="${coverImage}" alt="${course.nombreCurso}" style="width: 100%; height: 100%; object-fit: cover;">
                         <span style="position: absolute; top: 10px; right: 10px; background: ${badgeColor}; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold;">
@@ -810,6 +810,23 @@ if (document.readyState === 'loading') {
         }
     }
 
+    window.showCourseDetail = function (id) {
+        const gridCursos = document.getElementById('view-cursos');
+        const detalleCurso = document.getElementById('view-curso-detalle');
+        if (!gridCursos || !detalleCurso) return;
+        
+        if (typeof renderCourseDetail === 'function') {
+            renderCourseDetail(id);
+        }
+        
+        gridCursos.classList.remove('public-active');
+        gridCursos.classList.add('public-hidden');
+
+        detalleCurso.classList.remove('public-hidden');
+        detalleCurso.classList.add('public-active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     window.showProjDetail = function (id) {
         const list = document.getElementById('view-proyectos');
         const detail = document.getElementById('view-proyecto-detalle');
@@ -1012,15 +1029,34 @@ if (document.readyState === 'loading') {
         if (principal) {
             let heroSlides = [];
             const principalNews = news.filter(n => n.carouselPlacement === 'Carrusel Principal');
+            const principalProjs = projs.filter(p => p.carouselPlacement === 'Carrusel Principal');
+            const principalCourses = courses.filter(c => c.carouselPlacement === 'Carrusel Principal');
+
             principalNews.slice(0, 5).forEach(n => {
                 const imgs = getMediaArray(n);
                 if (imgs.length === 0) imgs.push('assets/images/img15.jpg');
                 imgs.forEach(img => heroSlides.push({ img, title: n.headline }));
             });
+
+            principalProjs.slice(0, 5).forEach(p => {
+                const imgs = getMediaArray(p);
+                if (imgs.length === 0) imgs.push('assets/images/img4.jpg');
+                imgs.forEach(img => heroSlides.push({ img, title: p.title }));
+            });
+
+            principalCourses.slice(0, 5).forEach(c => {
+                const imgs = (c.images && c.images.length > 0) ? c.images : ['assets/images/img5.jpg'];
+                imgs.forEach(img => heroSlides.push({ img: img.image || img, title: c.nombreCurso || c.name }));
+            });
             
-            // Fill with projects if not enough
+            // Fill with default projects if not enough explicitly highlighted
             if (heroSlides.length < 2) {
-                projs.slice(0, 2).forEach(p => heroSlides.push({ img: Array.isArray(p.multimedia)?p.multimedia[0]:(p.multimedia || 'assets/images/img4.jpg'), title: p.title }));
+                projs.slice(0, 2).forEach(p => {
+                    const imgToUse = Array.isArray(p.multimedia) ? p.multimedia[0] : (p.multimedia || 'assets/images/img4.jpg');
+                    if (!heroSlides.some(s => s.title === p.title)) {
+                        heroSlides.push({ img: imgToUse, title: p.title });
+                    }
+                });
             }
             if (heroSlides.length === 0) {
                 heroSlides = [
@@ -1084,45 +1120,77 @@ if (document.readyState === 'loading') {
         }
 
         // 3. Miniaturas Inferiores
-        // La estructura original usa un .miniaturas-contenedor con width:200% mostrando 4 a la vez
-        // Cada .miniaturasc tiene width: calc(100%/4) del contenedor (que es 200% del viewport)
         if (miniatura) {
             let mix = [];
             const bottomNews = news.filter(n => n.carouselPlacement === 'Carrusel Miniaturas');
+            const bottomProjs = projs.filter(p => p.carouselPlacement === 'Carrusel Miniaturas');
+            const bottomCourses = courses.filter(c => c.carouselPlacement === 'Carrusel Miniaturas');
+
             bottomNews.slice(0, 4).forEach(n => mix.push({
                 img: Array.isArray(n.multimedia) && n.multimedia.length > 0 ? n.multimedia[0] : (n.multimedia || 'assets/images/img8.jpg'),
                 title: n.headline,
                 type: 'Noticia',
                 link: `document.querySelector('[data-target=view-noticias]').click(); window.showNewsDetail(${n.id});`
             }));
-            courses.slice(0, 4).forEach(c => mix.push({
-                img: (c.images && c.images[0]) ? c.images[0] : 'assets/images/img5.jpg',
-                title: c.name,
+            
+            bottomCourses.slice(0, 4).forEach(c => mix.push({
+                img: (c.images && c.images[0]) ? (c.images[0].image || c.images[0]) : 'assets/images/img5.jpg',
+                title: c.nombreCurso || c.name,
                 type: 'Curso',
-                link: "document.querySelector('[data-target=view-cursos]').click();"
+                link: `document.querySelector('[data-target=view-cursos]').click(); window.showCourseDetail(${c.id});`
             }));
-            projs.slice(0, 4).forEach(p => mix.push({
+            
+            bottomProjs.slice(0, 4).forEach(p => mix.push({
                 img: Array.isArray(p.multimedia)?p.multimedia[0]:(p.multimedia || 'assets/images/img10.jpg'),
                 title: p.title,
                 type: 'Proyecto',
                 link: `document.querySelector('[data-target=view-proyectos]').click(); window.showProjDetail(${p.id});`
             }));
             if (mix.length === 0) {
-                mix = [
-                    { img: 'assets/images/img5.jpg', title: 'Ciberseguridad', type: 'Formación', link: '' },
-                    { img: 'assets/images/img7.jpg', title: 'I.O.T.', type: 'Tecnología', link: '' },
-                    { img: 'assets/images/img3.jpg', title: 'Robótica', type: 'Educación', link: '' },
-                    { img: 'assets/images/img10.jpg', title: 'AgroTech', type: 'Innovación', link: '' },
-                    { img: 'assets/images/img1.png', title: 'Sedes Monagas', type: 'Infraestructura', link: '' },
-                    { img: 'assets/images/img8.jpg', title: 'Pueblo Heroico', type: 'Institucional', link: '' },
-                    { img: 'assets/images/img2.png', title: 'DCTI', type: 'Portal', link: '' },
-                    { img: 'assets/images/img9.jpg', title: 'Cooperación', type: 'Acuerdos', link: '' }
-                ];
+                // FALLBACK: Usar elementos recientes reales del sistema
+                news.slice(0, 4).forEach(n => mix.push({
+                    img: Array.isArray(n.multimedia) && n.multimedia.length > 0 ? n.multimedia[0] : (n.multimedia || 'assets/images/img8.jpg'),
+                    title: n.headline,
+                    type: 'Noticia',
+                    link: `document.querySelector('[data-target=view-noticias]').click(); window.showNewsDetail(${n.id});`
+                }));
+                
+                courses.slice(0, 4).forEach(c => mix.push({
+                    img: (c.images && c.images[0]) ? (c.images[0].image || c.images[0]) : 'assets/images/img5.jpg',
+                    title: c.nombreCurso || c.name,
+                    type: 'Curso',
+                    link: `document.querySelector('[data-target=view-cursos]').click(); setTimeout(function(){ window.showCourseDetail(${c.id}); }, 100);`
+                }));
+                
+                projs.slice(0, 4).forEach(p => mix.push({
+                    img: Array.isArray(p.multimedia)?p.multimedia[0]:(p.multimedia || 'assets/images/img10.jpg'),
+                    title: p.title,
+                    type: 'Proyecto',
+                    link: `document.querySelector('[data-target=view-proyectos]').click(); setTimeout(function(){ window.showProjDetail(${p.id}); }, 100);`
+                }));
+
+                // Fallback extremo si literal no hay NADA creado en el sistema ni real ni seleccionado
+                if (mix.length === 0) {
+                    mix = [
+                        { img: 'assets/images/img5.jpg', title: 'Ciberseguridad', type: 'Formación', link: '' },
+                        { img: 'assets/images/img7.jpg', title: 'I.O.T.', type: 'Tecnología', link: '' },
+                        { img: 'assets/images/img3.jpg', title: 'Robótica', type: 'Educación', link: '' },
+                        { img: 'assets/images/img10.jpg', title: 'AgroTech', type: 'Innovación', link: '' },
+                        { img: 'assets/images/img1.png', title: 'Sedes Monagas', type: 'Infraestructura', link: '' },
+                        { img: 'assets/images/img8.jpg', title: 'Pueblo Heroico', type: 'Institucional', link: '' },
+                        { img: 'assets/images/img2.png', title: 'DCTI', type: 'Portal', link: '' },
+                        { img: 'assets/images/img9.jpg', title: 'Cooperación', type: 'Acuerdos', link: '' }
+                    ];
+                }
             }
 
-            // Fijar suficientes imágenes para al menos 2 "páginas" de 4
-            while (mix.length < 5) {
-                mix = mix.concat(mix);
+            // Fijar suficientes imágenes para al menos 2 "páginas" de 4, pero solo si no está vacío
+            if (mix.length > 0) {
+                while (mix.length < 5) {
+                    mix = mix.concat(mix);
+                }
+            } else {
+                 return; // Si aún está vacío, no renderizar carrusel
             }
             const numImages = mix.length;
 

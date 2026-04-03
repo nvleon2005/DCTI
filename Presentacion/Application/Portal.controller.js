@@ -127,8 +127,14 @@ function initPortalController() {
 
     window.initCarruselPrincipal = function () {
         principalSlider.slider = document.querySelector("#principal");
-        principalSlider.slides = document.querySelectorAll("#principal .imgc");
-        principalSlider.widthImg = 100 / (principalSlider.slides.length || 1);
+        principalSlider.slides = document.querySelectorAll("#principal .ccp"); // Seleccionar contcenedores, no solo .imgc
+        if(!principalSlider.slider || principalSlider.slides.length === 0) return;
+        
+        principalSlider.widthImg = 100 / principalSlider.slides.length;
+        principalSlider.operacion = 0;
+        principalSlider.counter = 0;
+        principalSlider.slider.style.transition = "none";
+        principalSlider.slider.style.transform = `translateX(0%)`;
 
         // Limpiar event listeners viejos si existen (clonando botones)
         let oldLeft = document.querySelector("#view-inicio .btn-left");
@@ -141,12 +147,31 @@ function initPortalController() {
             principalSlider.btnLeft = newLeft;
             principalSlider.btnRight = newRight;
 
-            principalSlider.btnLeft.addEventListener("click", () => principalSlider.moveToLeft());
-            principalSlider.btnRight.addEventListener("click", () => principalSlider.moveToRight());
+            // Ocultar botones si hay solo 1 slide
+            if(principalSlider.slides.length <= 1) {
+                 principalSlider.btnLeft.style.display = 'none';
+                 principalSlider.btnRight.style.display = 'none';
+            } else {
+                 principalSlider.btnLeft.style.display = 'block';
+                 principalSlider.btnRight.style.display = 'block';
+            }
+
+            principalSlider.btnLeft.addEventListener("click", () => {
+                principalSlider.moveToLeft();
+                if (principalSlider.interval) clearInterval(principalSlider.interval);
+                principalSlider.interval = setInterval(() => principalSlider.moveToRight(), 8000);
+            });
+            principalSlider.btnRight.addEventListener("click", () => {
+                principalSlider.moveToRight();
+                if (principalSlider.interval) clearInterval(principalSlider.interval);
+                principalSlider.interval = setInterval(() => principalSlider.moveToRight(), 8000);
+            });
         }
 
         if (principalSlider.interval) clearInterval(principalSlider.interval);
-        principalSlider.interval = setInterval(() => principalSlider.moveToRight(), 8000);
+        if(principalSlider.slides.length > 1) {
+            principalSlider.interval = setInterval(() => principalSlider.moveToRight(), 8000);
+        }
     };
 
     window.initCarruselMiniaturas = function () {

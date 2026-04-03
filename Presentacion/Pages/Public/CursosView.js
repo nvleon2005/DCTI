@@ -11,7 +11,7 @@ window.CursosView = {
                     <h2>Cursos</h2>
                 </div>
                 <div id="public-courses-wrapper" style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px;">
-                    <div id="public-courses-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; width: 100%;">
+                    <div id="public-courses-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; align-items: stretch; padding: 0 2% 2% 2%; width: 100%;">
                     </div>
                     <div id="public-courses-pagination" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; font-family: 'Inter', sans-serif;">
                     </div>

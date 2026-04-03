@@ -1,4 +1,4 @@
-﻿const CoursesView = {
+const CoursesView = {
     render: (data) => {
         const paginated = data.pagination;
         const courses = paginated ? paginated.items : data.courses;
@@ -69,7 +69,12 @@
                                 </div>
                                 
                                 <h3 style="font-size: 0.95rem; color: var(--color-text-main); margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.8em;">${c.nombreCurso}</h3>
-                                <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.4em;">${c.descripcion}</p>
+                                <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.4em;">${c.descripcion}</p>
+                                
+                                <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.7rem;">
+                                    ${c.areaTematica ? `<span style="background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px;">${c.areaTematica}</span>` : ''}
+                                    ${c.modalidad ? `<span style="background: #fef3c7; color: #b45309; padding: 2px 6px; border-radius: 4px;"><i class="fas ${c.modalidad === 'Virtual' ? 'fa-laptop' : (c.modalidad === 'Presencial' ? 'fa-chalkboard-teacher' : 'fa-sync-alt')}"></i> ${c.modalidad}</span>` : ''}
+                                </div>
                                 
                                 <div style="margin-bottom: 15px; margin-top: auto; font-size: 0.75rem; color: var(--color-text-muted); display:flex; justify-content: space-between; background: #f8fafc; padding: 6px; border-radius: 4px;">
                                     <span><i class="far fa-calendar-alt"></i> ${c.fechaInicio}</span>
@@ -78,6 +83,9 @@
     
                                 <div style="display: flex; gap: 8px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
                                     <button onclick="openCourseModal(${c.id})" title="Gestionar (Alumnos, Materiales, Edición)" style="flex: 1; background: none; border: 1px solid var(--color-border); padding: 8px; border-radius: 6px; cursor: pointer; color: var(--color-text-main); transition: 0.2s;"><i class="fas fa-folder-open" style="margin-right:5px;"></i> Abrir</button>
+                                    ${c.estadoCurso !== 'Finalizado' ? `
+                                    <button type="button" onclick="if(typeof toggleCoursePublish === 'function') toggleCoursePublish(${c.id}, '${c.estadoCurso === 'Publicado' ? 'Desactivar' : 'Publicar'}')" title="${c.estadoCurso === 'Publicado' ? 'Desactivar/Mover a Borrador' : 'Publicar Curso'}" style="flex: 1; background: none; border: 1px solid var(--color-border); padding: 8px; border-radius: 6px; cursor: pointer; color: var(--color-text-main); transition: 0.2s;"><i class="fas ${c.estadoCurso === 'Publicado' ? 'fa-eye-slash' : 'fa-eye'}" style="margin-right:5px;"></i> ${c.estadoCurso === 'Publicado' ? 'Desactivar' : 'Publicar'}</button>
+                                    ` : ''}
                                     <button onclick="deleteCourse(${c.id})" title="Eliminar (Físico)" style="flex: 0 0 auto; width: 40px; background: none; border: 1px solid #fee2e2; color: #ef4444; padding: 8px; border-radius: 6px; cursor: pointer; transition: 0.2s;"><i class="fas fa-trash-alt"></i></button>
                                 </div>
                             </div>
@@ -155,10 +163,53 @@
 
                                             <div class="form-group">
                                                 <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Síntesis del Programa <span style="color: #ef4444;">*</span></label>
-                                                <textarea id="admin-course-description" placeholder="Objetivos y alcance pedagógico..." style="width: 100%; height: 100px; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; resize: vertical;" required></textarea>
+                                                <textarea id="admin-course-description" placeholder="Objetivos y alcance pedagógico..." style="width: 100%; height: 70px; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; resize: vertical;" required></textarea>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Objetivos de Aprendizaje <span style="color: #ef4444;">*</span></label>
+                                                <textarea id="admin-course-objetivos" placeholder="Competencias a desarrollar..." style="width: 100%; height: 60px; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; resize: vertical;" required></textarea>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Área Temática <span style="color: #ef4444;">*</span></label>
+                                                <div style="position: relative;">
+                                                    <input type="text" id="admin-course-area"
+                                                        placeholder="Seleccione o escriba un área personalizada..."
+                                                        autocomplete="off"
+                                                        style="width: 100%; padding: 10px 36px 10px 10px; border: 1px solid var(--color-border); border-radius: 6px; box-sizing: border-box;"
+                                                        required
+                                                        oninput="filterCourseAreas(this.value)"
+                                                        onfocus="showCourseAreas()"
+                                                        onblur="setTimeout(()=>hideCourseAreas(),200)">
+                                                    <i class="fas fa-chevron-down" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); font-size: 0.75rem; pointer-events: none;"></i>
+                                                    <div id="course-area-dropdown" style="display:none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid var(--color-border); border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 9999; overflow: hidden; max-height: 180px; overflow-y: auto;">
+                                                        <div class="ca-option" onclick="selectCourseArea('Tecnología e Informática')" style="padding: 10px 12px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; transition: background 0.15s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'"><i class="fas fa-microchip" style="color:#6366f1; width:16px;"></i> Tecnología e Informática</div>
+                                                        <div class="ca-option" onclick="selectCourseArea('Gestión Estratégica')" style="padding: 10px 12px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; transition: background 0.15s; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'"><i class="fas fa-chess" style="color:#0ea5e9; width:16px;"></i> Gestión Estratégica</div>
+                                                        <div class="ca-option" onclick="selectCourseArea('Innovación y Desarrollo')" style="padding: 10px 12px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; transition: background 0.15s; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'"><i class="fas fa-flask" style="color:#10b981; width:16px;"></i> Innovación y Desarrollo</div>
+                                                        <div class="ca-option" onclick="selectCourseArea('Ofimática')" style="padding: 10px 12px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; transition: background 0.15s; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'"><i class="fas fa-file-alt" style="color:#f59e0b; width:16px;"></i> Ofimática</div>
+                                                        <div id="ca-custom-hint" style="padding: 8px 12px; font-size: 0.78rem; color: var(--color-text-muted); border-top: 1px solid #f1f5f9; background: #fafafa; display: none;"><i class="fas fa-keyboard" style="color:#94a3b8;"></i> Presione Enter o continúe escribiendo para usar un área personalizada.</div>
+                                                    </div>
+                                                </div>
+                                                <span style="font-size: 0.72rem; color: var(--color-text-muted); display: block; margin-top: 5px;"><i class="fas fa-lightbulb" style="color: #f59e0b;"></i> Puede seleccionar una categoría predefinida o escribir un área temática personalizada.</span>
                                             </div>
 
                                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                                <div class="form-group">
+                                                    <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Modalidad <span style="color: #ef4444;">*</span></label>
+                                                    <select id="admin-course-modalidad" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
+                                                        <option value="Virtual">Virtual</option>
+                                                        <option value="Presencial">Presencial</option>
+                                                        <option value="Híbrido">Híbrido</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;"><i class="fas fa-user-friends"></i> Cupo Máximo <span style="color: #ef4444;">*</span></label>
+                                                    <input type="number" min="1" step="1" onkeypress="return event.charCode >= 48 && event.charCode <= 57" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="admin-course-quota" placeholder="Ej: 30" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
+                                                </div>
+                                            </div>
+
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                                                 <div class="form-group">
                                                     <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;"><i class="fas fa-hourglass-start"></i> Inicio <span style="color: #ef4444;">*</span></label>
                                                     <input type="date" id="admin-course-start" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
@@ -167,14 +218,13 @@
                                                     <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;"><i class="fas fa-hourglass-end"></i> Culminación <span style="color: #ef4444;">*</span></label>
                                                     <input type="date" id="admin-course-end" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
                                                 </div>
+                                                <div class="form-group">
+                                                    <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Duración <span style="color: #ef4444;">*</span></label>
+                                                    <input type="text" id="admin-course-duracion" placeholder="Ej: 40 hrs" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
+                                                </div>
                                             </div>
 
                                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                                                <div class="form-group">
-                                                    <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;"><i class="fas fa-user-friends"></i> Cupo Máximo <span style="color: #ef4444;">*</span></label>
-                                                    <input type="number" min="1" step="1" onkeypress="return event.charCode >= 48 && event.charCode <= 57" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="admin-course-quota" placeholder="Ej: 30" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
-                                                    <span style="font-size: 0.65rem; color: var(--color-text-muted); display: block; margin-top: 5px;"><i class="fas fa-info-circle"></i> Solo números enteros.</span>
-                                                </div>
                                                 <div class="form-group">
                                                     <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Estado de Apertura <span style="color: #ef4444;">*</span></label>
                                                     <select id="admin-course-status" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; font-weight: 600;" required>
@@ -182,6 +232,25 @@
                                                         <option value="Publicado">Publicado (Ofertable)</option>
                                                         <option value="Finalizado">Finalizado (Histórico)</option>
                                                     </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Ubicación en Inicio (Público)</label>
+                                                    <select id="admin-course-carousel" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                                                        <option value="Ninguno">Listado Estándar</option>
+                                                        <option value="Carrusel Principal">Carrusel Principal (Superior)</option>
+                                                        <option value="Carrusel Miniaturas">Carrusel Miniaturas (Inferior)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                                <div class="form-group">
+                                                    <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;"><i class="fas fa-chalkboard-teacher"></i> Instructor / Facilitador</label>
+                                                    <input type="text" id="admin-course-instructor" placeholder="Ej: Lic. María González" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Cargo del Instructor</label>
+                                                    <input type="text" id="admin-course-instructor-cargo" placeholder="Ej: Especialista en TI" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
                                                 </div>
                                             </div>
                                             
@@ -256,25 +325,51 @@
         `;
     },
 
-    renderParticipants: (courseId) => {
+    renderParticipants: (courseId, filterActivacion = 'all') => {
         const listContainer = document.getElementById('admin-course-students-list');
         if (!listContainer) return;
 
+        const allCourses = typeof getLocalCourses === 'function' ? getLocalCourses() : [];
+        const course = allCourses.find(c => c.id == courseId);
+        const activaciones = course && course.activaciones ? course.activaciones : [{id: 1, label: 'Activación 1'}];
+
         // Se asume que getLocalParticipations ya está disponible vía Controller
-        const participations = typeof getLocalParticipations === 'function' ? getLocalParticipations().filter(p => p.courseId == courseId) : [];
+        let participations = typeof getLocalParticipations === 'function' ? getLocalParticipations().filter(p => p.courseId == courseId) : [];
+
+        // Asegurar la retrocompatibilidad
+        participations = participations.map(p => ({...p, activacionId: p.activacionId || 1}));
+
+        if (filterActivacion !== 'all') {
+            participations = participations.filter(p => p.activacionId == filterActivacion);
+        }
+
+        let activacionesOptions = `<option value="all" ${filterActivacion === 'all' ? 'selected' : ''}>Todas las activaciones (Reporte General)</option>`;
+        activaciones.forEach(act => {
+            activacionesOptions += `<option value="${act.id}" ${filterActivacion == act.id ? 'selected' : ''}>${act.label}</option>`;
+        });
+
+        let headerHtml = `
+            <div style="padding: 15px; border-bottom: 2px solid var(--color-border); background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-main);"><i class="fas fa-filter"></i> Cohorte / Fechas:</span>
+                <select id="course-activation-filter" onchange="if(typeof CoursesView !== 'undefined') CoursesView.renderParticipants(${courseId}, this.value)" style="padding: 8px 15px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.85rem; background: white; min-width: 300px;">
+                    ${activacionesOptions}
+                </select>
+            </div>
+        `;
 
         if (participations.length === 0) {
-            listContainer.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--color-text-muted);"><i class="fas fa-users-slash" style="font-size: 2rem; opacity:0.5; margin-bottom: 10px;"></i><p>Aún no hay participantes inscritos en esta cohorte.</p></div>`;
+            listContainer.innerHTML = headerHtml + `<div style="padding: 20px; text-align: center; color: var(--color-text-muted);"><i class="fas fa-users-slash" style="font-size: 2rem; opacity:0.5; margin-bottom: 10px;"></i><p>Aún no hay participantes inscritos en este reporte.</p></div>`;
             return;
         }
 
         // Tabla Renderizada
-        let tableHtml = `
+        let tableHtml = headerHtml + `
             <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
                 <thead>
                     <tr style="border-bottom: 2px solid var(--color-border); color: var(--color-text-muted);">
                         <th style="padding: 10px;">Usuario / Email</th>
                         <th style="padding: 10px;">Fech. Inscripción</th>
+                        ${filterActivacion === 'all' ? '<th style="padding: 10px;">Cohorte</th>' : ''}
                         <th style="padding: 10px;">Estado</th>
                         <th style="padding: 10px; text-align: right;">Acciones</th>
                     </tr>
@@ -296,10 +391,12 @@
                 <tr style="border-bottom: 1px solid #f1f5f9;">
                     <td style="padding: 10px; font-weight: 600;">${p.userId}</td>
                     <td style="padding: 10px;">${p.fechaInscripcion}</td>
+                    ${filterActivacion === 'all' ? `<td style="padding: 10px; color: var(--color-primary); font-weight: 600;">Act. ${p.activacionId}</td>` : ''}
                     <td style="padding: 10px;">
                         <span style="background: ${spanBg}; color: ${spanColor}; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">${p.estado}</span>
                     </td>
                     <td style="padding: 10px; text-align: right;">
+                        ${p.estado === 'Aprobado' ? `<button type="button" onclick="emitirCertificado(${p.id}, ${courseId})" title="Emitir Certificado PDF" style="background: linear-gradient(135deg, #1e1b4b, #3730a3); border: none; cursor: pointer; color: #C9A84C; padding: 5px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; margin-right: 5px;"><i class="fas fa-certificate"></i> Certificar</button>` : ''}
                         <button type="button" onclick="toggleParticipantStatus(${p.id}, '${newStatus}', ${courseId})" title="${suspendBtnTitle}" style="background:none; border:none; cursor:pointer; color: ${suspendBtnColor};"><i class="fas ${suspendBtnIcon}"></i></button>
                         <button type="button" onclick="removeParticipant(${p.id}, ${courseId})" title="Retirar" style="background:none; border:none; cursor:pointer; color: #ef4444; margin-left: 5px;"><i class="fas fa-user-minus"></i></button>
                     </td>

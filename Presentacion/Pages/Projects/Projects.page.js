@@ -141,13 +141,22 @@ const ProjectsView = {
                                         <textarea id="admin-project-objectives" placeholder="Metas a alcanzar..." style="width: 100%; height: 120px; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; resize: vertical;" required></textarea>
                                     </div>
 
-                                    <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                                         <div class="form-group">
                                             <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Estado <span style="color: #ef4444;">*</span></label>
                                             <select id="admin-project-status" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; background-color: white; font-weight: 600;" required>
                                                 <option value="Destacado">Destacado (Completado y Relevante)</option>
                                                 <option value="En Progreso">En Progreso (En desarrollo actual)</option>
                                                 <option value="A Futuro">A Futuro (Programado para después)</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Ubicación en Inicio (Público)</label>
+                                            <select id="admin-project-carousel" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; background-color: white;">
+                                                <option value="Ninguno">Listado Estándar</option>
+                                                <option value="Carrusel Principal">Carrusel Principal (Superior)</option>
+                                                <option value="Carrusel Miniaturas">Carrusel Miniaturas (Inferior)</option>
                                             </select>
                                         </div>
                                     </div>

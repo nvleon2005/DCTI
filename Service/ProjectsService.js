@@ -77,6 +77,9 @@ function openProjectModal(id = null) {
             document.getElementById('admin-project-description').value = project.description || '';
             document.getElementById('admin-project-objectives').value = project.objectives || '';
             document.getElementById('admin-project-status').value = project.status || 'En Progreso';
+            if (document.getElementById('admin-project-carousel')) {
+                document.getElementById('admin-project-carousel').value = project.carouselPlacement || 'Ninguno';
+            }
             document.getElementById('admin-project-advances').value = project.advances || '';
 
             projectImageQueue = project.images ? [...project.images] : (project.image && project.image !== 'assets/images/proyectos.png' ? [project.image] : []);
@@ -117,6 +120,9 @@ function openProjectModal(id = null) {
         title.textContent = 'Nuevo Proyecto';
         editIdInput.value = '';
         if (galleryTitle) galleryTitle.textContent = 'Previsualizar imágenes';
+        if (document.getElementById('admin-project-carousel')) {
+            document.getElementById('admin-project-carousel').value = 'Ninguno';
+        }
         
         const auditContainer = document.getElementById('project-audit-container');
         if (auditContainer) {
@@ -264,6 +270,7 @@ async function handleProjectSubmit(e) {
     const status = document.getElementById('admin-project-status').value;
     const advances = document.getElementById('admin-project-advances').value.trim();
     const image = document.getElementById('admin-project-media').value;
+    const carouselPlacement = document.getElementById('admin-project-carousel') ? document.getElementById('admin-project-carousel').value : 'Ninguno';
 
     // 1. VALIDACIÓN DE OBLIGATORIEDAD ESTRICTA
     if (!title || !description || !objectives || !status || !advances) {
@@ -298,6 +305,7 @@ async function handleProjectSubmit(e) {
             if (old.objectives !== objectives) changes.push('Objetivos');
             if (old.status !== status) changes.push('Estado');
             if (old.advances !== advances) changes.push('Avances');
+            if (old.carouselPlacement !== carouselPlacement) changes.push('Ubicación en Inicio');
             if (old.image !== imageToSave) changes.push('Imagen Principal');
 
             if (changes.length > 0) {
@@ -315,6 +323,7 @@ async function handleProjectSubmit(e) {
                     objectives,
                     status,
                     advances,
+                    carouselPlacement,
                     image: imageToSave,
                     images: [...projectImageQueue],
                     updatedAt: new Date().toISOString(),
@@ -338,6 +347,7 @@ async function handleProjectSubmit(e) {
             objectives,
             status,
             advances,
+            carouselPlacement,
             image: imageToSave,
             images: [...projectImageQueue],
             createdAt: new Date().toISOString(),
