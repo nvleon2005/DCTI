@@ -45,7 +45,7 @@ const DEFAULT_COURSES = [
 ];
 
 const DEFAULT_PARTICIPATIONS = [
-    { id: 1, courseId: 2, userId: "admin@dcti.gob", estado: "Aprobado", fechaInscripcion: "2024-03-05" } // Demo Integridad
+    { id: 1, courseId: 2, userId: "admin@dcti.gob", estado: "Activo", fechaInscripcion: "2024-03-05" } // Demo Integridad
 ];
 
 // Instanciación y Migración
@@ -201,6 +201,25 @@ function openCourseModal(id = null) {
             if(document.getElementById('admin-course-area')) document.getElementById('admin-course-area').value = course.areaTematica || 'Tecnología e Informática';
             if(document.getElementById('admin-course-modalidad')) document.getElementById('admin-course-modalidad').value = course.modalidad || 'Virtual';
             if(document.getElementById('admin-course-duracion')) document.getElementById('admin-course-duracion').value = course.duracion || '';
+            // Costo: parsear costo guardado en moneda + monto
+            const monedaEl = document.getElementById('admin-course-moneda');
+            const montoEl = document.getElementById('admin-course-monto');
+            if (monedaEl && montoEl) {
+                const costoStr = course.costo || 'Gratuito';
+                if (costoStr === 'Gratuito' || costoStr === '') {
+                    monedaEl.value = 'Gratuito';
+                    montoEl.value = '';
+                    montoEl.style.display = 'none';
+                } else if (costoStr.startsWith('$')) {
+                    monedaEl.value = '$';
+                    montoEl.value = costoStr.replace('$', '').trim();
+                    montoEl.style.display = 'block';
+                } else {
+                    monedaEl.value = 'Bs.';
+                    montoEl.value = costoStr.replace('Bs.', '').trim();
+                    montoEl.style.display = 'block';
+                }
+            }
             if(document.getElementById('admin-course-instructor')) document.getElementById('admin-course-instructor').value = course.instructor || '';
             if(document.getElementById('admin-course-instructor-cargo')) document.getElementById('admin-course-instructor-cargo').value = course.instructorCargo || '';
             document.getElementById('admin-course-start').value = course.fechaInicio;
@@ -244,6 +263,10 @@ function openCourseModal(id = null) {
         document.getElementById('course-modal-title').textContent = "Nuevo Curso";
         document.getElementById('course-gallery-title').textContent = "Previsualizar imágenes";
         document.getElementById('admin-course-status').value = "Borrador"; // default
+        const monedaElNew = document.getElementById('admin-course-moneda');
+        const montoElNew = document.getElementById('admin-course-monto');
+        if (monedaElNew) monedaElNew.value = 'Gratuito';
+        if (montoElNew) { montoElNew.value = ''; montoElNew.style.display = 'none'; }
         if(document.getElementById('admin-course-area')) document.getElementById('admin-course-area').value = 'Tecnología e Informática';
         if(document.getElementById('admin-course-modalidad')) document.getElementById('admin-course-modalidad').value = 'Virtual';
         if (document.getElementById('admin-course-carousel')) {
@@ -328,6 +351,10 @@ async function handleCourseSubmit(e) {
     const objetivos = document.getElementById('admin-course-objetivos') ? document.getElementById('admin-course-objetivos').value.trim() : '';
     const areaTematica = document.getElementById('admin-course-area') ? document.getElementById('admin-course-area').value : 'Tecnología e Informática';
     const modalidad = document.getElementById('admin-course-modalidad') ? document.getElementById('admin-course-modalidad').value : 'Virtual';
+    // Construir costo compuesto desde moneda + monto
+    const monedaVal = document.getElementById('admin-course-moneda') ? document.getElementById('admin-course-moneda').value : 'Gratuito';
+    const montoVal = document.getElementById('admin-course-monto') ? document.getElementById('admin-course-monto').value.trim() : '';
+    const costo = monedaVal === 'Gratuito' ? 'Gratuito' : (montoVal ? `${monedaVal} ${montoVal}` : monedaVal);
     const duracion = document.getElementById('admin-course-duracion') ? document.getElementById('admin-course-duracion').value.trim() : '';
     const instructor = document.getElementById('admin-course-instructor') ? document.getElementById('admin-course-instructor').value.trim() : '';
     const instructorCargo = document.getElementById('admin-course-instructor-cargo') ? document.getElementById('admin-course-instructor-cargo').value.trim() : '';
@@ -341,6 +368,12 @@ async function handleCourseSubmit(e) {
     // Validación Anti-Espacios Vacíos (Hard Stop)
     if (!nombreCurso || !descripcion || !objetivos) {
         AlertService.error('El nombre, la descripción y los objetivos no pueden contener únicamente espacios en blanco o estar vacíos.', 'Campos Vacíos');
+        return;
+    }
+
+    // Validación Instructor (Hard Stop)
+    if (!instructor || !instructorCargo) {
+        AlertService.error('El nombre y el cargo del instructor/facilitador son obligatorios y no pueden estar vacíos.', 'Campos Obligatorios');
         return;
     }
 
@@ -409,6 +442,7 @@ async function handleCourseSubmit(e) {
                 objetivos,
                 areaTematica,
                 modalidad,
+                costo,
                 duracion,
                 instructor,
                 instructorCargo,
@@ -437,6 +471,7 @@ async function handleCourseSubmit(e) {
             objetivos,
             areaTematica,
             modalidad,
+            costo,
             duracion,
             instructor,
             instructorCargo,
@@ -565,7 +600,11 @@ function toggleParticipantStatus(participationId, newStatus, courseId) {
     if (index !== -1) {
         participations[index].estado = newStatus;
         localStorage.setItem(PARTICIPATIONS_STORAGE_KEY, JSON.stringify(participations));
-        AlertService.success(`El participante ahora está ${newStatus}.`, 'Estado Actualizado');
+        if (newStatus === 'Aprobado') {
+            AlertService.success(`El estudiante ha sido aprobado académicamente y su certificado digital de culminación ha sido desbloqueado con éxito.`, 'Aprobación Exitosa');
+        } else {
+            AlertService.success(`El participante ahora está ${newStatus}.`, 'Estado Actualizado');
+        }
         if (typeof CoursesView !== 'undefined' && typeof CoursesView.renderParticipants === 'function') {
             CoursesView.renderParticipants(courseId);
         }

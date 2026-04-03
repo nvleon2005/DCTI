@@ -185,6 +185,10 @@ if (document.readyState === 'loading') {
                     </div>
                     <div style="padding: 15px; flex-grow: 1; display: flex; flex-direction: column;">
                         <h3 style="margin: 0 0 10px 0; font-size: 1.1rem; color: #1e293b; line-height: 1.3;">${course.nombreCurso}</h3>
+                        <div style="font-size: 0.8rem; color: #475569; margin-bottom: 10px; display: flex; flex-direction: column; gap: 4px;">
+                            <span><i class="fas fa-chalkboard-teacher" style="color: #530e90; width: 15px;"></i> ${course.instructor || 'Por asignar'}</span>
+                            <span><i class="far fa-clock" style="color: #530e90; width: 15px;"></i> ${course.duracion || course.hours || 'N/A'}</span>
+                        </div>
                         <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px; flex-grow: 1;">
                             ${course.descripcion.length > 80 ? course.descripcion.substring(0, 80) + '...' : course.descripcion}
                         </p>
@@ -341,12 +345,28 @@ if (document.readyState === 'loading') {
                         <h3 style="margin-top: 0; color: #1e293b; font-size: 1.4rem;">Sobre este curso</h3>
                         <p style="color: #475569; line-height: 1.6; margin-bottom: 25px; font-size: 1.05rem; white-space: pre-wrap;">${course.descripcion}</p>
                         
-                        <div class="curso-fechas" style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 20px; border: 1px solid #e2e8f0;">
-                            <div>
+                        <div class="curso-fechas" style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 20px; border: 1px solid #e2e8f0;">
+                            <div style="flex: 1 1 45%;">
+                                <p style="margin: 0; font-size: 0.8rem; color: #64748b; text-transform: uppercase;">Facilitador</p>
+                                <p style="margin: 5px 0 0 0; font-weight: bold; color: #0f172a;"><i class="fas fa-user-tie" style="color: #530e90;"></i> ${course.instructor || 'Por definir'}</p>
+                            </div>
+                            <div style="flex: 1 1 45%;">
+                                <p style="margin: 0; font-size: 0.8rem; color: #64748b; text-transform: uppercase;">Carga Horaria</p>
+                                <p style="margin: 5px 0 0 0; font-weight: bold; color: #0f172a;"><i class="far fa-clock" style="color: #530e90;"></i> ${course.duracion || course.hours || 'N/A'}</p>
+                            </div>
+                            <div style="flex: 1 1 45%;">
+                                <p style="margin: 0; font-size: 0.8rem; color: #64748b; text-transform: uppercase;">Modalidad</p>
+                                <p style="margin: 5px 0 0 0; font-weight: bold; color: #0f172a;"><i class="fas fa-laptop-house" style="color: #530e90;"></i> ${course.modalidad || course.type || 'Presencial'}</p>
+                            </div>
+                            <div style="flex: 1 1 45%;">
+                                <p style="margin: 0; font-size: 0.8rem; color: #64748b; text-transform: uppercase;">Costo</p>
+                                <p style="margin: 5px 0 0 0; font-weight: bold; color: #10b981;"><i class="fas fa-tag" style="color: #10b981;"></i> ${course.costo || 'Gratuito'}</p>
+                            </div>
+                            <div style="flex: 1 1 45%;">
                                 <p style="margin: 0; font-size: 0.8rem; color: #64748b; text-transform: uppercase;">Inicio</p>
                                 <p style="margin: 5px 0 0 0; font-weight: bold; color: #0f172a;"><i class="far fa-calendar-alt" style="color: #530e90;"></i> ${course.fechaInicio || 'Por definir'}</p>
                             </div>
-                            <div>
+                            <div style="flex: 1 1 45%;">
                                 <p style="margin: 0; font-size: 0.8rem; color: #64748b; text-transform: uppercase;">Culminación</p>
                                 <p style="margin: 5px 0 0 0; font-weight: bold; color: #0f172a;"><i class="far fa-calendar-check" style="color: #530e90;"></i> ${course.fechaFin || 'Por definir'}</p>
                             </div>
@@ -424,7 +444,7 @@ if (document.readyState === 'loading') {
                 id: Date.now(),
                 courseId: parseInt(courseId),
                 userId: sessionData.email,
-                estado: "Aprobado", // O estado inicial por defecto
+                estado: "Activo", // Los visitantes empiezan como activos, el admin debe aprobarlos.
                 fechaInscripcion: new Date().toISOString().split('T')[0]
             };
 

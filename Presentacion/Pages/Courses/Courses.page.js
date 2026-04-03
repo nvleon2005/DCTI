@@ -194,7 +194,7 @@ const CoursesView = {
                                                 <span style="font-size: 0.72rem; color: var(--color-text-muted); display: block; margin-top: 5px;"><i class="fas fa-lightbulb" style="color: #f59e0b;"></i> Puede seleccionar una categoría predefinida o escribir un área temática personalizada.</span>
                                             </div>
 
-                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                                                 <div class="form-group">
                                                     <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Modalidad <span style="color: #ef4444;">*</span></label>
                                                     <select id="admin-course-modalidad" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
@@ -202,6 +202,17 @@ const CoursesView = {
                                                         <option value="Presencial">Presencial</option>
                                                         <option value="Híbrido">Híbrido</option>
                                                     </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;"><i class="fas fa-tag"></i> Costo</label>
+                                                    <div style="display: flex; gap: 6px; align-items: center;">
+                                                        <select id="admin-course-moneda" onchange="const a=document.getElementById('admin-course-monto'); a.style.display=this.value==='Gratuito'?'none':'block'; if(this.value==='Gratuito') a.value='';" style="padding: 10px 8px; border: 1px solid var(--color-border); border-radius: 6px; font-weight: 700; font-size: 0.85rem; min-width: 100px;">
+                                                            <option value="Gratuito">Gratuito</option>
+                                                            <option value="Bs.">Bs.</option>
+                                                            <option value="$">$ (USD)</option>
+                                                        </select>
+                                                        <input type="number" min="0" step="0.01" id="admin-course-monto" placeholder="0.00" style="display: none; width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                                                    </div>
                                                 </div>
                                                 <div class="form-group">
                                                     <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;"><i class="fas fa-user-friends"></i> Cupo Máximo <span style="color: #ef4444;">*</span></label>
@@ -246,11 +257,11 @@ const CoursesView = {
                                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                                                 <div class="form-group">
                                                     <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;"><i class="fas fa-chalkboard-teacher"></i> Instructor / Facilitador</label>
-                                                    <input type="text" id="admin-course-instructor" placeholder="Ej: Lic. María González" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                                                    <input type="text" id="admin-course-instructor" required placeholder="Ej: Lic. María González" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
                                                 </div>
                                                 <div class="form-group">
                                                     <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Cargo del Instructor</label>
-                                                    <input type="text" id="admin-course-instructor-cargo" placeholder="Ej: Especialista en TI" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                                                    <input type="text" id="admin-course-instructor-cargo" required placeholder="Ej: Especialista en TI" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
                                                 </div>
                                             </div>
                                             
@@ -325,7 +336,7 @@ const CoursesView = {
         `;
     },
 
-    renderParticipants: (courseId, filterActivacion = 'all') => {
+    renderParticipants: (courseId, filterActivacion = 'all', filterEstado = 'all') => {
         const listContainer = document.getElementById('admin-course-students-list');
         if (!listContainer) return;
 
@@ -343,17 +354,32 @@ const CoursesView = {
             participations = participations.filter(p => p.activacionId == filterActivacion);
         }
 
-        let activacionesOptions = `<option value="all" ${filterActivacion === 'all' ? 'selected' : ''}>Todas las activaciones (Reporte General)</option>`;
+        if (filterEstado !== 'all') {
+            participations = participations.filter(p => p.estado === filterEstado);
+        }
+
+        let activacionesOptions = `<option value="all" ${filterActivacion === 'all' ? 'selected' : ''}>Todas las cohortes</option>`;
         activaciones.forEach(act => {
             activacionesOptions += `<option value="${act.id}" ${filterActivacion == act.id ? 'selected' : ''}>${act.label}</option>`;
         });
 
         let headerHtml = `
-            <div style="padding: 15px; border-bottom: 2px solid var(--color-border); background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-main);"><i class="fas fa-filter"></i> Cohorte / Fechas:</span>
-                <select id="course-activation-filter" onchange="if(typeof CoursesView !== 'undefined') CoursesView.renderParticipants(${courseId}, this.value)" style="padding: 8px 15px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.85rem; background: white; min-width: 300px;">
-                    ${activacionesOptions}
-                </select>
+            <div style="padding: 15px; border-bottom: 2px solid var(--color-border); background: #f8fafc; display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-main);"><i class="fas fa-filter"></i> Cohorte:</span>
+                    <select id="course-activation-filter" onchange="if(typeof CoursesView !== 'undefined') CoursesView.renderParticipants(${courseId}, this.value, document.getElementById('course-status-filter').value)" style="padding: 8px 15px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.85rem; background: white; min-width: 150px;">
+                        ${activacionesOptions}
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-main);"><i class="fas fa-user-check"></i> Estado:</span>
+                    <select id="course-status-filter" onchange="if(typeof CoursesView !== 'undefined') CoursesView.renderParticipants(${courseId}, document.getElementById('course-activation-filter').value, this.value)" style="padding: 8px 15px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.85rem; background: white; min-width: 150px;">
+                        <option value="all" ${filterEstado === 'all' ? 'selected' : ''}>Todos los estados</option>
+                        <option value="Activo" ${filterEstado === 'Activo' ? 'selected' : ''}>Activos</option>
+                        <option value="Aprobado" ${filterEstado === 'Aprobado' ? 'selected' : ''}>Aprobados</option>
+                        <option value="Suspendido" ${filterEstado === 'Suspendido' ? 'selected' : ''}>Suspendidos</option>
+                    </select>
+                </div>
             </div>
         `;
 
@@ -396,8 +422,9 @@ const CoursesView = {
                         <span style="background: ${spanBg}; color: ${spanColor}; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">${p.estado}</span>
                     </td>
                     <td style="padding: 10px; text-align: right;">
+                        ${p.estado === 'Activo' ? `<button type="button" onclick="toggleParticipantStatus(${p.id}, 'Aprobado', ${courseId})" title="Aprobar Estudiante" style="background: #10b981; border: none; cursor: pointer; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; margin-right: 5px;"><i class="fas fa-check-circle"></i> Aprobar</button>` : ''}
                         ${p.estado === 'Aprobado' ? `<button type="button" onclick="emitirCertificado(${p.id}, ${courseId})" title="Emitir Certificado PDF" style="background: linear-gradient(135deg, #1e1b4b, #3730a3); border: none; cursor: pointer; color: #C9A84C; padding: 5px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; margin-right: 5px;"><i class="fas fa-certificate"></i> Certificar</button>` : ''}
-                        <button type="button" onclick="toggleParticipantStatus(${p.id}, '${newStatus}', ${courseId})" title="${suspendBtnTitle}" style="background:none; border:none; cursor:pointer; color: ${suspendBtnColor};"><i class="fas ${suspendBtnIcon}"></i></button>
+                        ${p.estado !== 'Aprobado' ? `<button type="button" onclick="toggleParticipantStatus(${p.id}, '${newStatus}', ${courseId})" title="${suspendBtnTitle}" style="background:none; border:none; cursor:pointer; color: ${suspendBtnColor};"><i class="fas ${suspendBtnIcon}"></i></button>` : ''}
                         <button type="button" onclick="removeParticipant(${p.id}, ${courseId})" title="Retirar" style="background:none; border:none; cursor:pointer; color: #ef4444; margin-left: 5px;"><i class="fas fa-user-minus"></i></button>
                     </td>
                 </tr>

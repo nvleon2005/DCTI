@@ -77,13 +77,21 @@ function getReportData(domain, filters = {}) {
             break;
         case 'courses':
             const courses = typeof getLocalCourses === 'function' ? getLocalCourses() : [];
-            rawData = courses.map(c => ({
-                Referencia: c.id,
-                Programa: c.nombreCurso || c.title,
-                Máxima_Capacidad: c.cupoMaximo || c.enrollment || 'N/A',
-                Estatus_Académico: c.estadoCurso || c.type || 'Público',
-                Convocatoria: c.fechaInicio || 'Pendiente'
-            }));
+            const participations = typeof getLocalParticipations === 'function' ? getLocalParticipations() : [];
+            rawData = courses.map(c => {
+                const enrolled = participations.filter(p => p.courseId == c.id).length;
+                return {
+                    Referencia: c.id,
+                    Programa: c.nombreCurso || c.title || 'Sin Nombre',
+                    Instructor: c.instructor || 'Por Asignar',
+                    Duración: c.duracion || c.hours || 'N/A',
+                    Inscritos: enrolled,
+                    Capacidad: c.cupoMaximo || c.enrollment || 'N/A',
+                    Estatus: c.estadoCurso || c.type || 'Público',
+                    Inicio: c.fechaInicio || 'Pendiente',
+                    Fin: c.fechaFin || 'Pendiente'
+                };
+            });
             break;
     }
 
@@ -108,7 +116,7 @@ function getReportData(domain, filters = {}) {
             if (domain === 'users') return item.Rol === filters.customFilter1;
             if (domain === 'news') return item.Autor === filters.customFilter1;
             if (domain === 'projects') return item.Status.includes(filters.customFilter1);
-            if (domain === 'courses') return item.Estatus_Académico === filters.customFilter1;
+            if (domain === 'courses') return item.Estatus === filters.customFilter1;
             if (domain === 'strategic') return item.Responsable === filters.customFilter1;
             return true;
         });
@@ -119,7 +127,7 @@ function getReportData(domain, filters = {}) {
             if (domain === 'users') return item.Estado === filters.customFilter2;
             if (domain === 'news') return item.Categoría === filters.customFilter2;
             if (domain === 'projects') return item.Responsable === filters.customFilter2;
-            if (domain === 'courses') return item.Máxima_Capacidad === filters.customFilter2;
+            if (domain === 'courses') return item.Instructor === filters.customFilter2;
             return true;
         });
     }
@@ -310,8 +318,8 @@ function renderReportExtraFilters(domain) {
             </div>
         `;
     } else if (domain === 'courses') {
-        const uniqueEstatus = [...new Set(currentReportData.map(c => c.Estatus_Académico))].filter(Boolean);
-        const uniqueCapacidad = [...new Set(currentReportData.map(c => c.Máxima_Capacidad))].filter(c => c !== 'N/A');
+        const uniqueEstatus = [...new Set(currentReportData.map(c => c.Estatus))].filter(Boolean);
+        const uniqueInstructor = [...new Set(currentReportData.map(c => c.Instructor))].filter(Boolean);
 
         filterHTML = `
             <div>
@@ -322,10 +330,10 @@ function renderReportExtraFilters(domain) {
                 </select>
             </div>
             <div>
-                <label style="${labelStyle}">Capacidad Máxima</label>
+                <label style="${labelStyle}">Cuerpo Docente (Instructor)</label>
                 <select id="report-custom-filter-2" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
-                    <option value="all">Cualquier Capacidad</option>
-                    ${uniqueCapacidad.map(c => `<option value="${c}">${c} cupos</option>`).join('')}
+                    <option value="all">Todos los Instructores</option>
+                    ${uniqueInstructor.map(i => `<option value="${i}">${i}</option>`).join('')}
                 </select>
             </div>
         `;
@@ -408,6 +416,12 @@ function renderReportStats(domain, data) {
         const manCount = [...new Set(data.map(p => p.Responsable))].filter(r => r !== 'No Asignado').length;
         statsHTML += statItem('Líneas Estr.', data.length, 'fas fa-sitemap', '#3b82f6');
         statsHTML += statItem('Líderes', manCount, 'fas fa-user-md', '#10b981');
+    } else if (domain === 'courses') {
+        const actCount = data.filter(c => c.Estatus === 'Publicado' || c.Estatus === 'En Curso' || c.Estatus === 'Activo').length;
+        const targetMatricula = data.reduce((ac, c) => ac + (parseInt(c.Inscritos) || 0), 0);
+        statsHTML += statItem('Programas', data.length, 'fas fa-graduation-cap', '#3b82f6');
+        statsHTML += statItem('Activos', actCount, 'fas fa-book-open', '#10b981');
+        statsHTML += statItem('Alta Matrícula', targetMatricula, 'fas fa-users-class', '#f59e0b');
     }
 
     container.innerHTML = statsHTML;

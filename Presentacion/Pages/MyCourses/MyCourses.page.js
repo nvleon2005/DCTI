@@ -79,7 +79,7 @@ const MyCoursesView = {
                     <div style="margin-bottom: 1.5rem; flex-grow: 1;">
                         <p style="font-size: 0.85rem; color: var(--color-text-muted); margin: 0; line-height: 1.5;">
                             <i class="fas fa-chalkboard-teacher" style="margin-right: 5px; color: var(--color-primary);"></i> ${course.instructor || 'Instructor Asignado'}<br>
-                            <i class="far fa-clock" style="margin-right: 5px; margin-top: 5px; color: var(--color-text-muted);"></i> ${course.hours ? course.hours + ' Horas' : '40 Horas'}
+                            <i class="far fa-clock" style="margin-right: 5px; margin-top: 5px; color: var(--color-text-muted);"></i> ${course.duracion || course.hours || '40 Horas'}
                         </p>
                     </div>
 
@@ -283,7 +283,7 @@ window.MyCoursesController = {
             document.getElementById('modal-c-title').textContent = course.title || course.nombreCurso || 'Curso DCTI';
             document.getElementById('modal-c-badge').textContent = course.type || course.modalidad || 'General';
             document.getElementById('modal-c-instructor').innerHTML = `<i class="fas fa-chalkboard-teacher" style="color: var(--color-primary); margin-right: 5px;"></i> ${course.instructor || 'Instructor No Asignado'}`;
-            document.getElementById('modal-c-hours').innerHTML = `<i class="far fa-clock" style="color: var(--color-primary); margin-right: 5px;"></i> ${course.hours || 40} Horas Académicas`;
+            document.getElementById('modal-c-hours').innerHTML = `<i class="far fa-clock" style="color: var(--color-primary); margin-right: 5px;"></i> ${course.duracion || course.hours || '40 Horas'}`;
             document.getElementById('modal-c-desc').textContent = course.desc || course.descripcion || 'No hay descripción académica extendida para este curso actualmente. Contacte con la coordinación de métodos y procesos para más información.';
 
             // Renderizar Materiales Educativos con restricciones de fecha
