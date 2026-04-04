@@ -342,13 +342,13 @@ function switchCourseTab(tabName) {
 // 6. VALIDACIONES CORE Y SUBMIT ESTRICTO
 // ==========================================
 
-async function handleCourseSubmit(e) {
+window.handleCourseSubmit = window.rateLimitAction(async function(e) {
     e.preventDefault();
 
     const id = document.getElementById('edit-course-id').value;
-    const nombreCurso = document.getElementById('admin-course-name').value.trim();
-    const descripcion = document.getElementById('admin-course-description').value.trim();
-    const objetivos = document.getElementById('admin-course-objetivos') ? document.getElementById('admin-course-objetivos').value.trim() : '';
+    const nombreCurso = window.sanitizeHTML(document.getElementById('admin-course-name').value.trim());
+    const descripcion = window.sanitizeHTML(document.getElementById('admin-course-description').value.trim());
+    const objetivos = document.getElementById('admin-course-objetivos') ? window.sanitizeHTML(document.getElementById('admin-course-objetivos').value.trim()) : '';
     const areaTematica = document.getElementById('admin-course-area') ? document.getElementById('admin-course-area').value : 'Tecnología e Informática';
     const modalidad = document.getElementById('admin-course-modalidad') ? document.getElementById('admin-course-modalidad').value : 'Virtual';
     // Construir costo compuesto desde moneda + monto
@@ -498,7 +498,7 @@ async function handleCourseSubmit(e) {
     } catch (e) {
         console.warn("Persistencia abortada por falta de almacenamiento.");
     }
-}
+}, 2500);
 
 // ==========================================
 // 7. MULTIMEDIA (Previsualización Image Queue)

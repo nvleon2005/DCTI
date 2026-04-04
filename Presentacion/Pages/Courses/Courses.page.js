@@ -265,10 +265,7 @@ const CoursesView = {
                                                 </div>
                                             </div>
                                             
-                                            <!-- Auditoría Informática Disclaimer -->
-                                            <div style="background: #fdf2f8; border-left: 3px solid #db2777; padding: 10px; border-radius: 4px; font-size: 0.75rem; color: #831843;">
-                                                <i class="fas fa-shield-alt" style="margin-right: 5px;"></i> <strong>Ley Especial contra Delitos Informáticos:</strong> Todos los cambios de Estado ("Borrador", "Publicado", "Finalizado") generarán logs inmutables atados a la identidad de sesión.
-                                            </div>
+                                            <!-- Auditoría Informática Disclaimer Removed -->
                                             
                                             <div style="margin-top: 20px; text-align: right;">
                                                 <button type="button" id="btn-reactivate-course" onclick="changeCourseStatusToReactivate()" style="display:none; padding: 10px 20px; background: #eab308; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; margin-right: 10px;"><i class="fas fa-unlock"></i> Reactivar Ciclo</button>
@@ -294,10 +291,7 @@ const CoursesView = {
 
                             <!-- TAB 3: MATERIALES (DERECHOS DE AUTOR) -->
                             <div id="tab-materials-content" style="display: none;">
-                                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                                    <h4 style="margin: 0 0 5px 0; color: #166534;"><i class="fas fa-balance-scale"></i> Protección de Propiedad Intelectual</h4>
-                                    <p style="margin: 0; font-size: 0.85rem; color: #15803d; line-height: 1.4;">Los documentos, manuales y audiovisuales anexados están amparados por la Ley Sobre el Derecho de Autor. Sólo los participantes con el Status <strong style="background: #166534; color: white; padding: 1px 5px; border-radius: 3px;">Activo</strong> podrán acceder e invocar la función de <i>Solo Lectura / Préstamo Pedagógico</i>.</p>
-                                </div>
+                                <!-- Propiedad Intelectual Box Removed -->
                                 
                                 <div style="margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between;">
                                     <div>

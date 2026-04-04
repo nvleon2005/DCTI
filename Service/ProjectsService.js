@@ -260,15 +260,15 @@ function removeProjectImage(index) {
 }
 
 
-async function handleProjectSubmit(e) {
+window.handleProjectSubmit = window.rateLimitAction(async function(e) {
     e.preventDefault();
 
     const editId = document.getElementById('edit-project-id').value;
-    const title = document.getElementById('admin-project-title').value.trim();
-    const description = document.getElementById('admin-project-description').value.trim();
-    const objectives = document.getElementById('admin-project-objectives').value.trim();
+    const title = window.sanitizeHTML(document.getElementById('admin-project-title').value.trim());
+    const description = window.sanitizeHTML(document.getElementById('admin-project-description').value.trim());
+    const objectives = window.sanitizeHTML(document.getElementById('admin-project-objectives').value.trim());
     const status = document.getElementById('admin-project-status').value;
-    const advances = document.getElementById('admin-project-advances').value.trim();
+    const advances = window.sanitizeHTML(document.getElementById('admin-project-advances').value.trim());
     const image = document.getElementById('admin-project-media').value;
     const carouselPlacement = document.getElementById('admin-project-carousel') ? document.getElementById('admin-project-carousel').value : 'Ninguno';
 
@@ -370,7 +370,7 @@ async function handleProjectSubmit(e) {
     } catch (e) {
         console.warn("La persistencia del proyecto fue abortada debido a falta de espacio local.");
     }
-}
+}, 2500);
 
 async function deleteProject(id) {
     const confirmed = await AlertService.confirm(
@@ -399,7 +399,7 @@ window.getLocalProjects = getLocalProjects;
 window.saveLocalProjects = saveLocalProjects;
 window.openProjectModal = openProjectModal;
 window.closeProjectModal = closeProjectModal;
-window.handleProjectSubmit = handleProjectSubmit;
+// window.handleProjectSubmit = handleProjectSubmit; 
 window.deleteProject = deleteProject;
 window.setProjectMainPreview = setProjectMainPreview;
 window.removeProjectImage = removeProjectImage;

@@ -177,15 +177,15 @@ function encodeFileToBase64(file) {
     });
 }
 
-async function handleNewsAdminSubmit(e) {
+window.handleNewsAdminSubmit = window.rateLimitAction(async function(e) {
     e.preventDefault();
 
     const editId = document.getElementById('edit-news-id').value;
-    const headline = document.getElementById('admin-news-headline').value.trim();
+    const headline = window.sanitizeHTML(document.getElementById('admin-news-headline').value.trim());
     const category = document.getElementById('admin-news-category').value;
-    const author = document.getElementById('admin-news-author').value.trim();
+    const author = window.sanitizeHTML(document.getElementById('admin-news-author').value.trim());
 
-    const content = document.getElementById('admin-news-content').value.trim();
+    const content = window.sanitizeHTML(document.getElementById('admin-news-content').value.trim());
     const mediaRaw = document.getElementById('admin-news-media').value;
     const date = document.getElementById('admin-news-date').value;
     const carouselSelect = document.getElementById('admin-news-carousel-placement');
@@ -264,7 +264,7 @@ async function handleNewsAdminSubmit(e) {
         // Falla silenciosa controlada por el try catch de saveLocalNews
         console.warn("La persistencia fue abortada por falta de espacio.");
     }
-}
+}, 2500);
 
 async function deleteNews(id) {
     const confirmed = await AlertService.confirm(
