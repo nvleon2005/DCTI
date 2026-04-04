@@ -16,6 +16,18 @@
 </head>
 
 <body>
+    <!-- Global Loader (based on DCTI version Dima prototype) -->
+    <div id="global-loader" class="global-loader">
+        <div class="global-loader__content">
+            <div class="global-loader__circle">
+                <span>DCTI</span>
+            </div>
+            <h2 class="global-loader__title">Portal Web</h2>
+            <p class="global-loader__subtitle">Sistema DCTI</p>
+            <div class="global-loader__progress"></div>
+        </div>
+    </div>
+
     <div id="auth-view-root" class="hidden"></div>
     <div id="admin-root" class="hidden"></div>
 
@@ -160,6 +172,18 @@
             </div>
         </div>
     </div>
+    <!-- Script global loader -->
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('global-loader');
+                if (loader) {
+                    loader.classList.add('hidden');
+                    setTimeout(() => loader.remove(), 500);
+                }
+            }, 600); // Pequeño retraso para que la animación se aprecie y termine de montar DOM
+        });
+    </script>
 </body>
 
 </html>

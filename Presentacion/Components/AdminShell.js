@@ -74,7 +74,7 @@ const AdminShell = {
                         </li>` : ''}
                         <li class="sidebar__section-title">NAVEGACIÓN</li>
                         <li class="sidebar__item" onclick="window.location.href='index.html'"
-                            style="color: var(--color-primary); font-weight: 600;">
+                            style="color: #60a5fa; font-weight: 600;">
                             <i class="fas fa-external-link-alt"></i>
                             <span>Ir al Portal</span>
                         </li>
