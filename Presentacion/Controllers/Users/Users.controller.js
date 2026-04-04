@@ -426,7 +426,8 @@ function previewProfileAvatar(event) {
     }
 }
 
-async function handleProfileSubmit(e) {
+// [SECURITY] handleProfileSubmit con sanitizeHTML (Anti-XSS) y rateLimitAction (Anti-Spam)
+const _handleProfileSubmitCore = async function(e) {
     e.preventDefault();
 
     const sessionStr = localStorage.getItem('dcti_session');
@@ -439,11 +440,13 @@ async function handleProfileSubmit(e) {
         return;
     }
 
-    const name = document.getElementById('profile-name').value;
-    const lastname = document.getElementById('profile-lastname').value;
-    const cedula = document.getElementById('profile-cedula').value;
-    const username = document.getElementById('profile-username').value;
-    const pass = document.getElementById('profile-pass').value;
+    // [SECURITY] Sanitizar campos de texto del perfil para prevenir XSS
+    const sanitize = window.sanitizeHTML || ((s) => s);
+    const name     = sanitize(document.getElementById('profile-name').value.trim());
+    const lastname = sanitize(document.getElementById('profile-lastname').value.trim());
+    const cedula   = document.getElementById('profile-cedula').value;
+    const username = sanitize(document.getElementById('profile-username').value.trim());
+    const pass     = document.getElementById('profile-pass').value;
     const avatarPreview = document.getElementById('profile-avatar-preview');
     // Si el tag es IMG, guardamos su source, sino asume que no hay foto
     const avatar = (avatarPreview && avatarPreview.tagName.toLowerCase() === 'img') ? avatarPreview.src : null;
@@ -507,4 +510,9 @@ async function handleProfileSubmit(e) {
 
         if (typeof renderModule === 'function') renderModule('profile');
     }
-}
+};
+
+// Aplicar rate limiting al submit de perfil (máximo 1 envío cada 2.5 segundos)
+const handleProfileSubmit = window.rateLimitAction
+    ? window.rateLimitAction(_handleProfileSubmitCore, 2500)
+    : _handleProfileSubmitCore;

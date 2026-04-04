@@ -89,7 +89,11 @@ window.verConsultaCompleta = function (id) {
     if (!consulta) return;
 
     // Poblar modal
-    document.getElementById('consulta-detail-name').textContent = `${consulta.nombre} ${consulta.apellido}`;
+    // [SECURITY] Sanitizar el texto de la consulta al mostrarlo (Anti-XSS).
+    // Usamos .textContent para el mensaje principal (ya es suficientemente seguro),
+    // pero sanitizamos nombre y apellido que provienen de entrada de usuario.
+    const sanitize = (s) => (window.sanitizeHTML ? window.sanitizeHTML(String(s || '')) : String(s || ''));
+    document.getElementById('consulta-detail-name').textContent = `${sanitize(consulta.nombre)} ${sanitize(consulta.apellido)}`;
     document.getElementById('consulta-detail-email').textContent = consulta.correo;
     document.getElementById('consulta-detail-date').textContent = `${consulta.fecha} a las ${consulta.hora || '--:--'}`;
 
@@ -105,6 +109,7 @@ window.verConsultaCompleta = function (id) {
         statusBadge.style.color = '#f59e0b';
     }
 
+    // textContent previene XSS nativo para el cuerpo del mensaje
     document.getElementById('consulta-detail-message').textContent = consulta.consulta;
 
     // Acciones del modal
@@ -162,9 +167,12 @@ window.toggleEstadoConsulta = function (id) {
     }
 };
 
-window.enviarRespuestaConsulta = function (id) {
+// [SECURITY] Enviar respuesta con sanitización XSS y rate limiting (Anti-Spam)
+const _enviarRespuestaCore = function (id) {
     const textarea = document.getElementById('quick-reply-text');
-    const mensaje = textarea.value.trim();
+    // Sanitizar la respuesta escrita por el admin antes de guardarla
+    const mensajeRaw = textarea.value.trim();
+    const mensaje = window.sanitizeHTML ? window.sanitizeHTML(mensajeRaw) : mensajeRaw;
 
     if (!mensaje) {
         if (typeof AlertService !== 'undefined') AlertService.notify('Atención', 'Debes escribir una respuesta antes de enviar.', 'warning');
@@ -172,14 +180,13 @@ window.enviarRespuestaConsulta = function (id) {
     }
 
     // 1. Simular envío por Email a través de Pasarela SMTP
-    // (En un entorno real aquí se haría un fetch POST a la API de backend, ej: SendGrid)
+    // (En un entorno real aquí se haría un fetch POST a la API de backend)
 
     // 2. Marcar consulta como "Respondida" localmente
     let consultas = ConsultasController.getConsultas();
     let consultaIndex = consultas.findIndex(c => c.id == id);
     if (consultaIndex !== -1) {
         consultas[consultaIndex].estado = 'Respondida';
-        // Opcionalmente se podría guardar la respuesta en el objeto para consultar el historial después
         consultas[consultaIndex].respuestaEmitida = mensaje;
         consultas[consultaIndex].fechaRespuesta = new Date().toISOString();
         ConsultasController.saveConsultas(consultas);
@@ -198,6 +205,11 @@ window.enviarRespuestaConsulta = function (id) {
         renderModule('consultas');
     }
 };
+
+// Aplicar rate limiting: máximo 1 respuesta cada 3 segundos
+window.enviarRespuestaConsulta = window.rateLimitAction
+    ? window.rateLimitAction(_enviarRespuestaCore, 3000)
+    : _enviarRespuestaCore;
 
 window.eliminarConsulta = function (id) {
     if (typeof AlertService !== 'undefined') {

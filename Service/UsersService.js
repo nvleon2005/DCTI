@@ -195,18 +195,25 @@ const UsersController = {
         if (modal) modal.classList.add('hidden');
     },
 
-    async handleUserAdminSubmit(e) {
+    async _handleUserAdminSubmitCore(e) {
         e.preventDefault();
         const editEmail = document.getElementById('edit-email-target').value;
-        const name = document.getElementById('admin-user-name').value;
-        const lastname = document.getElementById('admin-user-lastname').value;
-        const cedula = document.getElementById('admin-user-cedula').value;
-        const username = document.getElementById('admin-user-username').value;
-        const email = document.getElementById('admin-user-email').value;
-        const pass = document.getElementById('admin-user-pass').value;
-        const role = document.getElementById('admin-user-role').value;
+        // [SECURITY] Sanitizar campos de texto para prevenir XSS (Anti-Scripting)
+        const name     = window.sanitizeHTML ? window.sanitizeHTML(document.getElementById('admin-user-name').value.trim()) : document.getElementById('admin-user-name').value.trim();
+        const lastname = window.sanitizeHTML ? window.sanitizeHTML(document.getElementById('admin-user-lastname').value.trim()) : document.getElementById('admin-user-lastname').value.trim();
+        const cedula   = document.getElementById('admin-user-cedula').value;
+        const username = window.sanitizeHTML ? window.sanitizeHTML(document.getElementById('admin-user-username').value.trim()) : document.getElementById('admin-user-username').value.trim();
+        const email    = document.getElementById('admin-user-email').value;
+        const pass     = document.getElementById('admin-user-pass').value;
+        const role     = document.getElementById('admin-user-role').value;
         const avatarPreview = document.getElementById('admin-user-avatar-preview');
-        const avatar = (avatarPreview && avatarPreview.style.display === 'block') ? avatarPreview.src : null;
+        const avatar   = (avatarPreview && avatarPreview.style.display === 'block') ? avatarPreview.src : null;
+
+        // Validar campos obligatorios post-sanitización
+        if (!name || !username || !email) {
+            AlertService.notify('Campos Vacíos', 'Nombre, usuario y correo no pueden estar vacíos.', 'warning');
+            return;
+        }
 
         if (typeof validateEmailFormat === 'function' && !validateEmailFormat(email)) {
             AlertService.notify('Validación Fallida', 'Formato de correo electrónico no válido.', 'error');
@@ -254,6 +261,9 @@ const UsersController = {
         this.closeUserModal();
         if (typeof renderModule === 'function') renderModule('users');
     },
+
+    // [SECURITY] Wrapper público con rate limiting (Anti-Spam / Brute-Force)
+    handleUserAdminSubmit: null, // Se inicializará tras la definición del objeto
 
     async updateUser(oldEmail, newData) {
         if (oldEmail === 'admin@dcti.gob') {
@@ -368,13 +378,19 @@ const UsersController = {
     }
 };
 
+// [SECURITY] Aplicar rateLimitAction al handler de submit de usuarios (Anti-Spam)
+// Se asigna en tiempo de ejecución para que window.rateLimitAction ya esté disponible.
+UsersController.handleUserAdminSubmit = window.rateLimitAction
+    ? window.rateLimitAction(UsersController._handleUserAdminSubmitCore.bind(UsersController), 2500)
+    : UsersController._handleUserAdminSubmitCore.bind(UsersController);
+
 // Exponer funciones globales para compatibilidad con Auth y onclick HTML
 window.AUTH_CONFIG = UsersController.AUTH_CONFIG;
 window.getLocalUsers = UsersController.getLocalUsers.bind(UsersController);
 window.saveLocalUser = UsersController.saveLocalUser.bind(UsersController);
 window.openUserModal = UsersController.openUserModal.bind(UsersController);
 window.closeUserModal = UsersController.closeUserModal.bind(UsersController);
-window.handleUserAdminSubmit = UsersController.handleUserAdminSubmit.bind(UsersController);
+window.handleUserAdminSubmit = UsersController.handleUserAdminSubmit;
 window.deleteUser = UsersController.deleteUser.bind(UsersController);
 window.toggleUserStatus = UsersController.toggleUserStatus.bind(UsersController);
 window.previewAvatar = UsersController.previewAvatar.bind(UsersController);
