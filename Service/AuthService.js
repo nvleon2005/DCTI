@@ -132,8 +132,9 @@ function handleFailedAttempt(email, data) {
 
 async function handleRegister(e) {
     e.preventDefault();
-    const name = AUTH_UI.regName.value;
-    const email = AUTH_UI.regEmail.value;
+    const sanitize = (s) => (window.sanitizeHTML ? window.sanitizeHTML(s) : s);
+    const name = sanitize(AUTH_UI.regName.value.trim());
+    const email = sanitize(AUTH_UI.regEmail.value.trim());
     const pass = AUTH_UI.regPass.value;
     const confirmPass = AUTH_UI.regConfirmPass.value;
 

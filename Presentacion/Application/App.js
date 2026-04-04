@@ -24,6 +24,11 @@ const App = {
             if (publicPortal) publicPortal.classList.remove('hidden');
 
             App.updateUserProfile(user);
+            
+            // Actualizar cabecera del portal público (User Pill) inmediatamente para reflejar la nueva sesión
+            if (typeof initPublicNavigation === 'function') {
+                initPublicNavigation();
+            }
 
             // Navegar a inicio para refrescar vista pública con sesión
             if (typeof Router !== 'undefined') {

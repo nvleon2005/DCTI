@@ -354,8 +354,9 @@ function initPortalController() {
         if (formCompletarPerfil) {
             formCompletarPerfil.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const nuevoNombre = document.getElementById('completar-nombre').value.trim();
-                const nuevoApellido = document.getElementById('completar-apellido').value.trim();
+                const sanitize = (s) => (window.sanitizeHTML ? window.sanitizeHTML(s) : s);
+                const nuevoNombre = sanitize(document.getElementById('completar-nombre').value.trim());
+                const nuevoApellido = sanitize(document.getElementById('completar-apellido').value.trim());
 
                 if (!nuevoNombre || !nuevoApellido) return;
 
@@ -422,10 +423,11 @@ function initPortalController() {
         contactForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            const nombre = nombreInput.value.trim();
-            const apellido = apellidoInput.value.trim();
-            const correo = correoInput.value.trim();
-            const consulta = consultaInput.value.trim();
+            const sanitize = (s) => (window.sanitizeHTML ? window.sanitizeHTML(s) : s);
+            const nombre = sanitize(nombreInput.value.trim());
+            const apellido = sanitize(apellidoInput.value.trim());
+            const correo = sanitize(correoInput.value.trim());
+            const consulta = sanitize(consultaInput.value.trim());
 
             // Prevención de Spam (Rate Limiting de 10 minutos)
             const lastSubmit = localStorage.getItem('dcti_last_consulta');
