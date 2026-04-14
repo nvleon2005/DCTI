@@ -89,7 +89,7 @@ function openUserModal(email = null) {
         editEmailInput.value = email;
 
         const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) submitBtn.textContent = 'Actualizar';
+        if (submitBtn) submitBtn.title = 'Actualizar';
 
         const allUsers = [...AUTH_CONFIG.hardcodedUsers, ...getLocalUsers()];
         const user = allUsers.find(u => u.email === email);
@@ -128,7 +128,7 @@ function openUserModal(email = null) {
         document.getElementById('admin-user-email').disabled = false;
 
         const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) submitBtn.textContent = 'Registrar';
+        if (submitBtn) submitBtn.title = 'Registrar';
 
         // Limpiar previo de avatar y radios
         document.getElementById('admin-user-avatar-preview').src = '';

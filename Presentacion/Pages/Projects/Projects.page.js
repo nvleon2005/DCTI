@@ -6,21 +6,42 @@ const ProjectsView = {
         const session = JSON.parse(localStorage.getItem('dcti_session'));
         const isAdmin = session && session.role === 'admin';
 
+        // Obtención de data global para estadísticas exactas
+        const globalAllProjects = typeof getLocalProjects === 'function' ? getLocalProjects() : [];
+        const countDestacados = globalAllProjects.filter(p => p.status === 'Destacado').length;
+        const countResp = [...new Set(globalAllProjects.map(p => p.manager || p.author || p.updatedBy).filter(Boolean))].length;
+
+        const createStatCard = (icon, number, label, textColor, bgColor) => `
+            <div class="dcti-stat-card">
+                <div class="dcti-stat-card-header">
+                    <div class="dcti-stat-card-icon" style="background: ${bgColor}; color: ${textColor};">
+                        <i class="${icon}"></i>
+                    </div>
+                    <span class="dcti-stat-card-number">${number}</span>
+                </div>
+                <hr class="dcti-stat-card-divider">
+                <p class="dcti-stat-card-label">${label}</p>
+            </div>
+        `;
+
         return `
             <div class="view-container">
                 <div style="display: flex; flex-direction: column; gap: var(--space-md); margin-bottom: var(--space-md);">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <h2>Iniciativas Estratégicas</h2>
-                            <span style="font-size: 0.85rem; background: var(--color-surface-muted); padding: 4px 12px; border-radius: 20px; color: var(--color-text-muted); font-weight: 600;">
-                                Total: ${paginated ? paginated.totalItems : projects.length}
-                            </span>
                         </div>
                         ${isAdmin ? `
                             <button class="btn-action" onclick="openProjectModal()" title="Nuevo Proyecto" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--color-primary); color: white; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(100, 50, 255, 0.2);">
                                 <i class="fas fa-plus" style="font-size: 1.1rem; margin: 0;"></i>
                             </button>
                         ` : ''}
+                    </div>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 5px;">
+                        ${createStatCard('fas fa-project-diagram', globalAllProjects.length, 'Validados', '#3b82f6', 'rgba(59, 130, 246, 0.1)')}
+                        ${createStatCard('fas fa-star', countDestacados, 'Destacados', '#f59e0b', 'rgba(245, 158, 11, 0.1)')}
+                        ${createStatCard('fas fa-user-tie', countResp, 'Responsables', '#10b981', 'rgba(16, 185, 129, 0.1)')}
                     </div>
 
                     <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">
@@ -167,7 +188,7 @@ const ProjectsView = {
                                     </div>
 
                                     <div class="form-group" style="display: flex; gap: 15px; margin-top: auto; padding-top: 15px; border-top: 1px solid #eee;">
-                                        <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 6px; background: #16a34a; color: white; border: none; font-weight: 600;">Publicar</button>
+                                        <button type="submit" title="Publicar" class="btn-save-circle"><i class="fas fa-save"></i></button>
                                         <button type="button" class="btn-secondary" onclick="closeProjectModal()" style="flex: 1; padding: 12px; border-radius: 6px; background: #9333ea; color: white; border: none; font-weight: 600;">Borrar / Cancelar</button>
                                     </div>
                                     

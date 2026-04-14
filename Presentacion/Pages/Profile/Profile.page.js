@@ -136,18 +136,28 @@ const ProfileView = {
                                 <div class="input-wrapper">
                                     <i class="fas fa-key input-icon"></i>
                                     <input type="password" id="profile-pass" placeholder="••••••••" ${isHardcoded ? 'disabled' : ''}>
-                                    <div class="password-toggle" onclick="toggleProfilePassword()"><i class="fas fa-eye"></i></div>
+                                    
+                                    ${isHardcoded ? '' : `
+                                        <div class="password-toggle" onclick="toggleProfilePassword()">
+                                            <i class="fas fa-eye"></i>
+                                        </div>
+                                    `}
                                 </div>
-                                <span class="input-help"><i class="fas fa-info-circle"></i> Dejar en blanco para conservar la clave actual.</span>
+                                <span class="input-help">
+                                    <i class="fas fa-info-circle"></i> 
+                                    ${isHardcoded ? 'Esta cuenta es de solo lectura (Prototipo).' : 'Dejar en blanco para conservar la clave actual.'}
+                                </span>
                             </div>
                         </div>
 
                         <!-- Botonera -->
                         <div class="profile-actions">
-                            <button type="submit" class="premium-save-btn" ${isHardcoded ? 'disabled' : ''}>
-                                <span>Guardar Cambios</span>
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
+                            ${isHardcoded ? '' : `
+                                <button type="submit" class="premium-save-btn">
+                                    <span>Guardar Cambios</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            `}
                         </div>
                     </form>
                 </div>

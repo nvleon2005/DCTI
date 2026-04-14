@@ -356,75 +356,11 @@ function renderReportExtraFilters(domain) {
 function renderReportStats(domain, data) {
     const container = document.getElementById('report-stats-container');
     if (!container) return;
-
-    if (data.length === 0) {
-        container.style.display = 'none';
-        return;
-    }
-    container.style.display = 'flex';
-
-    // Standard Grid Card Design
-    const statItem = (label, value, icon, color) => `
-        <div style="display: flex; align-items: center; gap: 15px; padding-right: 25px; border-right: 1px solid #e2e8f0;">
-            <div style="background: ${color}15; width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                <i class="${icon}" style="color: ${color}; font-size: 1.25rem;"></i>
-            </div>
-            <div>
-                <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">${label}</p>
-                <h3 style="margin: 2px 0 0 0; font-size: 1.4rem; color: #0f172a; font-weight: 700;">${value}</h3>
-            </div>
-        </div>
-    `;
-
-    // Standard Clean Hit Counter
-    let statsHTML = `
-        <div style="display: flex; align-items: center; gap: 15px; padding-right: 25px; border-right: 1px solid #e2e8f0;">
-            <div style="background: rgba(37,99,235,0.1); width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-list-ul" style="color: var(--color-primary); font-size: 1.25rem;"></i>
-            </div>
-            <div>
-                <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Total Muestra</p>
-                <h3 style="margin: 2px 0 0 0; font-size: 1.4rem; color: #0f172a; font-weight: 700;" id="report-kpi-total">${data.length}</h3>
-            </div>
-        </div>
-    `;
-
-    if (domain === 'users') {
-        const adminCount = data.filter(u => u.Rol === 'admin').length;
-        const editorCount = data.filter(u => u.Rol === 'editor').length;
-        const activeCount = data.filter(u => u.Estado === 'Activo').length;
-        const inactiveCount = data.filter(u => u.Estado === 'Inactivo').length;
-        statsHTML += statItem('Totales', data.length, 'fas fa-users', '#3b82f6');
-        statsHTML += statItem('Activos', activeCount, 'fas fa-check-circle', '#10b981');
-        statsHTML += statItem('Inactivos', inactiveCount, 'fas fa-times-circle', '#ef4444');
-        statsHTML += statItem('Admin', adminCount, 'fas fa-user-shield', '#8b5cf6');
-        statsHTML += statItem('Editor', editorCount, 'fas fa-user-edit', '#f59e0b');
-    } else if (domain === 'news') {
-        const today = new Date().toISOString().split('T')[0];
-        const todayCount = data.filter(n => n.Publicación === today).length;
-        const autorCount = [...new Set(data.map(n => n.Autor))].length;
-        statsHTML += statItem('Total Pub.', data.length, 'fas fa-newspaper', '#3b82f6');
-        statsHTML += statItem('Pub. Hoy', todayCount, 'fas fa-calendar-day', '#10b981');
-        statsHTML += statItem('Autores', autorCount, 'fas fa-pen-nib', '#f59e0b');
-    } else if (domain === 'projects') {
-        const featuredCount = data.filter(p => p.Relevancia.includes('Alta')).length;
-        const managerCount = [...new Set(data.map(p => p.Responsable))].length;
-        statsHTML += statItem('Validados', data.length, 'fas fa-project-diagram', '#3b82f6');
-        statsHTML += statItem('Destacados', featuredCount, 'fas fa-star', '#f59e0b');
-        statsHTML += statItem('Resp.', managerCount, 'fas fa-user-tie', '#10b981');
-    } else if (domain === 'strategic') {
-        const manCount = [...new Set(data.map(p => p.Responsable))].filter(r => r !== 'No Asignado').length;
-        statsHTML += statItem('Líneas Estr.', data.length, 'fas fa-sitemap', '#3b82f6');
-        statsHTML += statItem('Líderes', manCount, 'fas fa-user-md', '#10b981');
-    } else if (domain === 'courses') {
-        const actCount = data.filter(c => c.Estatus === 'Publicado' || c.Estatus === 'En Curso' || c.Estatus === 'Activo').length;
-        const targetMatricula = data.reduce((ac, c) => ac + (parseInt(c.Inscritos) || 0), 0);
-        statsHTML += statItem('Programas', data.length, 'fas fa-graduation-cap', '#3b82f6');
-        statsHTML += statItem('Activos', actCount, 'fas fa-book-open', '#10b981');
-        statsHTML += statItem('Alta Matrícula', targetMatricula, 'fas fa-users-class', '#f59e0b');
-    }
-
-    container.innerHTML = statsHTML;
+    
+    // El usuario ha solicitado remover u ocultar de forma permanente
+    // estas miniaturas del reporte tras haber sido migradas a los submódulos de gestión.
+    container.style.display = 'none';
+    container.innerHTML = '';
 }
 
 function logExportAudit(domain, format, count) {

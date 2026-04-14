@@ -1,21 +1,43 @@
-﻿const StrategicView = {
+const StrategicView = {
     render: (data) => {
         const paginated = data.pagination;
         const areas = paginated ? paginated.items : data.strategic;
+        // Obtención global de datos para estadísticas precisas reales
+        const globalAllStrategic = typeof getLocalStrategic === 'function' ? getLocalStrategic() : [];
+        const countLideres = [...new Set(globalAllStrategic.map(s => s.responsible).filter(r => r && r !== 'No Asignado'))].length;
+
+        const createStatCard = (icon, number, label, textColor, bgColor) => `
+            <div class="dcti-stat-card">
+                <div class="dcti-stat-card-header">
+                    <div class="dcti-stat-card-icon" style="background: ${bgColor}; color: ${textColor};">
+                        <i class="${icon}"></i>
+                    </div>
+                    <span class="dcti-stat-card-number">${number}</span>
+                </div>
+                <hr class="dcti-stat-card-divider">
+                <p class="dcti-stat-card-label">${label}</p>
+            </div>
+        `;
+
         return `
             <div class="view-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <h2>Áreas y Ejes Estratégicos</h2>
-                        <span style="font-size: 0.85rem; background: var(--color-surface-muted); padding: 4px 12px; border-radius: 20px; color: var(--color-text-muted); font-weight: 600;">
-                            Total: ${paginated ? paginated.totalItems : data.strategic.length}
-                        </span>
+                <div style="display: flex; flex-direction: column; gap: var(--space-md); margin-bottom: var(--space-md);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <h2>Áreas y Ejes Estratégicos</h2>
+                        </div>
+                        <button class="btn-action" onclick="openStrategicModal()" title="Nueva Área" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-plus" style="font-size: 1.1rem; margin: 0;"></i>
+                        </button>
                     </div>
-                    <button class="btn-action" onclick="openStrategicModal()" title="Nueva Área" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-plus" style="font-size: 1.1rem; margin: 0;"></i>
-                    </button>
+                    
+                    <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 5px;">
+                        ${createStatCard('fas fa-sitemap', globalAllStrategic.length, 'Líneas Estratégicas', '#3b82f6', 'rgba(59, 130, 246, 0.1)')}
+                        ${createStatCard('fas fa-user-md', countLideres, 'Líderes de Área', '#10b981', 'rgba(16, 185, 129, 0.1)')}
+                    </div>
+                    
+                    <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">
                 </div>
-                <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-md);">
                     ${areas.map(s => `
@@ -105,7 +127,7 @@
                                     </div>
                                     
                                     <div style="margin-top: auto; display: flex; gap: 10px;">
-                                        <button type="submit" class="btn-primary" style="padding: 10px 24px; background: #16a34a;">Guardar Área</button>
+                                        <button type="submit" title="Guardar Área" class="btn-save-circle"><i class="fas fa-save"></i></button>
                                         <button type="button" class="btn-secondary" onclick="closeStrategicModal()" style="padding: 10px 24px;">Cancelar</button>
                                     </div>
                                 </div>

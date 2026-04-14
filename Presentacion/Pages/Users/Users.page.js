@@ -3,7 +3,30 @@ const UsersView = {
         // Usamos la paginación si está disponible, sino el fallback de allUsers
         const paginated = data.pagination;
         const users = paginated ? paginated.items : [...data.adminUsers, ...data.localUsers];
-        const primaryAdminEmail = 'admin@dcti.gob';
+        const systemProtectedEmails = ['admin@dcti.gob', 'editor@dcti.gob'];
+        
+        // Obtención de data global para estadísticas precisas reales (no solo las de la página actual)
+        const adminUsers = typeof AUTH_CONFIG !== 'undefined' ? AUTH_CONFIG.hardcodedUsers : [];
+        const localUsers = typeof getLocalUsers === 'function' ? getLocalUsers() : [];
+        const globalAllUsers = [...adminUsers, ...localUsers];
+        
+        const countAdmins = globalAllUsers.filter(u => u.role === 'admin').length;
+        const countEditors = globalAllUsers.filter(u => u.role === 'editor').length;
+        const countActive = globalAllUsers.filter(u => (u.status || 'Activo') === 'Activo').length;
+        const countInactive = globalAllUsers.filter(u => u.status === 'Inactivo').length;
+
+        const createStatCard = (icon, number, label, textColor, bgColor) => `
+            <div class="dcti-stat-card">
+                <div class="dcti-stat-card-header">
+                    <div class="dcti-stat-card-icon" style="background: ${bgColor}; color: ${textColor};">
+                        <i class="${icon}"></i>
+                    </div>
+                    <span class="dcti-stat-card-number">${number}</span>
+                </div>
+                <hr class="dcti-stat-card-divider">
+                <p class="dcti-stat-card-label">${label}</p>
+            </div>
+        `;
 
         return `
             <div class="view-container">
@@ -12,15 +35,20 @@ const UsersView = {
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <h2>Gestión de Usuarios</h2>
-                            <span style="font-size: 0.85rem; background: var(--color-surface-muted); padding: 4px 12px; border-radius: 20px; color: var(--color-text-muted); font-weight: 600;">
-                                Total: ${paginated ? paginated.totalItems : data.stats.users}
-                            </span>
                         </div>
                         <button class="btn-action" onclick="openUserModal()" title="Nuevo Usuario" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--color-primary); color: white; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(100, 50, 255, 0.2);">
                             <i class="fas fa-plus" style="font-size: 1.1rem; margin: 0;"></i>
                         </button>
                     </div>
                     
+                    <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 5px;">
+                        ${createStatCard('fas fa-users', globalAllUsers.length, 'Usuarios Totales', '#3b82f6', 'rgba(59, 130, 246, 0.1)')}
+                        ${createStatCard('fas fa-check-circle', countActive, 'Activos', '#10b981', 'rgba(16, 185, 129, 0.1)')}
+                        ${createStatCard('fas fa-times-circle', countInactive, 'Inactivos', '#ef4444', 'rgba(239, 68, 68, 0.1)')}
+                        ${createStatCard('fas fa-user-shield', countAdmins, 'Administradores', '#8b5cf6', 'rgba(139, 92, 246, 0.1)')}
+                        ${createStatCard('fas fa-user-edit', countEditors, 'Editores', '#f59e0b', 'rgba(245, 158, 11, 0.1)')}
+                    </div>
+
                     <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">
                 </div>
 
@@ -61,7 +89,7 @@ const UsersView = {
                         </thead>
                         <tbody>
                             ${users.map(u => {
-            const isPrimaryAdmin = u.email === primaryAdminEmail;
+            const isSystemProtected = systemProtectedEmails.includes(u.email);
             const statusColor = u.status === 'Activo' ? '#22c55e' : '#ef4444';
 
             return `
@@ -91,7 +119,7 @@ const UsersView = {
                                         </td>
                                         <td style="padding: 15px; text-align: center;">
                                             <div style="display: flex; justify-content: center; gap: 8px;">
-                                                ${!isPrimaryAdmin ? `
+                                                ${!isSystemProtected ? `
                                                     <button onclick="openUserModal('${u.email}')" title="Editar" style="background: none; border: 1px solid var(--color-border); padding: 6px 10px; border-radius: 6px; cursor: pointer; color: var(--color-text-main);"><i class="fas fa-edit"></i></button>
                                                     <button onclick="toggleUserStatus('${u.email}')" 
                                                         title="${u.status === 'Pendiente' ? 'Activar Cuenta' : (u.status === 'Inactivo' ? 'Habilitar Usuario' : 'Inhabilitar Usuario')}" 
@@ -212,7 +240,7 @@ const UsersView = {
                                     <div id="admin-user-error" class="login-error hidden" style="background: #fff1f2; border: 1px solid #fda4af; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #e11d48; margin-bottom: 10px; margin-left: 10px;"></div>
 
                                     <div style="display: flex; justify-content: flex-start; margin-left: 10px; margin-top: auto;">
-                                        <button type="submit" style="background: #16a34a; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Registrar</button>
+                                        <button type="submit" title="Registrar" class="btn-save-circle"><i class="fas fa-save"></i></button>
                                         <button type="button" class="btn-secondary" onclick="closeUserModal()" style="display: none;">Cancelar</button>
                                     </div>
                                 </div>

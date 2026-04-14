@@ -210,7 +210,7 @@ const AdminDctiView = {
                             <button type="button" onclick="if(typeof restoreDefaultDcti === 'function') restoreDefaultDcti()" title="Restaurar a valores predeterminados" style="background: #ef4444; color: white; border: none; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3); transition: transform 0.2s, background 0.2s;">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
-                            <button type="submit" title="Guardar Cambios" style="background: var(--color-primary); color: white; border: none; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3); transition: transform 0.2s, background 0.2s;">
+                            <button type="submit" title="Guardar Cambios" class="btn-save-circle">
                                 <i class="fas fa-save"></i>
                             </button>
                         </div>
