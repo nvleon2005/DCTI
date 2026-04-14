@@ -184,8 +184,12 @@
             function removeLoader() {
                 if (loaderRemoved) return;
                 loaderRemoved = true;
-                loader.classList.add('hidden');
-                setTimeout(() => loader.remove(), 500);
+                
+                // 1500ms (1.5s) extra de gracia + 500ms de animación = ~2 segundos visuales
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    setTimeout(() => loader.remove(), 500);
+                }, 1500);
             }
 
             // Escuchar el evento exacto de cuando la app termina de cargar la lógica
