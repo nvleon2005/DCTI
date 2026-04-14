@@ -89,17 +89,16 @@
 
     <!-- Core Dependencies -->
     <!-- Core Dependencies (External) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js" integrity="sha512-UnrKxsCMN9hFk7M56t4I4ckB4N/2HHi0w/7+B/1JsXIX3DmyBcsGpT3/BsuZMZf+6mAr0vP81syWtfynHJ69JA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js" integrity="sha512-/cZZTKETbsuutvNXdPji/z8N+9e+LHq9D60JhcBCigq9I5a2VDEcLzml8PdVlVqzmWlVbhZCuTx+9CTi2xb30A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js" integrity="sha512-UnrKxsCMN9hFk7M56t4I4ckB4N/2HHi0w/7+B/1JsXIX3DmyBcsGpT3/BsuZMZf+6mAr0vP81syWtfynHJ69JA==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js" integrity="sha512-/cZZTKETbsuutvNXdPji/z8N+9e+LHq9D60JhcBCigq9I5a2VDEcLzml8PdVlVqzmWlVbhZCuTx+9CTi2xb30A==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
     <!-- QRCode para certificados (jsDelivr para evitar bloqueos de CORS en file://) -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js" crossorigin="anonymous" defer></script>
 
     <!-- Dynamic Application Loader -->
-    <script src="Presentacion/app-loader.js?v=bypass20260322"></script>
+    <script src="Presentacion/app-loader.js" defer></script>
 
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
@@ -174,17 +173,37 @@
             </div>
         </div>
     </div>
-    <!-- Script global loader -->
+    <!-- Script global loader (Optimizado) -->
     <script>
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                const loader = document.getElementById('global-loader');
-                if (loader) {
+        (function() {
+            const loader = document.getElementById('global-loader');
+            if (!loader) return;
+
+            let loaderRemoved = false;
+
+            function removeLoader() {
+                if (loaderRemoved) return;
+                loaderRemoved = true;
+                
+                // 1500ms (1.5s) extra de gracia + 500ms de animación = ~2 segundos visuales
+                setTimeout(() => {
                     loader.classList.add('hidden');
                     setTimeout(() => loader.remove(), 500);
+                }, 1500);
+            }
+
+            // Escuchar el evento exacto de cuando la app termina de cargar la lógica
+            document.addEventListener('DCTIScriptsLoaded', removeLoader);
+
+            // Fusible de seguridad (Kill-Switch) de 4 segundos
+            // Destruye el loader si la red está colapsada previniendo pantalla infinita
+            setTimeout(() => {
+                if (!loaderRemoved) {
+                    console.warn("DCTI Loader: Fusible de 4s activado por lentitud extrema en red.");
+                    removeLoader();
                 }
-            }, 600); // Pequeño retraso para que la animación se aprecie y termine de montar DOM
-        });
+            }, 4000);
+        })();
     </script>
 </body>
 

@@ -1,28 +1,27 @@
 const DashboardView = {
     render: (data) => {
+        // Plantilla mantenible para las tarjetas estadísticas
+        const createStatCard = (icon, number, label, textColor, bgColor) => `
+            <div class="dcti-stat-card">
+                <div class="dcti-stat-card-header">
+                    <div class="dcti-stat-card-icon" style="background: ${bgColor}; color: ${textColor};">
+                        <i class="${icon}"></i>
+                    </div>
+                    <span class="dcti-stat-card-number">${number}</span>
+                </div>
+                <hr class="dcti-stat-card-divider">
+                <p class="dcti-stat-card-label">${label}</p>
+            </div>
+        `;
+
         return `
             <div class="view-container">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-card__icon icon--purple"><i class="fas fa-users"></i></div>
-                        <div class="stat-card__info"><h3>${data.stats.users}</h3><p>Usuarios Totales</p></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card__icon icon--blue"><i class="fas fa-project-diagram"></i></div>
-                        <div class="stat-card__info"><h3>${data.stats.projects}</h3><p>Proyectos Activos</p></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card__icon icon--green"><i class="fas fa-newspaper"></i></div>
-                        <div class="stat-card__info"><h3>${data.stats.news}</h3><p>Noticias Publicadas</p></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card__icon icon--orange"><i class="fas fa-graduation-cap"></i></div>
-                        <div class="stat-card__info"><h3>${data.stats.courses}</h3><p>Ofertas de Cursos</p></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card__icon" style="background: rgba(236, 72, 153, 0.15); color: #ec4899;"><i class="fas fa-bullseye"></i></div>
-                        <div class="stat-card__info"><h3>${data.stats.strategic}</h3><p>Áreas Estratégicas</p></div>
-                    </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 24px;">
+                    ${createStatCard('fas fa-users', data.stats.users, 'Usuarios Totales', 'var(--color-primary)', 'rgba(94, 27, 174, 0.1)')}
+                    ${createStatCard('fas fa-project-diagram', data.stats.projects, 'Proyectos Activos', '#3b82f6', 'rgba(59, 130, 246, 0.1)')}
+                    ${createStatCard('fas fa-newspaper', data.stats.news, 'Noticias Publicadas', '#22c55e', 'rgba(34, 197, 94, 0.1)')}
+                    ${createStatCard('fas fa-graduation-cap', data.stats.courses, 'Ofertas de Cursos', '#f59e0b', 'rgba(245, 158, 11, 0.1)')}
+                    ${createStatCard('fas fa-bullseye', data.stats.strategic, 'Áreas Estratégicas', '#ec4899', 'rgba(236, 72, 153, 0.15)')}
                 </div>
                 <div class="recent-activity">
                     <h2 style="margin-bottom: var(--space-md); color: #1e293b;">Evolución de Registros a Cursos</h2>

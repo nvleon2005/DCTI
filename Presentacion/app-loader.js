@@ -57,26 +57,35 @@
 
     ];
 
-    function loadNext() {
-        if (scripts.length === 0) {
-            console.log("DCTI: Todos los módulos cargados dinámicamente.");
+    let loadedCount = 0;
+    const totalScripts = scripts.length;
+
+    function onScriptLoaded() {
+        loadedCount++;
+        if (loadedCount === totalScripts) {
+            console.log("DCTI: Todos los módulos cargados dinámicamente en paralelo.");
             document.dispatchEvent(new CustomEvent('DCTIScriptsLoaded'));
             // Poblar links de redes sociales del footer tan pronto estén disponibles
             if (typeof window.applyDctiContactLinks === 'function') {
                 window.applyDctiContactLinks();
             }
-            return;
         }
-
-        const src = scripts.shift();
-        const script = document.createElement('script');
-        script.src = src + '?v=' + new Date().getTime();
-        script.async = false; // Importante para mantener el orden de ejecución global
-        script.onload = loadNext;
-        script.onerror = () => console.error(`Error cargando: ${src}`);
-        document.body.appendChild(script);
     }
 
-    // Iniciamos la carga secuencial
-    loadNext();
+    // Iniciamos la carga en paralelo de todos los scripts a la vez
+    // El navegador los descargará simultáneamente pero los ejecutará estrictamente
+    // en el orden en el que se anexan al DOM porque async = false.
+    const appVersion = '1.0.0'; // Cambiar esto cuando haya una nueva versión a producción
+    scripts.forEach(src => {
+        const script = document.createElement('script');
+        script.src = src + '?v=' + appVersion;
+        script.async = false; // Importante para mantener el orden de ejecución global
+        script.onload = onScriptLoaded;
+        script.onerror = () => {
+            console.error(`Error cargando: ${src}`);
+            // A pesar del error, sumamos para no bloquear eternamente el loader
+            onScriptLoaded(); 
+        };
+        document.body.appendChild(script);
+    });
 })();

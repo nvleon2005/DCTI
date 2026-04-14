@@ -5,6 +5,28 @@ const AdminNewsView = {
         const today = new Date().toISOString().split('T')[0];
         const currentCategory = (typeof currentNewsCategoryFilter !== 'undefined') ? currentNewsCategoryFilter : 'Todas';
 
+        // Obtención global de datos para estadísticas puras
+        const globalAllNews = typeof getLocalNews === 'function' ? getLocalNews() : [];
+        const countPubHoy = globalAllNews.filter(n => {
+            if (!n.published) return false;
+            // Manejar tanto Date object como string ISO
+            try { return new Date(n.published).toISOString().split('T')[0] === today; } catch(e) { return false; }
+        }).length;
+        const countAutores = [...new Set(globalAllNews.map(n => n.author).filter(Boolean))].length;
+
+        const createStatCard = (icon, number, label, textColor, bgColor) => `
+            <div class="dcti-stat-card">
+                <div class="dcti-stat-card-header">
+                    <div class="dcti-stat-card-icon" style="background: ${bgColor}; color: ${textColor};">
+                        <i class="${icon}"></i>
+                    </div>
+                    <span class="dcti-stat-card-number">${number}</span>
+                </div>
+                <hr class="dcti-stat-card-divider">
+                <p class="dcti-stat-card-label">${label}</p>
+            </div>
+        `;
+
         const categories = ['Regional', 'Nacional', 'Internacional', 'Local', 'Institucionales', 'Carrusel de Noticias'];
 
         const filterButtons = ['Todas', ...categories].map(cat => `
@@ -21,13 +43,16 @@ const AdminNewsView = {
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <h2>Gestión de Noticias</h2>
-                            <span style="font-size: 0.85rem; background: var(--color-surface-muted); padding: 4px 12px; border-radius: 20px; color: var(--color-text-muted); font-weight: 600;">
-                                Total: ${paginated ? paginated.totalItems : data.news.length}
-                            </span>
                         </div>
                         <button class="btn-action" onclick="openNewsModal()" title="Nueva Noticia" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--color-primary); color: white; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(100, 50, 255, 0.2);">
                             <i class="fas fa-plus" style="font-size: 1.1rem; margin: 0;"></i>
                         </button>
+                    </div>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 5px;">
+                        ${createStatCard('fas fa-newspaper', globalAllNews.length, 'Total Publicaciones', '#3b82f6', 'rgba(59, 130, 246, 0.1)')}
+                        ${createStatCard('fas fa-calendar-day', countPubHoy, 'Publicado Hoy', '#10b981', 'rgba(16, 185, 129, 0.1)')}
+                        ${createStatCard('fas fa-pen-nib', countAutores, 'Autores Activos', '#f59e0b', 'rgba(245, 158, 11, 0.1)')}
                     </div>
 
                     <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">

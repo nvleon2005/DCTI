@@ -13,19 +13,42 @@ const CoursesView = {
             </button>
         `).join('');
 
+        // Obtención global de datos para estadísticas precisas
+        const globalAllCourses = typeof getLocalCourses === 'function' ? getLocalCourses() : [];
+        const globalAllParticipations = typeof getLocalParticipations === 'function' ? getLocalParticipations() : [];
+        
+        const countActivos = globalAllCourses.filter(c => ['Publicado', 'En Curso', 'Activo'].includes(c.estadoCurso)).length;
+        const countMatriculas = globalAllParticipations.length;
+
+        const createStatCard = (icon, number, label, textColor, bgColor) => `
+            <div class="dcti-stat-card">
+                <div class="dcti-stat-card-header">
+                    <div class="dcti-stat-card-icon" style="background: ${bgColor}; color: ${textColor};">
+                        <i class="${icon}"></i>
+                    </div>
+                    <span class="dcti-stat-card-number">${number}</span>
+                </div>
+                <hr class="dcti-stat-card-divider">
+                <p class="dcti-stat-card-label">${label}</p>
+            </div>
+        `;
+
         return `
             <div class="view-container">
                 <div style="display: flex; flex-direction: column; gap: var(--space-md); margin-bottom: var(--space-md);">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <h2>Gestión Académica de Cursos</h2>
-                            <span style="font-size: 0.85rem; background: var(--color-surface-muted); padding: 4px 12px; border-radius: 20px; color: var(--color-text-muted); font-weight: 600;">
-                                Total listados: ${paginated ? paginated.totalItems : data.courses.length}
-                            </span>
                         </div>
                         <button class="btn-action" onclick="openCourseModal()" title="Crear Curso" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--color-primary); color: white; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(100, 50, 255, 0.2);">
                             <i class="fas fa-plus" style="font-size: 1.1rem; margin: 0;"></i>
                         </button>
+                    </div>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 5px;">
+                        ${createStatCard('fas fa-graduation-cap', globalAllCourses.length, 'Programas Totales', '#3b82f6', 'rgba(59, 130, 246, 0.1)')}
+                        ${createStatCard('fas fa-book-open', countActivos, 'Programas Activos', '#10b981', 'rgba(16, 185, 129, 0.1)')}
+                        ${createStatCard('fas fa-user-graduate', countMatriculas, 'Alta Matrícula', '#f59e0b', 'rgba(245, 158, 11, 0.1)')}
                     </div>
 
                     <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">
