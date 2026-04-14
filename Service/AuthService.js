@@ -1,9 +1,23 @@
 /**
- * ADMIN DASHBOARD - AUTH LOGIC (Modular v11.0.0)
- * Responsabilidad: Gestión de Registro, Login y Redirección por Roles.
+ * ADMIN DASHBOARD - AUTH LOGIC (Modular v12.0.0)
+ * Responsabilidad: Gestión de Registro, Login, Recuperación por Preguntas de Seguridad y Redirección por Roles.
  */
 
+// --- CATÁLOGO DE PREGUNTAS DE SEGURIDAD ---
+const SECURITY_QUESTIONS = [
+    "¿Cuál es el nombre de tu primera mascota?",
+    "¿En qué ciudad naciste?",
+    "¿Cuál es el nombre de tu mejor amigo de la infancia?",
+    "¿Cuál fue tu primer número de teléfono?",
+    "¿Cuál es el segundo nombre de tu madre?",
+    "¿Cuál fue tu primer trabajo?",
+    "¿Cuál es tu comida favorita?",
+    "¿Cómo se llama tu escuela primaria?"
+];
+window.SECURITY_QUESTIONS = SECURITY_QUESTIONS;
+
 let AUTH_UI = {};
+let _recoveryTargetEmail = null;
 
 function initAuthUI() {
     AUTH_UI = {
@@ -26,18 +40,39 @@ function initAuthUI() {
         regMatchError: document.getElementById('reg-match-error'),
         regComplexityError: document.getElementById('reg-complexity-error'),
 
-        recoveryForm: document.getElementById('recovery-form'),
+        // Recovery Step 0 - Method selection
+        recoveryStep0: document.getElementById('recovery-step-0'),
+
+        // Recovery Step 1
+        recoveryStep1: document.getElementById('recovery-step-1'),
+        recoveryFormStep1: document.getElementById('recovery-form-step1'),
         recoveryEmail: document.getElementById('recovery-email'),
         recoveryError: document.getElementById('recovery-error'),
-        recoverySending: document.getElementById('recovery-sending'),
-        recoverySuccess: document.getElementById('recovery-success'),
-        recoverySubmit: document.getElementById('recovery-submit'),
 
+        // Recovery Step 2
+        recoveryStep2: document.getElementById('recovery-step-2'),
+        recoveryFormStep2: document.getElementById('recovery-form-step2'),
+        recoveryQ1Label: document.getElementById('recovery-q1-label'),
+        recoveryQ2Label: document.getElementById('recovery-q2-label'),
+        recoveryA1: document.getElementById('recovery-a1'),
+        recoveryA2: document.getElementById('recovery-a2'),
+        recoveryAnswersError: document.getElementById('recovery-answers-error'),
+
+        // Recovery Step 3
+        recoveryStep3: document.getElementById('recovery-step-3'),
+        recoveryFormStep3: document.getElementById('recovery-form-step3'),
+        recoveryNewPass: document.getElementById('recovery-new-pass'),
+        recoveryConfirmPass: document.getElementById('recovery-confirm-pass'),
+        recoveryPassError: document.getElementById('recovery-pass-error'),
+
+        // Navigation links
         toRegisterLink: document.getElementById('to-register'),
         toLoginLink: document.getElementById('to-login'),
         toRecoveryLink: document.getElementById('to-recovery'),
         toRecoveryFromReg: document.getElementById('to-recovery-from-reg'),
         backToLoginLink: document.getElementById('back-to-login'),
+        backToMethodsLink: document.getElementById('back-to-methods'),
+        backToStep1Link: document.getElementById('back-to-step1'),
         lockoutError: document.getElementById('lockout-error')
     };
 }
@@ -66,7 +101,6 @@ async function handleLogin(e) {
     const pass = AUTH_UI.loginPass.value;
 
     try {
-
         const lockoutData = JSON.parse(localStorage.getItem(`lockout_${email}`)) || { attempts: 0, unlockTime: 0 };
         if (Date.now() < lockoutData.unlockTime) {
             const remainingMin = Math.ceil((lockoutData.unlockTime - Date.now()) / 60000);
@@ -94,13 +128,24 @@ async function handleLogin(e) {
                 const sessionToken = btoa(JSON.stringify({ email: user.email, role: user.role, iat: Date.now() }));
                 localStorage.setItem('dcti_session', JSON.stringify({ ...user, token: sessionToken }));
 
-                // Iniciar la sesión a nivel de aplicación (refresca el dropdown/navbar visualmente)
                 if (typeof App !== 'undefined') {
                     const fullSession = JSON.parse(localStorage.getItem('dcti_session'));
                     App.start(fullSession);
                 }
 
-                // Redirigir usando el Router para mantener consistencia SPA
+                // Nudge sutil: si el usuario NO tiene preguntas de seguridad configuradas
+                if (!user.securityQ1 || !user.securityQ2) {
+                    setTimeout(() => {
+                        if (typeof AlertService !== 'undefined') {
+                            AlertService.notify(
+                                'Protege tu cuenta',
+                                'Te recomendamos configurar tus preguntas de seguridad desde "Mi Perfil" para recuperar tu contraseña en caso de emergencia.',
+                                'info'
+                            );
+                        }
+                    }, 1500);
+                }
+
                 if (user.role === 'admin' || user.role === 'editor') {
                     Router.navigateTo('dashboard');
                 } else {
@@ -176,25 +221,136 @@ async function handleRegister(e) {
     AlertService.notify('Registro Exitoso', 'Cuenta creada. Esperando activación.', 'success');
 }
 
-async function handleRecovery(e) {
+// =============================================
+// RECUPERACIÓN POR PREGUNTAS DE SEGURIDAD
+// =============================================
+
+// PASO 1: Verificar que el correo existe y tiene preguntas configuradas
+async function handleRecoveryStep1(e) {
     e.preventDefault();
-    const email = AUTH_UI.recoveryEmail.value;
+    const email = AUTH_UI.recoveryEmail.value.trim();
+    AUTH_UI.recoveryError.classList.add('hidden');
+
     const localUsers = typeof getLocalUsers === 'function' ? getLocalUsers() : [];
     const allUsers = [...(typeof AUTH_CONFIG !== 'undefined' ? AUTH_CONFIG.hardcodedUsers : []), ...localUsers];
     const user = allUsers.find(u => u.email === email);
 
-    if (user) {
-        AUTH_UI.recoverySending.classList.remove('hidden');
-        AUTH_UI.recoverySubmit.disabled = true;
-        setTimeout(() => {
-            AUTH_UI.recoverySending.classList.add('hidden');
-            AUTH_UI.recoverySuccess.classList.remove('hidden');
-            AUTH_UI.recoverySubmit.classList.add('hidden');
-        }, 2000);
-    } else {
+    if (!user) {
+        AUTH_UI.recoveryError.textContent = 'Este correo electrónico no está registrado en el sistema.';
         AUTH_UI.recoveryError.classList.remove('hidden');
+        return;
     }
+
+    if (!user.securityQ1 || !user.securityQ2) {
+        AUTH_UI.recoveryError.textContent = 'Esta cuenta no tiene preguntas de seguridad configuradas. Contacta al administrador para recuperar tu acceso.';
+        AUTH_UI.recoveryError.classList.remove('hidden');
+        return;
+    }
+
+    _recoveryTargetEmail = email;
+    AUTH_UI.recoveryQ1Label.textContent = user.securityQ1.question;
+    AUTH_UI.recoveryQ2Label.textContent = user.securityQ2.question;
+    showRecoveryStep(2);
 }
+
+// PASO 2: Verificar respuestas
+async function handleRecoveryStep2(e) {
+    e.preventDefault();
+    AUTH_UI.recoveryAnswersError.classList.add('hidden');
+
+    const answer1 = AUTH_UI.recoveryA1.value.trim().toLowerCase();
+    const answer2 = AUTH_UI.recoveryA2.value.trim().toLowerCase();
+
+    if (!answer1 || !answer2) {
+        AUTH_UI.recoveryAnswersError.textContent = 'Debes responder ambas preguntas.';
+        AUTH_UI.recoveryAnswersError.classList.remove('hidden');
+        return;
+    }
+
+    const localUsers = typeof getLocalUsers === 'function' ? getLocalUsers() : [];
+    const allUsers = [...(typeof AUTH_CONFIG !== 'undefined' ? AUTH_CONFIG.hardcodedUsers : []), ...localUsers];
+    const user = allUsers.find(u => u.email === _recoveryTargetEmail);
+
+    if (!user) return;
+
+    const hash1 = await hashSHA256(answer1);
+    const hash2 = await hashSHA256(answer2);
+
+    if (hash1 !== user.securityQ1.answerHash || hash2 !== user.securityQ2.answerHash) {
+        AUTH_UI.recoveryAnswersError.textContent = 'Las respuestas no coinciden con las registradas. Verifica e intenta de nuevo.';
+        AUTH_UI.recoveryAnswersError.classList.remove('hidden');
+        return;
+    }
+
+    showRecoveryStep(3);
+}
+
+// PASO 3: Guardar nueva contraseña
+async function handleRecoveryStep3(e) {
+    e.preventDefault();
+    AUTH_UI.recoveryPassError.classList.add('hidden');
+
+    const newPass = AUTH_UI.recoveryNewPass.value;
+    const confirmPass = AUTH_UI.recoveryConfirmPass.value;
+
+    if (!validatePasswordComplexity(newPass)) {
+        AUTH_UI.recoveryPassError.textContent = 'La contraseña no cumple los requisitos de seguridad (mín. 8 caracteres, mayúscula, número y carácter especial).';
+        AUTH_UI.recoveryPassError.classList.remove('hidden');
+        return;
+    }
+
+    if (newPass !== confirmPass) {
+        AUTH_UI.recoveryPassError.textContent = 'Las contraseñas no coinciden.';
+        AUTH_UI.recoveryPassError.classList.remove('hidden');
+        return;
+    }
+
+    const localUsers = typeof getLocalUsers === 'function' ? getLocalUsers() : [];
+    const index = localUsers.findIndex(u => u.email === _recoveryTargetEmail);
+
+    if (index !== -1) {
+        localUsers[index].password = await hashSHA256(newPass);
+        localUsers[index].updatedAt = new Date().toISOString();
+        localUsers[index].updatedBy = 'Recuperación de Acceso';
+        if (!localUsers[index].history) localUsers[index].history = [];
+        localUsers[index].history.unshift({
+            date: new Date().toLocaleString('es-VE'),
+            responsible: 'Sistema (Recuperación)',
+            action: 'Cambio de Contraseña',
+            fields: 'Contraseña restablecida por preguntas de seguridad'
+        });
+        localUsers[index].history = localUsers[index].history.slice(0, 15);
+        localStorage.setItem('dcti_users', JSON.stringify(localUsers));
+    }
+
+    _recoveryTargetEmail = null;
+    toggleAuthView('login');
+    AlertService.notify('Contraseña Actualizada', 'Tu contraseña ha sido restablecida exitosamente. Inicia sesión con tu nueva clave.', 'success');
+}
+
+// Utilidad: Mostrar un paso de recuperación y ocultar los demás (0=métodos, 1=email, 2=preguntas, 3=contraseña)
+function showRecoveryStep(step) {
+    const steps = [AUTH_UI.recoveryStep0, AUTH_UI.recoveryStep1, AUTH_UI.recoveryStep2, AUTH_UI.recoveryStep3];
+    steps.forEach((s, i) => {
+        if (s) {
+            if (i === step) {
+                s.classList.remove('hidden');
+            } else {
+                s.classList.add('hidden');
+            }
+        }
+    });
+}
+
+// Función global para seleccionar método de recuperación (llamada desde onclick en HTML)
+function selectRecoveryMethod(method) {
+    if (method === 'questions') {
+        showRecoveryStep(1);
+    }
+    // Futuro: else if (method === 'email') { ... }
+    // Futuro: else if (method === 'phone') { ... }
+}
+window.selectRecoveryMethod = selectRecoveryMethod;
 
 function checkRoleAndRedirect(user) {
     if (user.role === 'admin' || user.role === 'editor') {
@@ -213,6 +369,14 @@ function toggleAuthView(view) {
         AUTH_UI.registerView.classList.remove('hidden');
     } else if (view === 'recovery') {
         AUTH_UI.recoveryView.classList.remove('hidden');
+        showRecoveryStep(0); // Siempre empezar en selección de método
+        _recoveryTargetEmail = null;
+        if (AUTH_UI.recoveryFormStep1) AUTH_UI.recoveryFormStep1.reset();
+        if (AUTH_UI.recoveryFormStep2) AUTH_UI.recoveryFormStep2.reset();
+        if (AUTH_UI.recoveryFormStep3) AUTH_UI.recoveryFormStep3.reset();
+        if (AUTH_UI.recoveryError) AUTH_UI.recoveryError.classList.add('hidden');
+        if (AUTH_UI.recoveryAnswersError) AUTH_UI.recoveryAnswersError.classList.add('hidden');
+        if (AUTH_UI.recoveryPassError) AUTH_UI.recoveryPassError.classList.add('hidden');
     } else {
         AUTH_UI.loginView.classList.remove('hidden');
     }
@@ -239,17 +403,51 @@ function initVisibilityToggles() {
 function initAuthEvents() {
     if (AUTH_UI.loginForm) AUTH_UI.loginForm.addEventListener('submit', handleLogin);
     if (AUTH_UI.registerForm) AUTH_UI.registerForm.addEventListener('submit', handleRegister);
-    if (AUTH_UI.recoveryForm) AUTH_UI.recoveryForm.addEventListener('submit', handleRecovery);
 
+    // Recovery 3-step forms
+    if (AUTH_UI.recoveryFormStep1) AUTH_UI.recoveryFormStep1.addEventListener('submit', handleRecoveryStep1);
+    if (AUTH_UI.recoveryFormStep2) AUTH_UI.recoveryFormStep2.addEventListener('submit', handleRecoveryStep2);
+    if (AUTH_UI.recoveryFormStep3) AUTH_UI.recoveryFormStep3.addEventListener('submit', handleRecoveryStep3);
+
+    // Navigation links
     if (AUTH_UI.toRegisterLink) AUTH_UI.toRegisterLink.addEventListener('click', (e) => { e.preventDefault(); toggleAuthView('register'); });
     if (AUTH_UI.toLoginLink) AUTH_UI.toLoginLink.addEventListener('click', (e) => { e.preventDefault(); toggleAuthView('login'); });
     if (AUTH_UI.toRecoveryLink) AUTH_UI.toRecoveryLink.addEventListener('click', (e) => { e.preventDefault(); toggleAuthView('recovery'); });
     if (AUTH_UI.toRecoveryFromReg) AUTH_UI.toRecoveryFromReg.addEventListener('click', (e) => { e.preventDefault(); toggleAuthView('recovery'); });
     if (AUTH_UI.backToLoginLink) AUTH_UI.backToLoginLink.addEventListener('click', (e) => { e.preventDefault(); toggleAuthView('login'); });
 
-    initVisibilityToggles();
+    // Back to method selection from step 1
+    if (AUTH_UI.backToMethodsLink) AUTH_UI.backToMethodsLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        showRecoveryStep(0);
+        _recoveryTargetEmail = null;
+    });
 
-    // Link "Volver al Portal" (opcional si queremos añadir uno en el login card)
+    // Back to step 1 from step 2
+    if (AUTH_UI.backToStep1Link) AUTH_UI.backToStep1Link.addEventListener('click', (e) => {
+        e.preventDefault();
+        showRecoveryStep(1);
+        _recoveryTargetEmail = null;
+    });
+
+    // Hover effect para la card de método activo
+    const methodCard = document.getElementById('method-questions');
+    if (methodCard) {
+        methodCard.addEventListener('mouseenter', () => {
+            methodCard.style.borderColor = '#540E90';
+            methodCard.style.background = 'linear-gradient(135deg, rgba(84, 14, 144, 0.08), rgba(16, 185, 129, 0.08))';
+            methodCard.style.transform = 'translateY(-1px)';
+            methodCard.style.boxShadow = '0 4px 12px rgba(84, 14, 144, 0.15)';
+        });
+        methodCard.addEventListener('mouseleave', () => {
+            methodCard.style.borderColor = 'rgba(84, 14, 144, 0.2)';
+            methodCard.style.background = 'linear-gradient(135deg, rgba(84, 14, 144, 0.04), rgba(16, 185, 129, 0.04))';
+            methodCard.style.transform = 'translateY(0)';
+            methodCard.style.boxShadow = 'none';
+        });
+    }
+
+    initVisibilityToggles();
 }
 
 function showLogin() {
@@ -275,5 +473,4 @@ function renderAuthPage() {
 // --- INICIALIZACIÓN ---
 document.addEventListener('DOMContentLoaded', () => {
     // No llamamos a renderAuthPage automáticamente para no ocultar el portal al inicio
-    // a menos que no haya sesión y estuviéramos en una ruta de auth (lógica SPA)
 });

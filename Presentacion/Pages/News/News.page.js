@@ -181,7 +181,7 @@ const AdminNewsView = {
                             <div id="news-audit-container" style="padding: 0 25px 20px 25px; display: none;"></div>
                             <div class="modal-footer">
                                 <button type="button" class="btn-secondary" onclick="closeNewsModal()" style="padding: 10px 20px; font-weight: 600;">Cancelar</button>
-                                <button type="submit" class="btn-primary" style="padding: 10px 30px; font-weight: 700;">Guardar Cambios</button>
+                                <button type="submit" title="Guardar Cambios" class="btn-save-circle"><i class="fas fa-save"></i></button>
                             </div>
                         </form>
                     </div>

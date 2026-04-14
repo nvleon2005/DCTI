@@ -212,7 +212,7 @@ const UsersView = {
                                     <div id="admin-user-error" class="login-error hidden" style="background: #fff1f2; border: 1px solid #fda4af; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #e11d48; margin-bottom: 10px; margin-left: 10px;"></div>
 
                                     <div style="display: flex; justify-content: flex-start; margin-left: 10px; margin-top: auto;">
-                                        <button type="submit" style="background: #16a34a; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Registrar</button>
+                                        <button type="submit" title="Registrar" class="btn-save-circle"><i class="fas fa-save"></i></button>
                                         <button type="button" class="btn-secondary" onclick="closeUserModal()" style="display: none;">Cancelar</button>
                                     </div>
                                 </div>

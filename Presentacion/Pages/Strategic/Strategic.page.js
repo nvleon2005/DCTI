@@ -1,4 +1,4 @@
-﻿const StrategicView = {
+const StrategicView = {
     render: (data) => {
         const paginated = data.pagination;
         const areas = paginated ? paginated.items : data.strategic;
@@ -105,7 +105,7 @@
                                     </div>
                                     
                                     <div style="margin-top: auto; display: flex; gap: 10px;">
-                                        <button type="submit" class="btn-primary" style="padding: 10px 24px; background: #16a34a;">Guardar Área</button>
+                                        <button type="submit" title="Guardar Área" class="btn-save-circle"><i class="fas fa-save"></i></button>
                                         <button type="button" class="btn-secondary" onclick="closeStrategicModal()" style="padding: 10px 24px;">Cancelar</button>
                                     </div>
                                 </div>

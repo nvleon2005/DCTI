@@ -152,19 +152,76 @@ const App = {
             });
         }
 
-        const searchInput = document.getElementById('dashboard-search-input');
-        if (searchInput) {
-            let searchTimeout;
-            searchInput.addEventListener('input', (e) => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    window.globalSearchQuery = e.target.value.trim();
-                    if (typeof renderModule === 'function') {
-                        renderModule(window.currentActiveModule);
+        // Inyección dinámica directa para garantizar que el buscador funcione independientemente de cachés
+        const attachSearch = () => {
+            // Soportamos tanto el ID nuevo como el viejo por si el HTML está cacheado
+            const searchInput = document.getElementById('sidebar-filter-input') || document.getElementById('dashboard-search-input');
+            
+            if (searchInput && !searchInput.dataset.listenerAttached) {
+                searchInput.dataset.listenerAttached = 'true';
+                
+                const handleSearch = (e) => {
+                    const term = e.target.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    const sidebarItems = document.querySelectorAll('.sidebar__item');
+                    const sectionTitles = document.querySelectorAll('.sidebar__section-title');
+                    let hasVisibleItems = false;
+                    
+                    sidebarItems.forEach(item => {
+                        // Guardamos estado original de permisos
+                        if (!item.hasAttribute('data-original-display')) {
+                            item.setAttribute('data-original-display', item.style.display || '');
+                        }
+                        
+                        const text = item.textContent.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        
+                        if (term === '') {
+                            item.style.display = item.getAttribute('data-original-display');
+                        } else if (text.includes(term)) {
+                            const orig = item.getAttribute('data-original-display');
+                            if (orig !== 'none') {
+                                item.style.display = 'flex';
+                                hasVisibleItems = true;
+                            }
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+
+                    // Si hay un término de búsqueda, ocultamos los títulos de sección.
+                    // Usamos setProperty con 'important' porque portal.css contiene 'display: block !important'
+                    // para estas etiquetas, lo cual sobreescribe el .style.display normal.
+                    sectionTitles.forEach(title => {
+                        if (term === '') {
+                            title.style.removeProperty('display');
+                        } else {
+                            title.style.setProperty('display', 'none', 'important');
+                        }
+                    });
+
+                    // Manejo del estado "Vacío" 
+                    let noResultsMsg = document.getElementById('sidebar-no-results');
+                    if (term !== '' && !hasVisibleItems) {
+                        if (!noResultsMsg) {
+                            noResultsMsg = document.createElement('li');
+                            noResultsMsg.id = 'sidebar-no-results';
+                            noResultsMsg.innerHTML = '<i class="fas fa-search-minus" style="margin-right: 8px;"></i> No se encontraron módulos';
+                            noResultsMsg.style.cssText = 'padding: 15px; color: white; text-align: center; font-size: 0.85rem; font-weight: 500; font-family: "Outfit", sans-serif;';
+                            const sidebarList = document.querySelector('.sidebar__list');
+                            if(sidebarList) sidebarList.appendChild(noResultsMsg);
+                        }
+                        noResultsMsg.style.display = 'block';
+                    } else if (noResultsMsg) {
+                        noResultsMsg.style.display = 'none';
                     }
-                }, 300);
-            });
-        }
+                };
+                
+                searchInput.addEventListener('input', handleSearch);
+                searchInput.addEventListener('keyup', handleSearch);
+            }
+        };
+
+        // Ejecutar montaje
+        attachSearch();
 
         if (typeof switchView === 'function') {
             const currentHash = window.location.hash.replace('#', '');

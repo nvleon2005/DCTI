@@ -122,8 +122,8 @@ function renderModule(id, skipAnimation = false) {
             }
         }
 
-        // --- APLICAR BÚSQUEDA GLOBAL ---
-        const q = (window.globalSearchQuery || '').toLowerCase();
+        // --- LA BÚSQUEDA AHORA SOLO FILTRA EL SIDEBAR ---
+        // Se removió q (globalSearchQuery) de los filtros de tablas.
 
         if (id === 'users') {
             let filteredUsers = allUsers;
@@ -132,11 +132,6 @@ function renderModule(id, skipAnimation = false) {
             }
             if (typeof window.globalUserStatusFilter !== 'undefined' && window.globalUserStatusFilter !== 'Todos') {
                 filteredUsers = filteredUsers.filter(u => u.status === window.globalUserStatusFilter);
-            }
-            if (q) {
-                filteredUsers = filteredUsers.filter(u =>
-                    Object.values(u).some(val => val && val.toString().toLowerCase().includes(q))
-                );
             }
             viewData.pagination = getPaginatedData(filteredUsers, 'users');
         }
@@ -152,11 +147,6 @@ function renderModule(id, skipAnimation = false) {
                     return s.some(val => val === window.globalNewsStatusFilter || (window.globalNewsStatusFilter === 'Publicado' && val === 'Publicada'));
                 });
             }
-            if (q) {
-                filteredNews = filteredNews.filter(n =>
-                    Object.values(n).some(val => val && val.toString().toLowerCase().includes(q))
-                );
-            }
             viewData.pagination = getPaginatedData(filteredNews, 'news');
         }
 
@@ -165,23 +155,11 @@ function renderModule(id, skipAnimation = false) {
             if (typeof window.globalProjectStatusFilter !== 'undefined' && window.globalProjectStatusFilter !== 'Todos' && window.globalProjectStatusFilter !== '') {
                 filteredProjects = filteredProjects.filter(p => p.status === window.globalProjectStatusFilter);
             }
-            if (q) {
-                filteredProjects = filteredProjects.filter(p =>
-                    Object.values(p).some(val => val && val.toString().toLowerCase().includes(q))
-                );
-            }
             viewData.pagination = getPaginatedData(filteredProjects, 'projects');
         }
 
         if (id === 'strategic') {
             let filteredStrategic = viewData.strategic;
-            if (q) {
-                filteredStrategic = filteredStrategic.filter(s =>
-                    (s.area || '').toLowerCase().includes(q) ||
-                    (s.description || '').toLowerCase().includes(q) ||
-                    (s.responsible || '').toLowerCase().includes(q)
-                );
-            }
             viewData.pagination = getPaginatedData(filteredStrategic, 'strategic');
         }
 
@@ -189,11 +167,6 @@ function renderModule(id, skipAnimation = false) {
             let filteredCourses = viewData.courses;
             if (typeof globalCourseFilter !== 'undefined' && globalCourseFilter !== 'Todos') {
                 filteredCourses = filteredCourses.filter(c => c.estadoCurso === globalCourseFilter);
-            }
-            if (q) {
-                filteredCourses = filteredCourses.filter(c =>
-                    Object.values(c).some(val => val && val.toString().toLowerCase().includes(q))
-                );
             }
             viewData.pagination = getPaginatedData(filteredCourses, 'courses');
         }

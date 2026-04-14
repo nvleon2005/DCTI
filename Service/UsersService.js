@@ -87,7 +87,7 @@ const UsersController = {
             editEmailInput.value = email;
 
             const submitBtn = form.querySelector('button[type="submit"]');
-            if (submitBtn) submitBtn.textContent = 'Actualizar';
+            if (submitBtn) submitBtn.title = 'Actualizar';
 
             const allUsers = [...this.AUTH_CONFIG.hardcodedUsers, ...this.getLocalUsers()];
             const user = allUsers.find(u => u.email === email);
@@ -168,7 +168,7 @@ const UsersController = {
             }
 
             const submitBtn = form.querySelector('button[type="submit"]');
-            if (submitBtn) submitBtn.textContent = 'Registrar';
+            if (submitBtn) submitBtn.title = 'Registrar';
 
             const preview = document.getElementById('admin-user-avatar-preview');
             if (preview) {

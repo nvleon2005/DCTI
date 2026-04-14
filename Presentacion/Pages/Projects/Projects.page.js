@@ -167,7 +167,7 @@ const ProjectsView = {
                                     </div>
 
                                     <div class="form-group" style="display: flex; gap: 15px; margin-top: auto; padding-top: 15px; border-top: 1px solid #eee;">
-                                        <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 6px; background: #16a34a; color: white; border: none; font-weight: 600;">Publicar</button>
+                                        <button type="submit" title="Publicar" class="btn-save-circle"><i class="fas fa-save"></i></button>
                                         <button type="button" class="btn-secondary" onclick="closeProjectModal()" style="flex: 1; padding: 12px; border-radius: 6px; background: #9333ea; color: white; border: none; font-weight: 600;">Borrar / Cancelar</button>
                                     </div>
                                     

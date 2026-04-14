@@ -1,4 +1,4 @@
-/* ===========================================================
+﻿/* ===========================================================
    PORTAL DCTI - HOJA DE ESTILOS UNIFICADA
    Fusi�n de: fluid-styles.css + main.css + custom-alerts.css
    ===========================================================
@@ -4586,3 +4586,74 @@ html {
     50% { transform: scale(1); box-shadow: inset 0 0 35px var(--color-primary), 0 0 45px var(--color-primary); }
     100% { transform: scale(0.95); box-shadow: inset 0 0 10px var(--color-primary), 0 0 15px var(--color-primary); }
 }
+
+
+/* BOTONES PREMIUM (STANDARD DASHBOARD) */
+.premium-save-btn {
+    background: linear-gradient(135deg, #4f46e5, #4338ca); color: white;
+    border: none; padding: 0.8rem 2.5rem; border-radius: 12px; font-size: 1.05rem; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); font-family: inherit;
+}
+.premium-save-btn:hover:not(:disabled) {
+    transform: translateY(-2px); box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+}
+.premium-save-btn:disabled {
+    background: #cbd5e1; color: #94a3b8; box-shadow: none; cursor: not-allowed;
+}
+
+
+
+/* BOTON GUARDAR CIRCULAR ESTANDARIZADO */
+.btn-save-circle {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.btn-save-circle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(37, 99, 235, 0.4);
+}
+.btn-save-circle:active {
+    transform: translateY(0);
+}
+
+
+
+/* TOKENS - Barra de Navegaci�n / B�squeda (Sidebar Filter) */
+.top-nav-filter-wrap {
+    display: flex;
+    align-items: center;
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 5px 15px;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+.top-nav-filter-wrap:focus-within {
+    border-color: var(--color-primary);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+.top-nav-filter-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    color: #1e293b;
+    width: 250px;
+}
+.hidden-by-filter {
+    display: none !important;
+}
+

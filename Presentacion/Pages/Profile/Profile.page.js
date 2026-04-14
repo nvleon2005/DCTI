@@ -136,18 +136,104 @@ const ProfileView = {
                                 <div class="input-wrapper">
                                     <i class="fas fa-key input-icon"></i>
                                     <input type="password" id="profile-pass" placeholder="••••••••" ${isHardcoded ? 'disabled' : ''}>
-                                    <div class="password-toggle" onclick="toggleProfilePassword()"><i class="fas fa-eye"></i></div>
+                                    
+                                    ${isHardcoded ? '' : `
+                                        <div class="password-toggle" onclick="toggleProfilePassword()">
+                                            <i class="fas fa-eye"></i>
+                                        </div>
+                                    `}
                                 </div>
-                                <span class="input-help"><i class="fas fa-info-circle"></i> Dejar en blanco para conservar la clave actual.</span>
+                                <span class="input-help">
+                                    <i class="fas fa-info-circle"></i> 
+                                    ${isHardcoded ? 'Esta cuenta es de solo lectura (Prototipo).' : 'Dejar en blanco para conservar la clave actual.'}
+                                </span>
                             </div>
                         </div>
 
+                        ${!isHardcoded ? `
+                        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 2rem 0;">
+
+                        <!-- Sección 3: Preguntas de Seguridad -->
+                        <div class="form-section-header">
+                            <div class="form-section-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i class="fas fa-user-shield"></i></div>
+                            <div>
+                                <h4>Preguntas de Seguridad</h4>
+                                <p>Recupera tu contraseña en caso de emergencia</p>
+                            </div>
+                            ${user.securityQ1 && user.securityQ2 ? `
+                                <div style="margin-left: auto; background: #d1fae5; color: #059669; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 5px; border: 1px solid #10b981;">
+                                    <i class="fas fa-check-circle"></i> Configuradas
+                                </div>
+                            ` : `
+                                <div style="margin-left: auto; background: #fef3c7; color: #b45309; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 5px; border: 1px solid #f59e0b;">
+                                    <i class="fas fa-exclamation-triangle"></i> Sin configurar
+                                </div>
+                            `}
+                        </div>
+
+                        ${!user.securityQ1 || !user.securityQ2 ? `
+                            <div style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.06), rgba(16, 185, 129, 0.06)); border: 1px solid rgba(79, 70, 229, 0.15); border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 12px;">
+                                <i class="fas fa-lightbulb" style="color: #f59e0b; font-size: 1.2rem; margin-top: 2px;"></i>
+                                <div>
+                                    <strong style="display: block; color: #1e293b; font-size: 0.9rem; margin-bottom: 3px;">¡Protege tu acceso!</strong>
+                                    <span style="color: #64748b; font-size: 0.82rem; line-height: 1.4;">Configura tus preguntas de seguridad para poder recuperar tu contraseña sin necesidad de contactar al administrador.</span>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <div class="premium-form-grid" style="grid-template-columns: 1fr;">
+                            <div class="premium-input-group">
+                                <label>Pregunta de Seguridad 1</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-question-circle input-icon"></i>
+                                    <select id="profile-sq1" style="width: 100%; padding: 0.9rem 1rem 0.9rem 2.8rem; border: none; background: transparent; font-size: 0.9rem; color: #1e293b; font-weight: 500; font-family: inherit; outline: none; cursor: pointer; appearance: none;">
+                                        <option value="">— Selecciona una pregunta —</option>
+                                        ${(typeof SECURITY_QUESTIONS !== 'undefined' ? SECURITY_QUESTIONS : []).map(q => 
+                                            '<option value="' + q + '" ' + (user.securityQ1 && user.securityQ1.question === q ? 'selected' : '') + '>' + q + '</option>'
+                                        ).join('')}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="premium-input-group">
+                                <label>Respuesta 1 ${user.securityQ1 ? '(Dejar en blanco para mantener la actual)' : ''}</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-pen input-icon"></i>
+                                    <input type="text" id="profile-sa1" placeholder="${user.securityQ1 ? '•••••••• (Respuesta guardada)' : 'Escribe tu respuesta'}">
+                                </div>
+                            </div>
+                            <div class="premium-input-group" style="margin-top: 0.5rem;">
+                                <label>Pregunta de Seguridad 2</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-question-circle input-icon"></i>
+                                    <select id="profile-sq2" style="width: 100%; padding: 0.9rem 1rem 0.9rem 2.8rem; border: none; background: transparent; font-size: 0.9rem; color: #1e293b; font-weight: 500; font-family: inherit; outline: none; cursor: pointer; appearance: none;">
+                                        <option value="">— Selecciona una pregunta —</option>
+                                        ${(typeof SECURITY_QUESTIONS !== 'undefined' ? SECURITY_QUESTIONS : []).map(q => 
+                                            '<option value="' + q + '" ' + (user.securityQ2 && user.securityQ2.question === q ? 'selected' : '') + '>' + q + '</option>'
+                                        ).join('')}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="premium-input-group">
+                                <label>Respuesta 2 ${user.securityQ2 ? '(Dejar en blanco para mantener la actual)' : ''}</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-pen input-icon"></i>
+                                    <input type="text" id="profile-sa2" placeholder="${user.securityQ2 ? '•••••••• (Respuesta guardada)' : 'Escribe tu respuesta'}">
+                                </div>
+                                <span class="input-help">
+                                    <i class="fas fa-lock"></i> Las respuestas se almacenan cifradas por seguridad.
+                                </span>
+                            </div>
+                        </div>
+                        ` : ''}
+
                         <!-- Botonera -->
                         <div class="profile-actions">
-                            <button type="submit" class="premium-save-btn" ${isHardcoded ? 'disabled' : ''}>
-                                <span>Guardar Cambios</span>
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
+                            ${isHardcoded ? '' : `
+                                <button type="submit" class="premium-save-btn">
+                                    <span>Guardar Cambios</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            `}
                         </div>
                     </form>
                 </div>

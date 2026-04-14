@@ -270,7 +270,7 @@ const CoursesView = {
                                             <div style="margin-top: 20px; text-align: right;">
                                                 <button type="button" id="btn-reactivate-course" onclick="changeCourseStatusToReactivate()" style="display:none; padding: 10px 20px; background: #eab308; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; margin-right: 10px;"><i class="fas fa-unlock"></i> Reactivar Ciclo</button>
                                                 <button type="button" class="btn-secondary" onclick="closeCourseModal()" style="padding: 10px 20px; margin-right: 10px; border-radius: 6px; font-weight: 600;">Cancelar</button>
-                                                <button type="submit" id="btn-save-course" class="btn-primary" style="padding: 10px 25px; border-radius: 6px; font-weight: 700; background: #2563eb; color: white; border: none;"><i class="fas fa-save" style="margin-right:5px;"></i> Guardar Estructura</button>
+                                                <button type="submit" id="btn-save-course" title="Guardar Estructura" class="btn-save-circle"><i class="fas fa-save"></i></button>
                                             </div>
 
                                         </div>

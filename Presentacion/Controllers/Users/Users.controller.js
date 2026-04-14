@@ -89,7 +89,7 @@ function openUserModal(email = null) {
         editEmailInput.value = email;
 
         const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) submitBtn.textContent = 'Actualizar';
+        if (submitBtn) submitBtn.title = 'Actualizar';
 
         const allUsers = [...AUTH_CONFIG.hardcodedUsers, ...getLocalUsers()];
         const user = allUsers.find(u => u.email === email);
@@ -128,7 +128,7 @@ function openUserModal(email = null) {
         document.getElementById('admin-user-email').disabled = false;
 
         const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) submitBtn.textContent = 'Registrar';
+        if (submitBtn) submitBtn.title = 'Registrar';
 
         // Limpiar previo de avatar y radios
         document.getElementById('admin-user-avatar-preview').src = '';
@@ -485,10 +485,68 @@ const _handleProfileSubmitCore = async function(e) {
             updatedUser.password = await hashSHA256(pass);
         }
 
+        // --- PREGUNTAS DE SEGURIDAD ---
+        const sq1 = document.getElementById('profile-sq1');
+        const sa1 = document.getElementById('profile-sa1');
+        const sq2 = document.getElementById('profile-sq2');
+        const sa2 = document.getElementById('profile-sa2');
+
+        if (sq1 && sq2) {
+            const q1Value = sq1.value;
+            const q2Value = sq2.value;
+            const a1Value = sa1 ? sa1.value.trim().toLowerCase() : '';
+            const a2Value = sa2 ? sa2.value.trim().toLowerCase() : '';
+
+            // Validar: si seleccionó preguntas, las respuestas son obligatorias (solo cuando no tiene previas)
+            if (q1Value && q2Value) {
+                if (q1Value === q2Value) {
+                    AlertService.notify('Preguntas de Seguridad', 'Las dos preguntas deben ser diferentes.', 'warning');
+                    return;
+                }
+
+                // Pregunta 1: nueva respuesta o mantener existente
+                if (a1Value) {
+                    updatedUser.securityQ1 = {
+                        question: q1Value,
+                        answerHash: await hashSHA256(a1Value)
+                    };
+                } else if (currentUser.securityQ1) {
+                    // Mantener respuesta existente, actualizar pregunta si cambió
+                    updatedUser.securityQ1 = {
+                        question: q1Value,
+                        answerHash: currentUser.securityQ1.answerHash
+                    };
+                } else {
+                    AlertService.notify('Preguntas de Seguridad', 'Debes escribir una respuesta para la Pregunta 1.', 'warning');
+                    return;
+                }
+
+                // Pregunta 2: nueva respuesta o mantener existente
+                if (a2Value) {
+                    updatedUser.securityQ2 = {
+                        question: q2Value,
+                        answerHash: await hashSHA256(a2Value)
+                    };
+                } else if (currentUser.securityQ2) {
+                    updatedUser.securityQ2 = {
+                        question: q2Value,
+                        answerHash: currentUser.securityQ2.answerHash
+                    };
+                } else {
+                    AlertService.notify('Preguntas de Seguridad', 'Debes escribir una respuesta para la Pregunta 2.', 'warning');
+                    return;
+                }
+            }
+            // Si solo seleccionó una pregunta (incompleto), no guardar nada parcial
+        }
+
         localUsers[index] = updatedUser;
         localStorage.setItem('dcti_users', JSON.stringify(localUsers));
 
         const updatedSession = { ...session, name, username, avatar, initials };
+        // Incluir preguntas en la sesión para que el nudge desaparezca al re-loguear
+        if (updatedUser.securityQ1) updatedSession.securityQ1 = updatedUser.securityQ1;
+        if (updatedUser.securityQ2) updatedSession.securityQ2 = updatedUser.securityQ2;
         localStorage.setItem('dcti_session', JSON.stringify(updatedSession));
 
         AlertService.notify('Perfil Actualizado', 'Tus datos han sido guardados correctamente.', 'success');

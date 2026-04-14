@@ -20,7 +20,10 @@ const AdminShell = {
                         <span>GESTOR DCTI</span>
                     </div>
                 </div>
-
+                <style>
+                    /* Bypass browser caching for the crucial filter class */
+                    .hidden-by-filter { display: none !important; }
+                </style>
                 <nav class="sidebar__nav">
                     <ul class="sidebar__list">
                         ${!isVisitor ? `<li class="sidebar__item sidebar__item--active" data-view="dashboard">
@@ -104,9 +107,9 @@ const AdminShell = {
                         <h1 id="view-title">Dashboard</h1>
                     </div>
                     <div class="main-header__right">
-                        <div class="search-bar">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="dashboard-search-input" placeholder="Buscar en el panel...">
+                        <div class="top-nav-filter-wrap">
+                            <i class="fas fa-search" style="color: #64748b;"></i>
+                            <input type="text" id="sidebar-filter-input" class="top-nav-filter-input" placeholder="Filtrar menú lateral...">
                         </div>
                     </div>
                 </header>

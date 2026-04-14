@@ -31,20 +31,8 @@ function initMainApp() {
         logoutBtn.addEventListener('click', App.logout);
     }
 
-    // 3. Global Search with Debounce
-    const searchInput = document.getElementById('dashboard-search-input');
-    if (searchInput) {
-        let searchTimeout;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                window.globalSearchQuery = e.target.value.trim();
-                if (typeof renderModule === 'function') {
-                    renderModule(window.currentActiveModule);
-                }
-            }, 300);
-        });
-    }
+    // El filtro del sidebar ahora es manejado exclusivamente mediante delegación en App.js
+    // para prevenir condiciones de carrera y duplicidad de eventos.
 
     // 4. Router Initialization (Handles both public and admin states)
     if (typeof Router !== 'undefined') {
