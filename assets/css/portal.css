@@ -1,4 +1,4 @@
-﻿/* ===========================================================
+/* ===========================================================
    PORTAL DCTI - HOJA DE ESTILOS UNIFICADA
    Fusi�n de: fluid-styles.css + main.css + custom-alerts.css
    ===========================================================
@@ -4655,5 +4655,69 @@ html {
 }
 .hidden-by-filter {
     display: none !important;
+}
+
+/* ==========================================
+   STAT CARDS (Métricas y Reportes)
+   ========================================== */
+.dcti-stat-card {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 12px 18px 12px 14px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+    width: max-content;
+    min-width: 160px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dcti-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+}
+
+.dcti-stat-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.dcti-stat-card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.dcti-stat-card-icon i {
+    font-size: 1.4rem;
+}
+
+.dcti-stat-card-number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1;
+}
+
+.dcti-stat-card-divider {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 10px 0 8px 0;
+}
+
+.dcti-stat-card-label {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
 }
 
