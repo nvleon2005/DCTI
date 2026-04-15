@@ -16,6 +16,9 @@ const DashboardView = {
 
         return `
             <div class="view-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+                    <h2 style="margin: 0; color: var(--color-text-main);">Panel de Control</h2>
+                </div>
                 <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 24px;">
                     ${createStatCard('fas fa-users', data.stats.users, 'Usuarios Totales', 'var(--color-primary)', 'rgba(94, 27, 174, 0.1)')}
                     ${createStatCard('fas fa-project-diagram', data.stats.projects, 'Proyectos Activos', '#3b82f6', 'rgba(59, 130, 246, 0.1)')}

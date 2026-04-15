@@ -330,6 +330,7 @@ window.handleProjectSubmit = window.rateLimitAction(async function(e) {
                     updatedBy: session.name || session.username || "Usuario",
                     history: [logEntry, ...(old.history || [])].slice(0, 15)
                 };
+                if (typeof AuditService !== 'undefined') AuditService.log('Modificación', 'Proyectos', editId, title, 'Campos modificados: ' + changes.join(', '));
                 AlertService.notify('Éxito', 'Proyecto actualizado y cambios registrados.', 'success');
             } else {
                 AlertService.notify('Sin cambios', 'No se detectaron modificaciones.', 'info');
@@ -357,6 +358,7 @@ window.handleProjectSubmit = window.rateLimitAction(async function(e) {
             history: [{ date: now, responsible: session.name || session.username || "Usuario", action: "Creación inicial", fields: "Todos" }]
         };
         allProjects.push(newProject);
+        if (typeof AuditService !== 'undefined') AuditService.log('Creación', 'Proyectos', newId, title, 'Proyecto creado con estado: ' + status);
         AlertService.notify('Éxito', 'Nuevo proyecto registrado satisfactoriamente.', 'success');
     }
 
@@ -384,9 +386,11 @@ async function deleteProject(id) {
     if (!confirmed) return;
 
     let allProjects = getLocalProjects();
+    const deletedItem = allProjects.find(p => p.id == id);
     const updated = allProjects.filter(p => p.id != id);
 
     saveLocalProjects(updated);
+    if (typeof AuditService !== 'undefined') AuditService.log('Eliminación', 'Proyectos', id, deletedItem ? deletedItem.title : 'N/A', 'Proyecto eliminado del sistema');
     AlertService.notify('Eliminado', 'El proyecto ha sido removido del sistema.', 'success');
 
     if (typeof renderModule === 'function') {

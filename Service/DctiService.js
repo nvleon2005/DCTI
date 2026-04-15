@@ -93,6 +93,7 @@ function saveLocalDcti(data) {
 
     if (typeof AlertService !== 'undefined') {
         if (changes.length > 0 || !oldData.createdAt) {
+            if (typeof AuditService !== 'undefined') AuditService.log('Modificación', 'DCTI', 'dcti_info', 'Información Institucional', 'Campos modificados: ' + (changes.length > 0 ? changes.join(', ') : 'Registro inicial'));
             AlertService.notify('Información Actualizada', 'La información institucional y auditoría han sido actualizadas.', 'success');
         } else {
             AlertService.notify('Sin Cambios', 'No hubo modificaciones.', 'info');

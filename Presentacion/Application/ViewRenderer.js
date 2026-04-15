@@ -70,12 +70,20 @@ function renderModule(id, skipAnimation = false) {
             return;
         }
     }
+    if (id === 'auditoria') {
+        const session = JSON.parse(localStorage.getItem('dcti_session')) || {};
+        if (session.role !== 'admin' && session.role !== 'editor') {
+            if (typeof AlertService !== 'undefined') AlertService.notify('Acceso Restringido', 'Este módulo es exclusivo para Administradores y Editores.', 'error');
+            if (typeof switchView === 'function') switchView('dashboard');
+            return;
+        }
+    }
 
     let content = '';
     const viewData = { ...MOCK_DATA };
 
     // Sincronización de datos con controladores locales (LocalStorage)
-    if (['dashboard', 'users', 'news', 'projects', 'profile', 'my-courses', 'strategic', 'courses'].includes(id)) {
+    if (['dashboard', 'users', 'news', 'projects', 'profile', 'my-courses', 'strategic', 'courses', 'auditoria'].includes(id)) {
         const adminUsers = typeof AUTH_CONFIG !== 'undefined' ? AUTH_CONFIG.hardcodedUsers : [];
         const localUsers = typeof getLocalUsers === 'function' ? getLocalUsers() : [];
         const allUsers = [...adminUsers, ...localUsers];
@@ -179,19 +187,15 @@ function renderModule(id, skipAnimation = false) {
         switch (id) {
             case 'dashboard':
                 content = typeof DashboardView !== 'undefined' ? DashboardView.render(viewData) : '<h2>Panel no cargado</h2>';
-                document.getElementById('view-title').textContent = 'Panel de Control General';
                 break;
             case 'profile':
                 content = typeof ProfileView !== 'undefined' ? ProfileView.render(viewData) : '<h2>Perfil no cargado</h2>';
-                document.getElementById('view-title').textContent = 'Perfil de Usuario';
                 break;
             case 'my-courses':
                 content = typeof MyCoursesView !== 'undefined' ? MyCoursesView.render(viewData) : '<h2>Vista en desarrollo</h2>';
-                document.getElementById('view-title').textContent = 'Mis Capacitaciones';
                 break;
             case 'users':
                 content = typeof UsersView !== 'undefined' ? UsersView.render(viewData) : '<h2>Módulo de Usuarios no cargado</h2>';
-                document.getElementById('view-title').textContent = 'Gestión de Cuentas de Usuario';
                 break;
             case 'consultas':
                 if (typeof ConsultasController !== 'undefined') {
@@ -202,31 +206,27 @@ function renderModule(id, skipAnimation = false) {
             case 'admin-dcti':
             case 'dcti':
                 content = typeof AdminDctiView !== 'undefined' ? AdminDctiView.render(viewData) : '<h2>Módulo Administrativo DCTI no configurado</h2>';
-                document.getElementById('view-title').textContent = 'Gestión de Información Institucional';
                 break;
             case 'strategic':
                 content = typeof StrategicView !== 'undefined' ? StrategicView.render(viewData) : '<h2>Vista Estratégica en desarrollo</h2>';
-                document.getElementById('view-title').textContent = 'Planificación Estratégica';
                 break;
             case 'projects':
                 content = typeof ProjectsView !== 'undefined' ? ProjectsView.render(viewData) : '<h2>Vista Proyectos en desarrollo</h2>';
-                document.getElementById('view-title').textContent = 'Portafolio de Proyectos';
                 break;
             case 'news':
                 content = typeof AdminNewsView !== 'undefined' ? AdminNewsView.render(viewData) : '<h2>Vista Noticias en desarrollo</h2>';
-                document.getElementById('view-title').textContent = 'Gestión de Noticias y Publicaciones';
                 break;
             case 'courses':
                 content = typeof CoursesView !== 'undefined' ? CoursesView.render(viewData) : '<h2>Módulo Académico no cargado</h2>';
-                document.getElementById('view-title').textContent = 'Gestión Académica';
                 break;
             case 'reports':
                 content = typeof ReportsView !== 'undefined' ? ReportsView.render(viewData) : '<h2>Módulo de Reportes no cargado</h2>';
-                document.getElementById('view-title').textContent = 'Inteligencia de Datos y Reportes';
+                break;
+            case 'auditoria':
+                content = typeof AuditoriaView !== 'undefined' ? AuditoriaView.render(viewData) : '<h2>Módulo de Auditoría no cargado</h2>';
                 break;
             default:
                 content = `<div class="view-container"><h2>Módulo en desarrollo</h2></div>`;
-                document.getElementById('view-title').textContent = 'En Construcción';
         }
     } catch (err) {
         console.error(`Error renderizando módulo ${id}:`, err);

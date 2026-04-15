@@ -17,10 +17,10 @@ const ProfileView = {
             <!-- Header Section -->
             <div style="margin-bottom: 2.5rem; display: flex; align-items: center; gap: 1rem;">
                 <div style="width: 50px; height: 50px; border-radius: 12px; background: linear-gradient(135deg, #4f46e5, #c026d3); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);">
-                    <i class="fas fa-id-badge"></i>
+                    <i class="fas fa-user"></i>
                 </div>
                 <div>
-                    <h2 style="font-size: 2.2rem; font-weight: 800; margin: 0; background: linear-gradient(to right, #1e293b, #4f46e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px;">Mi Perfil Institucional</h2>
+                    <h2 style="font-size: 2.2rem; font-weight: 800; margin: 0; background: linear-gradient(to right, #1e293b, #4f46e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px;">Mi Perfil</h2>
                     <p style="color: #64748b; font-size: 1.05rem; margin: 0.2rem 0 0 0; font-weight: 400;">Configuración de identidad y credenciales de acceso</p>
                 </div>
             </div>
@@ -73,7 +73,7 @@ const ProfileView = {
                         
                         <!-- Sección 1 -->
                         <div class="form-section-header">
-                            <div class="form-section-icon"><i class="fas fa-address-card"></i></div>
+                            <div class="form-section-icon"><i class="fas fa-user"></i></div>
                             <div>
                                 <h4>Información Personal</h4>
                                 <p>Datos de identidad pública en la plataforma</p>
@@ -229,9 +229,8 @@ const ProfileView = {
                         <!-- Botonera -->
                         <div class="profile-actions">
                             ${isHardcoded ? '' : `
-                                <button type="submit" class="premium-save-btn">
-                                    <span>Guardar Cambios</span>
-                                    <i class="fas fa-arrow-right"></i>
+                                <button type="submit" class="btn-save-circle" title="Guardar Cambios">
+                                    <i class="fas fa-save" style="font-size: 1.2rem; margin: 0;"></i>
                                 </button>
                             `}
                         </div>

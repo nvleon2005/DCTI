@@ -155,6 +155,7 @@ const NewsController = {
                         updatedBy: session.name || session.username || "Usuario",
                         history: [logEntry, ...(old.history || [])].slice(0, 15)
                     };
+                    if (typeof AuditService !== 'undefined') AuditService.log('Modificación', 'Noticias', editId, headline, 'Campos modificados: ' + changes.join(', '));
                     AlertService.notify('Actualizada', 'Noticia guardada y cambios registrados.', 'success');
                 } else {
                     AlertService.notify('Sin Cambios', 'No hubo modificaciones.', 'info');
@@ -179,6 +180,7 @@ const NewsController = {
                     fields: "Todos"
                 }]
             });
+            if (typeof AuditService !== 'undefined') AuditService.log('Creación', 'Noticias', newId, headline, 'Noticia creada con categoría: ' + category);
             AlertService.notify('Creada', 'Noticia publicada con registro de auditoría.', 'success');
         }
 
@@ -196,9 +198,11 @@ const NewsController = {
         if (!confirmed) return;
 
         let allNews = this.getLocalNews();
+        const deletedItem = allNews.find(n => n.id == id);
         const updatedNews = allNews.filter(n => n.id != id);
 
         this.saveLocalNews(updatedNews);
+        if (typeof AuditService !== 'undefined') AuditService.log('Eliminación', 'Noticias', id, deletedItem ? deletedItem.headline : 'N/A', 'Noticia eliminada del sistema');
         AlertService.notify('Eliminada', 'Noticia removida.', 'success');
 
         if (typeof renderModule === 'function') {

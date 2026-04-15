@@ -460,6 +460,9 @@ window.handleCourseSubmit = window.rateLimitAction(async function(e) {
             // Verificar si hubo un cambio de Estado para activar la Función Log Audit
             if (previousState !== estadoCurso) {
                 logCourseStateChange(allCourses[index], estadoCurso, `Modificación manual de estado (Anterior: ${previousState})`);
+                if (typeof AuditService !== 'undefined') AuditService.log('Cambio de Estado', 'Cursos', id, nombreCurso, `Estado: ${previousState} → ${estadoCurso}`);
+            } else {
+                if (typeof AuditService !== 'undefined') AuditService.log('Modificación', 'Cursos', id, nombreCurso, 'Ficha pedagógica actualizada');
             }
             AlertService.success('La ficha pedagógica se ha guardado correctamente.', 'Curso Actualizado');
         }
@@ -489,6 +492,7 @@ window.handleCourseSubmit = window.rateLimitAction(async function(e) {
         // Auditoria Inicial de Registro
         logCourseStateChange(newCourse, estadoCurso, "Creación Inicial en Sistema");
         allCourses.push(newCourse);
+        if (typeof AuditService !== 'undefined') AuditService.log('Creación', 'Cursos', newCourse.id, nombreCurso, 'Curso creado con estado: ' + estadoCurso);
         AlertService.success('La nueva oferta de formación se ha emitido correctamente.', 'Curso Publicado');
     }
 
@@ -780,8 +784,10 @@ async function deleteCourse(id) {
     if (!confirmed) return;
 
     let courses = getLocalCourses();
+    const deletedCourse = courses.find(c => c.id == id);
     courses = courses.filter(c => c.id != id);
     saveLocalCourses(courses);
+    if (typeof AuditService !== 'undefined') AuditService.log('Eliminación', 'Cursos', id, deletedCourse ? deletedCourse.nombreCurso : 'N/A', 'Curso eliminado de forma destructiva');
     AlertService.success('Curso destruido de los registros.', 'Eliminado');
 }
 
@@ -810,6 +816,7 @@ async function toggleCoursePublish(id, action) {
     logCourseStateChange(curso, newState, `Cambio rápido de estado (Anterior: ${previousState})`);
     
     saveLocalCourses(todos);
+    if (typeof AuditService !== 'undefined') AuditService.log('Cambio de Estado', 'Cursos', id, curso.nombreCurso, `Estado: ${previousState} → ${newState}`);
     AlertService.success(`El curso ha sido ${newState === 'Publicado' ? 'publicado' : 'desactivado (Borrador)'} exitosamente.`, 'Estado Actualizado');
 }
 

@@ -26,6 +26,7 @@ const Router = {
         'strategic': { admin: true },
         'reports': { admin: true },
         'consultas': { admin: true },
+        'auditoria': { admin: true },
         'admin-dcti': { admin: true } // Renombrado para evitar confusión con pública
     },
 

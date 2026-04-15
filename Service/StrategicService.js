@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ADMIN DASHBOARD - STRATEGIC AREAS LOGIC (Local-First v1.0.0)
  * Responsabilidad: Gestión de Áreas Estratégicas, Validación de Unicidad y Auditoría.
  */
@@ -263,6 +263,7 @@ async function handleStrategicSubmit(e) {
                 audit: auditData // Trazabilidad Obligatoria
             };
             AlertService.notify('Área Actualizada', 'Los cambios han sido registrados con éxito.', 'success');
+            if (typeof AuditService !== 'undefined') AuditService.log('Modificación', 'Áreas Estratégicas', editId, areaName, 'Datos actualizados');
         }
     } else {
         // AGREGAR
@@ -277,6 +278,7 @@ async function handleStrategicSubmit(e) {
             audit: auditData // Trazabilidad Obligatoria
         };
         allAreas.push(newArea);
+        if (typeof AuditService !== 'undefined') AuditService.log('Creación', 'Áreas Estratégicas', newId, areaName, 'Nueva área estratégica');
         AlertService.notify('Área Creada', 'La nueva área estratégica ha sido registrada.', 'success');
     }
 
@@ -308,9 +310,11 @@ async function deleteStrategic(id) {
 
     if (!confirmed) return;
 
+    const deletedItem = allAreas.find(a => a.id == id);
     const updatedAreas = allAreas.filter(a => a.id != id);
 
     saveLocalStrategic(updatedAreas);
+    if (typeof AuditService !== 'undefined') AuditService.log('Eliminación', 'Áreas Estratégicas', id, deletedItem ? deletedItem.area : 'N/A', 'Área estratégica eliminada');
     AlertService.notify('Área Eliminada', 'El registro ha sido removido.', 'success');
 
     if (typeof renderModule === 'function') {

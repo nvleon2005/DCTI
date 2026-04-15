@@ -246,6 +246,11 @@ const App = {
     },
 
     logout: () => {
+        // Log de auditoría antes de limpiar la sesión
+        const sessionData = JSON.parse(localStorage.getItem('dcti_session')) || {};
+        if (typeof AuditService !== 'undefined' && sessionData.email) {
+            AuditService.log('Cierre de Sesión', 'Autenticación', sessionData.email, sessionData.name || sessionData.username || sessionData.email, 'Sesión cerrada manualmente');
+        }
         localStorage.removeItem('dcti_session');
 
         const adminRoot = document.getElementById('admin-root');
@@ -342,6 +347,9 @@ const App = {
             if (navMyCourses) navMyCourses.style.display = 'none';
             if (navConsultas) navConsultas.style.display = 'flex';
 
+            const navAuditoria = document.getElementById('nav-auditoria');
+            if (navAuditoria) navAuditoria.style.display = 'flex';
+
             contentItems.forEach(id => {
                 const item = document.querySelector(`[data-view="${id}"]`);
                 if (item) item.style.display = 'flex';
@@ -356,6 +364,9 @@ const App = {
             if (navDashboard) navDashboard.style.display = 'flex';
             if (navMyCourses) navMyCourses.style.display = 'none';
             if (navConsultas) navConsultas.style.display = 'flex'; // Editores pueden ver consultas
+
+            const navAuditoria = document.getElementById('nav-auditoria');
+            if (navAuditoria) navAuditoria.style.display = 'flex'; // Editores pueden ver auditoría
 
             ['dcti', 'strategic', 'news', 'courses'].forEach(id => {
                 const item = document.querySelector(`[data-view="${id}"]`);
@@ -372,6 +383,9 @@ const App = {
             if (navDashboard) navDashboard.style.display = 'none';
             if (navMyCourses) navMyCourses.style.display = 'flex';
             if (navConsultas) navConsultas.style.display = 'none';
+
+            const navAuditoria = document.getElementById('nav-auditoria');
+            if (navAuditoria) navAuditoria.style.display = 'none';
 
             contentItems.forEach(id => {
                 const item = document.querySelector(`[data-view="${id}"]`);

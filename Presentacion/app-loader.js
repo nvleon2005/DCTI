@@ -17,6 +17,7 @@
         "Presentacion/Components/AdminShell.js",
 
         // --- Servicios ---
+        "Service/AuditService.js",
         "Service/UsersService.js",
         "Service/ConsultasService.js",
         "Service/NewsService.js",
@@ -35,6 +36,7 @@
         "Presentacion/Pages/Courses/Courses.page.js",
         "Presentacion/Pages/Strategic/Strategic.page.js",
         "Presentacion/Pages/Reports/Reports.page.js",
+        "Presentacion/Pages/Auditoria/Auditoria.page.js",
         "Presentacion/Pages/Dcti/Dcti.page.js",
         "Presentacion/Pages/Profile/Profile.page.js",
         "Presentacion/Pages/MyCourses/MyCourses.page.js",

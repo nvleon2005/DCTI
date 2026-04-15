@@ -134,7 +134,9 @@ async function handleLogin(e) {
                 }
 
                 // Nudge sutil: si el usuario NO tiene preguntas de seguridad configuradas
-                if (!user.securityQ1 || !user.securityQ2) {
+                // (Excluir usuarios de MockData: no pueden configurar preguntas de seguridad)
+                const isHardcodedUser = user.email === 'admin@dcti.gob' || user.email === 'editor@dcti.gob';
+                if (!isHardcodedUser && (!user.securityQ1 || !user.securityQ2)) {
                     setTimeout(() => {
                         if (typeof AlertService !== 'undefined') {
                             AlertService.notify(
@@ -147,8 +149,10 @@ async function handleLogin(e) {
                 }
 
                 if (user.role === 'admin' || user.role === 'editor') {
+                    if (typeof AuditService !== 'undefined') AuditService.log('Inicio de Sesión', 'Autenticación', user.email, user.name || user.username || user.email, 'Acceso al dashboard administrativo');
                     Router.navigateTo('dashboard');
                 } else {
+                    if (typeof AuditService !== 'undefined') AuditService.log('Inicio de Sesión', 'Autenticación', user.email, user.name || user.username || user.email, 'Acceso al portal público');
                     Router.navigateTo('inicio');
                 }
             } else {
@@ -216,6 +220,8 @@ async function handleRegister(e) {
 
     if (typeof saveLocalUser === 'function') saveLocalUser(newUser);
 
+    if (typeof AuditService !== 'undefined') AuditService.log('Creación', 'Autenticación', email, name, 'Registro de nueva cuenta de usuario (visitante)');
+
     AUTH_UI.registerForm.reset();
     toggleAuthView('login');
     AlertService.notify('Registro Exitoso', 'Cuenta creada. Esperando activación.', 'success');
@@ -237,6 +243,14 @@ async function handleRecoveryStep1(e) {
 
     if (!user) {
         AUTH_UI.recoveryError.textContent = 'Este correo electrónico no está registrado en el sistema.';
+        AUTH_UI.recoveryError.classList.remove('hidden');
+        return;
+    }
+
+    // Verificar si es un usuario de sistema (MockData)
+    const isSystemUser = email === 'admin@dcti.gob' || email === 'editor@dcti.gob';
+    if (isSystemUser) {
+        AUTH_UI.recoveryError.textContent = 'Este usuario es de sistema, no puede recuperar contraseña mediante este método.';
         AUTH_UI.recoveryError.classList.remove('hidden');
         return;
     }
@@ -325,6 +339,7 @@ async function handleRecoveryStep3(e) {
 
     _recoveryTargetEmail = null;
     toggleAuthView('login');
+    if (typeof AuditService !== 'undefined') AuditService.log('Recuperación', 'Autenticación', localUsers[index] ? localUsers[index].email : 'N/A', localUsers[index] ? (localUsers[index].name || localUsers[index].username) : 'N/A', 'Contraseña restablecida por preguntas de seguridad');
     AlertService.notify('Contraseña Actualizada', 'Tu contraseña ha sido restablecida exitosamente. Inicia sesión con tu nueva clave.', 'success');
 }
 

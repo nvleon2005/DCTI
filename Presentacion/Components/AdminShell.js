@@ -17,7 +17,7 @@ const AdminShell = {
                 <div class="sidebar__header">
                     <div class="sidebar__logo">
                         <i class="fas fa-shield-halved"></i>
-                        <span>GESTOR DCTI</span>
+                        <span>DCTI</span>
                     </div>
                 </div>
                 <style>
@@ -49,6 +49,10 @@ const AdminShell = {
                             <i class="fas fa-headset"></i>
                             <span>Consultas</span>
                         </li>
+                        <li class="sidebar__item" data-view="auditoria" id="nav-auditoria">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>Auditoría</span>
+                        </li>
                         <li class="sidebar__section-title" id="nav-content-title">CONTENIDOS</li>
                         <li class="sidebar__item" data-view="admin-dcti">
                             <i class="fas fa-building"></i>
@@ -77,7 +81,7 @@ const AdminShell = {
                         </li>` : ''}
                         <li class="sidebar__section-title">NAVEGACIÓN</li>
                         <li class="sidebar__item" onclick="window.location.href='index.html'"
-                            style="color: #60a5fa; font-weight: 600;">
+                            style="color: #fff; font-weight: 600;">
                             <i class="fas fa-external-link-alt"></i>
                             <span>Ir al Portal</span>
                         </li>
@@ -104,7 +108,6 @@ const AdminShell = {
                         <button class="mobile-toggle" id="sidebar-toggle">
                             <i class="fas fa-bars"></i>
                         </button>
-                        <h1 id="view-title">Dashboard</h1>
                     </div>
                     <div class="main-header__right">
                         <div class="top-nav-filter-wrap">

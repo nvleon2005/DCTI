@@ -248,16 +248,24 @@ function initMockData() {
                 items.forEach(item => {
                     if (!item.createdAt) {
                         item.createdAt = item.published || new Date().toISOString();
-                        item.createdBy = "Ing.David Acosta";
+                        item.createdBy = "Sistema";
                         item.updatedAt = item.createdAt;
-                        item.updatedBy = "Ing.David Acosta";
+                        item.updatedBy = "Sistema";
                         item.history = [{
                             date: new Date().toLocaleString('es-VE'),
-                            responsible: "Ing.David Acosta",
+                            responsible: "Sistema",
                             action: "Migración Inicial",
                             fields: "Todos"
                         }];
                         modified = true;
+                    }
+                    // Migración automática: reescribir "Ing.David Acosta" a "Sistema"
+                    if (item.createdBy === "Ing.David Acosta") { item.createdBy = "Sistema"; modified = true; }
+                    if (item.updatedBy === "Ing.David Acosta") { item.updatedBy = "Sistema"; modified = true; }
+                    if (item.history && Array.isArray(item.history)) {
+                        item.history.forEach(h => {
+                            if (h.responsible === "Ing.David Acosta") { h.responsible = "Sistema"; modified = true; }
+                        });
                     }
                 });
                 if (modified) {

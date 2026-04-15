@@ -205,7 +205,12 @@ const UsersView = {
                                     </div>
                                     <div class="form-field" id="pass-field-group">
                                         <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Contraseña</label>
-                                        <input type="password" id="admin-user-pass" placeholder="Ingresa para cambiar (vacío = mantener actual)" style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); font-size: 0.8rem;">
+                                        <div style="position: relative; display: flex; align-items: center;">
+                                            <input type="password" id="admin-user-pass" placeholder="Ingrese contraseña segura..." style="width: 100%; padding: 8px 34px 8px 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); font-size: 0.8rem;">
+                                            <button type="button" onclick="toggleAdminUserPassword()" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 0.85rem; padding: 0; display: flex; align-items: center; justify-content: center;" title="Mostrar/ocultar contraseña">
+                                                <i class="fas fa-eye" id="admin-pass-toggle-icon"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 

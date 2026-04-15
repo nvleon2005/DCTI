@@ -102,7 +102,7 @@ function openUserModal(email = null) {
             document.getElementById('admin-user-email').value = user.email || '';
             document.getElementById('admin-user-role').value = user.role || 'visitante';
             document.getElementById('admin-user-pass').value = '';
-            document.getElementById('admin-user-pass').placeholder = '•••••••• (Oculta por seguridad)';
+            document.getElementById('admin-user-pass').placeholder = 'Dejar vacío para mantener actual';
 
             // Sincronizar radio buttons
             const radios = document.getElementsByName('admin-user-role-radio');
@@ -155,6 +155,26 @@ function openUserModal(email = null) {
 function closeUserModal() {
     const modal = document.getElementById('user-modal');
     if (modal) modal.classList.add('hidden');
+    // Resetear el toggle de contraseña al cerrar
+    const passInput = document.getElementById('admin-user-pass');
+    if (passInput) passInput.type = 'password';
+    const toggleIcon = document.getElementById('admin-pass-toggle-icon');
+    if (toggleIcon) { toggleIcon.classList.remove('fa-eye-slash'); toggleIcon.classList.add('fa-eye'); }
+}
+
+function toggleAdminUserPassword() {
+    const input = document.getElementById('admin-user-pass');
+    const icon = document.getElementById('admin-pass-toggle-icon');
+    if (!input || !icon) return;
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
 }
 
 async function handleUserAdminSubmit(e) {

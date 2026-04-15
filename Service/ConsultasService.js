@@ -64,7 +64,7 @@ const ConsultasController = {
             container.innerHTML = html;
         }
 
-        document.getElementById('view-title').textContent = 'Buzón de Consultas Públicas';
+
 
         // Setear active en el nav
         if (typeof setActiveNav === 'function') setActiveNav('consultas');

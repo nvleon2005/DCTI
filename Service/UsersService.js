@@ -256,6 +256,7 @@ const UsersController = {
                 history: [{ date: nowStr, responsible: session.name || session.username || "Usuario", action: "Creación", fields: "Todos" }]
             };
             this.saveLocalUser(newUser);
+            if (typeof AuditService !== 'undefined') AuditService.log('Creación', 'Usuarios', email, name || username, 'Usuario creado con rol: ' + role);
         }
 
         this.closeUserModal();
@@ -320,6 +321,7 @@ const UsersController = {
 
             localUsers[index] = updatedUser;
             localStorage.setItem('dcti_users', JSON.stringify(localUsers));
+            if (typeof AuditService !== 'undefined' && changes.length > 0) AuditService.log('Modificación', 'Usuarios', newData.email, newData.name || newData.username, 'Campos modificados: ' + changes.join(', '));
             AlertService.notify('Usuario Actualizado', 'Los datos han sido guardados.', 'success');
         } else {
             AlertService.notify('Restricción', 'Este usuario es de sistema y tiene restricciones.', 'info');
@@ -342,6 +344,7 @@ const UsersController = {
             AlertService.notify('Restricción', 'Usuario de sistema.', 'warning');
         } else {
             localStorage.setItem('dcti_users', JSON.stringify(updatedUsers));
+            if (typeof AuditService !== 'undefined') AuditService.log('Eliminación', 'Usuarios', email, email, 'Usuario eliminado del sistema');
             AlertService.notify('Eliminado', 'Usuario removido.', 'success');
             if (typeof renderModule === 'function') renderModule('users');
         }
@@ -372,6 +375,7 @@ const UsersController = {
             user.history = user.history.slice(0, 15);
 
             localStorage.setItem('dcti_users', JSON.stringify(localUsers));
+            if (typeof AuditService !== 'undefined') AuditService.log('Cambio de Estado', 'Usuarios', email, user.name || email, 'Estado cambiado a: ' + user.status);
             AlertService.notify('Estado Actualizado', 'Estado cambiado correctamente.', 'info');
             if (typeof renderModule === 'function') renderModule('users');
         }
