@@ -95,7 +95,18 @@ const UsersController = {
             if (user) {
                 document.getElementById('admin-user-name').value = user.name || '';
                 document.getElementById('admin-user-lastname').value = user.lastname || '';
-                document.getElementById('admin-user-cedula').value = user.cedula || '';
+                
+                let cedType = 'V';
+                let cedNum = user.cedula || '';
+                if (user.cedula && user.cedula.length > 2 && user.cedula.charAt(1) === '-') {
+                    cedType = user.cedula.charAt(0);
+                    cedNum = user.cedula.substring(2);
+                } else if (user.cedula && (user.cedula.startsWith('V') || user.cedula.startsWith('E') || user.cedula.startsWith('J'))) {
+                    cedType = user.cedula.charAt(0);
+                    cedNum = user.cedula.substring(1).replace(/[^0-9]/g, '');
+                }
+                document.getElementById('admin-user-cedula-type').value = ['V','E','J'].includes(cedType) ? cedType : 'V';
+                document.getElementById('admin-user-cedula').value = cedNum;
                 document.getElementById('admin-user-username').value = user.username || '';
                 document.getElementById('admin-user-email').value = user.email || '';
                 document.getElementById('admin-user-role').value = user.role || 'visitante';
@@ -179,8 +190,13 @@ const UsersController = {
             const avatarInput = document.getElementById('admin-user-avatar-input');
             if (avatarInput) avatarInput.value = '';
 
+            if (document.getElementById('admin-user-cedula-type')) {
+                document.getElementById('admin-user-cedula-type').value = 'V';
+            }
+            document.getElementById('admin-user-cedula').value = '';
+
             document.getElementById('admin-user-pass').value = '';
-            document.getElementById('admin-user-pass').placeholder = 'Ingrese contraseña segura...';
+            document.getElementById('admin-user-pass').placeholder = '';
 
             const radios = document.getElementsByName('admin-user-role-radio');
             for (let radio of radios) {
@@ -201,7 +217,9 @@ const UsersController = {
         // [SECURITY] Sanitizar campos de texto para prevenir XSS (Anti-Scripting)
         const name     = window.sanitizeHTML ? window.sanitizeHTML(document.getElementById('admin-user-name').value.trim()) : document.getElementById('admin-user-name').value.trim();
         const lastname = window.sanitizeHTML ? window.sanitizeHTML(document.getElementById('admin-user-lastname').value.trim()) : document.getElementById('admin-user-lastname').value.trim();
-        const cedula   = document.getElementById('admin-user-cedula').value;
+        const cedulaType = document.getElementById('admin-user-cedula-type') ? document.getElementById('admin-user-cedula-type').value : 'V';
+        const cedulaNum = document.getElementById('admin-user-cedula').value;
+        const cedula = cedulaNum ? `${cedulaType}-${cedulaNum}` : '';
         const username = window.sanitizeHTML ? window.sanitizeHTML(document.getElementById('admin-user-username').value.trim()) : document.getElementById('admin-user-username').value.trim();
         const email    = document.getElementById('admin-user-email').value;
         const pass     = document.getElementById('admin-user-pass').value;

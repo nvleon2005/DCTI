@@ -35,6 +35,7 @@ const AuditService = {
                 entityId: entityId || 'N/A',
                 entityLabel: entityLabel || 'N/A',
                 user: responsibleUser,
+                userRole: session.role || 'Sistema',
                 details: details || ''
             };
 
@@ -70,6 +71,17 @@ const AuditService = {
             let logs = raw ? JSON.parse(raw) : [];
 
             if (filters) {
+                if (filters.search && filters.search.trim() !== '') {
+                    const term = filters.search.toLowerCase();
+                    logs = logs.filter(l => 
+                        (l.entityLabel && l.entityLabel.toLowerCase().includes(term)) ||
+                        (l.details && l.details.toLowerCase().includes(term)) ||
+                        (l.user && l.user.toLowerCase().includes(term)) ||
+                        (l.action && l.action.toLowerCase().includes(term)) ||
+                        (l.timestamp && l.timestamp.includes(term)) ||
+                        (l.entityId && l.entityId.toString().toLowerCase().includes(term))
+                    );
+                }
                 if (filters.module && filters.module !== 'Todos') {
                     logs = logs.filter(l => l.module === filters.module);
                 }

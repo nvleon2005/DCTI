@@ -68,6 +68,7 @@ function openStrategicModal(id = null) {
     }
 
     renderStrategicGallery();
+    setTimeout(() => { if (window.AdminTemplate) window.AdminTemplate.initFormBackup('strategic-admin-form'); }, 50);
 }
 
 function closeStrategicModal() {

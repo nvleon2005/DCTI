@@ -63,50 +63,39 @@ const AdminNewsView = {
                         ${filterButtons}
                     </div>
                     <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; flex-wrap: wrap; flex-shrink: 0;">
+                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                            <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
+                            <input type="text" id="filter-news-search" placeholder="Buscar Noticia..." oninput="window.lastFocusedInput = this.id; window.globalNewsSearch = this.value; window.debouncedRenderModule('news');" value="${window.globalNewsSearch || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 140px; font-size: 0.85rem; outline: none; font-weight: 500;">
+                        </div>
                         <select onchange="window.globalNewsStatusFilter = this.value; if(typeof changePage === 'function'){changePage('news', 1)} else {renderModule('news')}" style="padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
                             <option value="Todos" ${window.globalNewsStatusFilter === 'Todos' || !window.globalNewsStatusFilter ? 'selected' : ''}>Todos los Estados</option>
                             <option value="Publicado" ${window.globalNewsStatusFilter === 'Publicado' || window.globalNewsStatusFilter === 'Publicada' ? 'selected' : ''}>Publicadas</option>
                             <option value="Borrador" ${window.globalNewsStatusFilter === 'Borrador' ? 'selected' : ''}>Borradores</option>
                         </select>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                            <span style="color: var(--color-text-muted); font-size: 0.85rem; font-weight: 600;"><i class="fas fa-calendar-alt"></i> Pub:</span>
+                            <input type="date" onchange="window.globalNewsDateFrom = this.value; if(typeof changePage === 'function'){changePage('news', 1)} else {renderModule('news')}" value="${window.globalNewsDateFrom || ''}" style="padding: 0 12px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; color: var(--color-text-main); font-weight: 500; background: white; box-sizing: border-box;" title="Desde">
+                            <span style="color: var(--color-text-muted); font-size: 0.85rem;">a</span>
+                            <input type="date" onchange="window.globalNewsDateTo = this.value; if(typeof changePage === 'function'){changePage('news', 1)} else {renderModule('news')}" value="${window.globalNewsDateTo || ''}" style="padding: 0 12px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; color: var(--color-text-main); font-weight: 500; background: white; box-sizing: border-box;" title="Hasta">
+                        </div>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">
         ${news.map(n => {
             const statusArray = Array.isArray(n.status) ? n.status : (n.status ? [n.status] : []);
             const isPublished = statusArray.includes('Publicada') || statusArray.includes('Publicado');
-            const categoryColor = n.category ? '#6366f1' : '#94a3b8'; // Indigo default, o gris si no tiene
-            return `
-                        <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative;">
-                            ${isPublished ? `
-                                <div style="position: absolute; top: 12px; left: 12px; background: #22c55e; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                                    <i class="fas fa-check-circle"></i> PUBLICADA
-                                </div>
-                            ` : ''}
-                            <div style="height: 140px; background: #f1f5f9; overflow: hidden; position: relative;">
-                                <img src="${Array.isArray(n.multimedia) && n.multimedia.length > 0 ? n.multimedia[0] : (n.multimedia || 'assets/images/img8.jpg')}" style="width: 100%; height: 100%; object-fit: cover;">
-                                <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 4px;">
-                                    ${statusArray.map(s => `
-                                        <span title="${s}" style="width: 8px; height: 8px; border-radius: 50%; background: ${s === 'Publicada' || s === 'Publicado' ? '#22c55e' : (s === 'Validada' ? '#3b82f6' : '#f59e0b')}"></span>
-                                    `).join('')}
-                                </div>
-                            </div>
-                            <div style="padding: var(--space-md); flex: 1; display: flex; flex-direction: column;">
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                                    <span style="font-size: 0.7rem; background: ${categoryColor}15; color: ${categoryColor}; padding: 2px 8px; border-radius: 4px; font-weight: 700; border: 1px solid ${categoryColor}30;">
-                                        ${n.category || 'Sin Categoría'}
-                                    </span>
-                                </div>
-                                <h3 style="font-size: 0.95rem; color: var(--color-text-main); margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.8em;">${n.headline}</h3>
-                                <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 4px;">Publicada: ${n.published ? new Date(n.published).toLocaleDateString('es-VE') : ''}</p>
-                                <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 12px; font-style: italic;">Última act: ${n.updatedAt ? new Date(n.updatedAt).toLocaleDateString('es-VE') : ''} por <b>${n.updatedBy || 'Sistema'}</b></p>
-                                <div style="display: flex; gap: 8px; margin-top: auto;">
-                                    <button onclick="openNewsModal(${n.id})" title="Editar" style="flex: 1; background: none; border: 1px solid var(--color-border); padding: 8px; border-radius: 6px; cursor: pointer; color: var(--color-text-main); transition: 0.2s;"><i class="fas fa-edit"></i></button>
-                                    <button onclick="deleteNews(${n.id})" title="Eliminar" style="flex: 1; background: none; border: 1px solid #fee2e2; color: #ef4444; padding: 8px; border-radius: 6px; cursor: pointer; transition: 0.2s;"><i class="fas fa-trash-alt"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    `}).join('')}
+            const imageUrl = Array.isArray(n.multimedia) && n.multimedia.length > 0 ? n.multimedia[0] : (n.multimedia || 'assets/images/img8.jpg');
+            return window.AdminTemplate.Card({
+                id: n.id,
+                title: n.headline,
+                image: imageUrl,
+                badge: { text: isPublished ? 'Publicada' : 'Borrador', type: isPublished ? 'success' : 'default' },
+                module: 'news',
+                onEdit: 'openNewsModal(' + n.id + ')',
+                onDelete: 'deleteNews(' + n.id + ')'
+            });
+        }).join('')}
                     ${news.length === 0 ? `
                         <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--color-text-muted); background: white; border-radius: var(--radius-md); border: 1px dashed var(--color-border);">
                             <i class="fas fa-newspaper" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
@@ -116,17 +105,7 @@ const AdminNewsView = {
                 </div>
 
                 <!-- Paginación Footer -->
-                ${paginated && paginated.totalPages > 1 ? `
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; padding: 20px 0;">
-                        <button onclick="changePage('news', ${paginated.currentPage - 1})" ${paginated.currentPage === 1 ? 'disabled' : ''} style="width: 35px; height: 35px; border: 1px solid var(--color-border); background: white; border-radius: 50%; cursor: ${paginated.currentPage === 1 ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === 1 ? '0.3' : '1'}; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-chevron-left" style="font-size: 0.8rem;"></i>
-                        </button>
-                        <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-main);">Página ${paginated.currentPage} de ${paginated.totalPages}</span>
-                        <button onclick="changePage('news', ${paginated.currentPage + 1})" ${paginated.currentPage === paginated.totalPages ? 'disabled' : ''} style="width: 35px; height: 35px; border: 1px solid var(--color-border); background: white; border-radius: 50%; cursor: ${paginated.currentPage === paginated.totalPages ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === paginated.totalPages ? '0.3' : '1'}; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-chevron-right" style="font-size: 0.8rem;"></i>
-                        </button>
-                    </div>
-                ` : ''}
+                ${paginated ? window.AdminTemplate.Pagination('news', paginated.currentPage, paginated.totalPages) : ''}
 
                 <!-- Modal de Noticias -->
                 <div id="news-modal" class="modal-overlay hidden">
@@ -202,12 +181,8 @@ const AdminNewsView = {
                                     </div>
                                 </div>
                             </div>
-                            <!-- Auditoría Section -->
-                            <div id="news-audit-container" style="padding: 0 25px 20px 25px; display: none;"></div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn-secondary" onclick="closeNewsModal()" style="padding: 10px 20px; font-weight: 600;">Cancelar</button>
-                                <button type="submit" title="Guardar Cambios" class="btn-save-circle"><i class="fas fa-save"></i></button>
-                            </div>
+
+                            ${window.AdminTemplate.ModalFooter('closeNewsModal()', 'news-admin-form')}
                         </form>
                     </div>
                 </div>

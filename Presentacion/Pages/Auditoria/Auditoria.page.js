@@ -10,7 +10,8 @@ window.auditFilters = window.auditFilters || {
     action: 'Todas',
     user: 'Todos',
     dateFrom: '',
-    dateTo: ''
+    dateTo: '',
+    search: ''
 };
 
 window.auditCurrentPage = window.auditCurrentPage || 1;
@@ -30,33 +31,39 @@ const AuditoriaView = {
 
         // --- Helpers de badges ---
         const actionMap = {
-            'Creación':          { css: 'create',   icon: 'fa-plus-circle' },
-            'Modificación':      { css: 'edit',     icon: 'fa-pen' },
-            'Eliminación':       { css: 'delete',   icon: 'fa-trash-alt' },
-            'Cambio de Estado':  { css: 'status',   icon: 'fa-exchange-alt' },
-            'Inicio de Sesión':  { css: 'login',    icon: 'fa-sign-in-alt' },
-            'Cierre de Sesión':  { css: 'logout',   icon: 'fa-sign-out-alt' },
-            'Recuperación':      { css: 'recovery', icon: 'fa-key' }
+            'Creación':          { css: 'create',   icon: 'fa-plus-circle', severity: 'success' },
+            'Modificación':      { css: 'edit',     icon: 'fa-pen', severity: 'info' },
+            'Eliminación':       { css: 'delete',   icon: 'fa-trash-alt', severity: 'danger' },
+            'Cambio de Estado':  { css: 'status',   icon: 'fa-exchange-alt', severity: 'warning' },
+            'Inicio de Sesión':  { css: 'login',    icon: 'fa-sign-in-alt', severity: 'info' },
+            'Cierre de Sesión':  { css: 'logout',   icon: 'fa-sign-out-alt', severity: 'default' },
+            'Recuperación':      { css: 'recovery', icon: 'fa-key', severity: 'warning' }
         };
 
         const actionBadge = (action) => {
-            const m = actionMap[action] || { css: 'edit', icon: 'fa-info-circle' };
-            return `<span class="audit-action-badge audit-action-badge--${m.css}"><i class="fas ${m.icon}"></i>${action}</span>`;
+            const m = actionMap[action] || { css: 'edit', icon: 'fa-info-circle', severity: 'default' };
+            let colorStr = '';
+            if (m.severity === 'danger') colorStr = 'color: #ef4444; background: #fef2f2; border: 1px solid #fecaca;';
+            else if (m.severity === 'warning') colorStr = 'color: #f59e0b; background: #fffbeb; border: 1px solid #fde68a;';
+            else if (m.severity === 'success') colorStr = 'color: #10b981; background: #ecfdf5; border: 1px solid #a7f3d0;';
+            else if (m.severity === 'info') colorStr = 'color: #3b82f6; background: #eff6ff; border: 1px solid #bfdbfe;';
+            else colorStr = 'color: #64748b; background: #f1f5f9; border: 1px solid #e2e8f0;';
+            return `<span class="audit-action-badge" style="padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; ${colorStr}"><i class="fas ${m.icon}"></i>${action}</span>`;
         };
 
         const moduleColors = {
-            'Usuarios':            { bg: 'rgba(124, 58, 237, 0.08)', text: '#7c3aed', border: 'rgba(124, 58, 237, 0.2)' },
-            'Noticias':            { bg: 'rgba(34, 197, 94, 0.08)',  text: '#16a34a', border: 'rgba(34, 197, 94, 0.2)' },
-            'Proyectos':           { bg: 'rgba(59, 130, 246, 0.08)', text: '#2563eb', border: 'rgba(59, 130, 246, 0.2)' },
-            'Cursos':              { bg: 'rgba(245, 158, 11, 0.08)', text: '#d97706', border: 'rgba(245, 158, 11, 0.2)' },
-            'Áreas Estratégicas':  { bg: 'rgba(236, 72, 153, 0.08)', text: '#db2777', border: 'rgba(236, 72, 153, 0.2)' },
-            'DCTI':                { bg: 'rgba(99, 102, 241, 0.08)', text: '#4f46e5', border: 'rgba(99, 102, 241, 0.2)' },
-            'Autenticación':       { bg: 'rgba(100, 116, 139, 0.08)', text: '#475569', border: 'rgba(100, 116, 139, 0.2)' }
+            'Usuarios':            { bg: 'rgba(124, 58, 237, 0.15)', text: '#7c3aed', border: 'rgba(124, 58, 237, 0.3)' },
+            'Noticias':            { bg: 'rgba(34, 197, 94, 0.15)',  text: '#16a34a', border: 'rgba(34, 197, 94, 0.3)' },
+            'Proyectos':           { bg: 'rgba(59, 130, 246, 0.15)', text: '#2563eb', border: 'rgba(59, 130, 246, 0.3)' },
+            'Cursos':              { bg: 'rgba(245, 158, 11, 0.15)', text: '#d97706', border: 'rgba(245, 158, 11, 0.3)' },
+            'Áreas Estratégicas':  { bg: 'rgba(236, 72, 153, 0.15)', text: '#db2777', border: 'rgba(236, 72, 153, 0.3)' },
+            'DCTI':                { bg: 'rgba(99, 102, 241, 0.15)', text: '#4f46e5', border: 'rgba(99, 102, 241, 0.3)' },
+            'Autenticación':       { bg: 'rgba(100, 116, 139, 0.15)', text: '#475569', border: 'rgba(100, 116, 139, 0.3)' }
         };
 
         const moduleBadge = (mod) => {
             const c = moduleColors[mod] || { bg: '#f1f5f9', text: '#64748b', border: '#e2e8f0' };
-            return `<span class="audit-module-badge" style="background: ${c.bg}; color: ${c.text}; border: 1px solid ${c.border};">${mod}</span>`;
+            return `<span class="audit-module-badge" style="background: ${c.bg}; color: ${c.text}; border: 1px solid ${c.border}; border-radius: 20px; padding: 4px 10px; font-weight: 600; font-size: 0.75rem; display: inline-block;">${mod}</span>`;
         };
 
         const getUserInitials = (name) => {
@@ -84,7 +91,12 @@ const AuditoriaView = {
                             ${log.user}
                         </span>
                     </td>
-                    <td class="audit-details-cell" title="${log.details || ''}">${log.details || '—'}</td>
+                    <td class="audit-details-cell" title="${log.details || ''}">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; display: inline-block;">${log.details || '—'}</span>
+                            <button onclick="openAuditModal('${log.id}')" title="Ver Detalles" style="background: none; border: 1px solid var(--color-border); padding: 4px 8px; border-radius: 6px; cursor: pointer; color: var(--color-text-main); font-size: 0.75rem; flex-shrink: 0;"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </td>
                 </tr>
             `).join('')
             : `<tr><td colspan="6">
@@ -163,37 +175,42 @@ const AuditoriaView = {
                 </div>
 
                 <!-- Filtros -->
-                <div class="audit-filters">
-                    <div class="audit-filter-group">
-                        <label class="audit-filter-label">Módulo</label>
-                        <select class="audit-filter-select" onchange="applyAuditFilter('module', this.value)">
-                            ${renderOptions(moduleOptions, window.auditFilters.module)}
-                        </select>
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: var(--space-lg);">
+                    <!-- Fila Superior -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex: 1; min-width: 250px; max-width: 400px;">
+                            <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
+                            <input type="text" placeholder="Buscar detalle o entidad..." oninput="applyAuditFilter('search', this.value)" value="${window.auditFilters.search || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 100%; font-size: 0.85rem; outline: none; font-weight: 500;">
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                            <input type="date" value="${window.auditFilters.dateFrom}" onchange="applyAuditFilter('dateFrom', this.value)" style="padding: 0 12px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; color: var(--color-text-main); font-weight: 500; background: white; box-sizing: border-box;">
+                            <span style="color: var(--color-text-muted); font-size: 0.85rem;">a</span>
+                            <input type="date" value="${window.auditFilters.dateTo}" onchange="applyAuditFilter('dateTo', this.value)" style="padding: 0 12px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; color: var(--color-text-main); font-weight: 500; background: white; box-sizing: border-box;">
+                        </div>
                     </div>
-                    <div class="audit-filter-group">
-                        <label class="audit-filter-label">Acción</label>
-                        <select class="audit-filter-select" onchange="applyAuditFilter('action', this.value)">
-                            ${renderOptions(actionOptions, window.auditFilters.action)}
+
+                    <!-- Fila Inferior -->
+                    <div style="display: flex; justify-content: flex-start; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <select onchange="applyAuditFilter('module', this.value)" style="flex: 1; min-width: 160px; padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                            <option value="Todos" ${window.auditFilters.module === 'Todos' ? 'selected' : ''}>Todos los Módulos</option>
+                            ${renderOptions(moduleOptions.filter(o => o !== 'Todos'), window.auditFilters.module)}
                         </select>
-                    </div>
-                    <div class="audit-filter-group">
-                        <label class="audit-filter-label">Usuario</label>
-                        <select class="audit-filter-select" onchange="applyAuditFilter('user', this.value)">
-                            <option value="Todos">Todos</option>
+
+                        <select onchange="applyAuditFilter('action', this.value)" style="flex: 1; min-width: 160px; padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                            <option value="Todas" ${window.auditFilters.action === 'Todas' ? 'selected' : ''}>Todas las Acciones</option>
+                            ${renderOptions(actionOptions.filter(o => o !== 'Todas'), window.auditFilters.action)}
+                        </select>
+
+                        <select onchange="applyAuditFilter('user', this.value)" style="flex: 1; min-width: 160px; padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                            <option value="Todos">Todos los Usuarios</option>
                             ${uniqueUsers.map(u => `<option value="${u}" ${window.auditFilters.user === u ? 'selected' : ''}>${u}</option>`).join('')}
                         </select>
+
+                        <button onclick="clearAuditFilters()" style="padding: 0 16px; height: 36px; border: none; border-radius: 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; background: #f1f5f9; color: #64748b; margin-left: auto; transition: 0.2s;" onmouseover="this.style.background='#e2e8f0';this.style.color='#475569';" onmouseout="this.style.background='#f1f5f9';this.style.color='#64748b';">
+                            <i class="fas fa-times" style="margin-right: 5px;"></i> Limpiar
+                        </button>
                     </div>
-                    <div class="audit-filter-group" style="min-width: 130px;">
-                        <label class="audit-filter-label">Desde</label>
-                        <input type="date" class="audit-filter-date" value="${window.auditFilters.dateFrom}" onchange="applyAuditFilter('dateFrom', this.value)">
-                    </div>
-                    <div class="audit-filter-group" style="min-width: 130px;">
-                        <label class="audit-filter-label">Hasta</label>
-                        <input type="date" class="audit-filter-date" value="${window.auditFilters.dateTo}" onchange="applyAuditFilter('dateTo', this.value)">
-                    </div>
-                    <button onclick="clearAuditFilters()" class="audit-filter-clear" title="Limpiar filtros">
-                        <i class="fas fa-times"></i> Limpiar
-                    </button>
                 </div>
 
                 <!-- Tabla de Bitácora -->
@@ -224,12 +241,141 @@ const AuditoriaView = {
                     </div>
                     ${paginationHtml}
                 </div>
+
+                <!-- Modal de Detalles Rediseñado -->
+                <div id="audit-details-modal" class="modal-overlay hidden" onclick="if(event.target === this) closeAuditModal()">
+                    <div class="modal-card" style="max-width: 650px; width: 95%; padding: 0; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);">
+                        <div class="modal-header" style="background: var(--color-primary); padding: 1.5rem; color: white; position: relative;">
+                            <h2 style="margin: 0; font-size: 1.25rem;"><i class="fas fa-search-plus" style="margin-right: 8px;"></i>Detalles del Registro</h2>
+                            <div id="audit-modal-id-text" style="font-size: 0.85rem; opacity: 0.9; margin-top: 0.25rem;"></div>
+                            <button class="close-modal" onclick="closeAuditModal()" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">&times;</button>
+                        </div>
+                        <div style="padding: 2rem; max-height: 70vh; overflow-y: auto;">
+                            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem; margin-bottom: 2rem;">
+                                <div>
+                                    <label style="display: block; font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold; text-transform: uppercase;">FECHA Y HORA</label>
+                                    <div id="audit-modal-datetime" style="font-weight: 500; color: var(--color-text-main);"></div>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold; text-transform: uppercase;">MÓDULO</label>
+                                    <div id="audit-modal-module-pill"></div>
+                                </div>
+                            </div>
+
+                            <div style="background: #f8fafc; border-radius: 8px; padding: 1.25rem; border: 1px solid #e2e8f0; margin-bottom: 1.5rem;">
+                                <label style="display: block; font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold; text-transform: uppercase; margin-bottom: 0.75rem;">INFORMACIÓN DEL USUARIO</label>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                    <div>
+                                        <div style="font-size: 0.8rem; color: var(--color-text-muted);">Usuario</div>
+                                        <div id="audit-modal-username" style="font-weight: 600;"></div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.8rem; color: var(--color-text-muted);">Rol</div>
+                                        <div id="audit-modal-role" style="font-weight: 600; text-transform: capitalize;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold; text-transform: uppercase; margin-bottom: 0.5rem;">DESCRIPCIÓN DE LA ACCIÓN</label>
+                                <div id="audit-modal-action-box" style="padding: 1rem; background: #fffbe6; border-left: 4px solid #fadb14; color: #856404; font-weight: 500;">
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 2rem;">
+                                <label style="display: block; font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold; text-transform: uppercase; margin-bottom: 0.75rem;">DATOS TÉCNICOS DETALLADOS</label>
+                                <div id="audit-modal-details-grid" style="background: #f1f5f9; border-radius: 8px; padding: 1rem; border: 1px solid #cbd5e1;">
+                                </div>
+                            </div>
+
+                            <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px;">
+                                <div style="font-size: 1.5rem;">🛡️</div>
+                                <div style="font-size: 0.85rem; color: #92400e; line-height: 1.4;">
+                                    <strong>Registro Inmutable:</strong> Esta entrada en bitácora ha sido verificada y firmada digitalmente para garantizar su integridad y trazabilidad completa.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <style>
+                    .audit-table { border-collapse: collapse; width: 100%; }
+                    .audit-table th { background-color: #f8fafc; text-transform: uppercase; font-size: 0.75rem; font-weight: 700; color: #64748b; letter-spacing: 0.5px; padding: 12px 16px; border-bottom: 2px solid #e2e8f0; text-align: left; }
+                    .audit-table td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+                    .audit-table tbody tr:hover { background-color: #f8fafc; }
+                </style>
             </div>
         `;
     }
 };
 
 // --- Funciones globales de control ---
+
+window.renderAuditJSONToGrid = function(detailsStr) {
+    if (!detailsStr) return '<div style="color: var(--color-text-muted);">Sin detalles adicionales</div>';
+    
+    let entries = [];
+    if (typeof detailsStr === 'string') {
+        try {
+            const parsed = JSON.parse(detailsStr);
+            entries = Object.entries(parsed);
+        } catch (e) {
+            return `<div style="word-break: break-all; color: var(--color-text-main); font-weight: 500;">${detailsStr}</div>`;
+        }
+    } else if (typeof detailsStr === 'object') {
+        entries = Object.entries(detailsStr);
+    }
+    
+    if (entries.length === 0) return '<div style="color: var(--color-text-muted);">Sin detalles adicionales</div>';
+    
+    return `
+      <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.5rem 1rem; align-items: baseline;">
+        ${entries.map(([key, value]) => `
+          <div style="font-weight: 600; color: #475569; font-size: 0.8rem; text-align: right;">${key}:</div>
+          <div style="font-size: 0.85rem; color: #1e293b; word-break: break-all; font-family: monospace; background: #fff; padding: 2px 6px; border-radius: 4px; border: 1px solid #e2e8f0;">
+            ${typeof value === 'object' ? JSON.stringify(value) : String(value)}
+          </div>
+        `).join('')}
+      </div>
+    `;
+};
+
+window.openAuditModal = function(logId) {
+    const allLogs = typeof AuditService !== 'undefined' ? AuditService.getAll() : [];
+    const log = allLogs.find(l => l.id === logId);
+    if (!log) return;
+
+    document.getElementById('audit-modal-id-text').textContent = `ID: ${log.id}`;
+    document.getElementById('audit-modal-datetime').innerHTML = `${new Date(log.timestamp).toLocaleDateString('es-VE')} <span style="font-size:0.85em; color:var(--color-text-muted);">${new Date(log.timestamp).toLocaleTimeString('es-VE')}</span>`;
+    
+    document.getElementById('audit-modal-module-pill').innerHTML = `<span style="background: rgba(94, 27, 174, 0.1); color: var(--color-primary); border: 1px solid rgba(94, 27, 174, 0.2); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">${log.module}</span>`;
+    
+    document.getElementById('audit-modal-username').textContent = log.user;
+    
+    const roleColors = { 'admin': 'background:#fee2e2;color:#ef4444', 'editor': 'background:#fef3c7;color:#f59e0b', 'visitante': 'background:#f1f5f9;color:#64748b' };
+    const r = (log.userRole || 'Desconocido').toLowerCase();
+    const rCol = roleColors[r] || 'background:#f1f5f9;color:#64748b';
+    document.getElementById('audit-modal-role').innerHTML = `<span style="padding: 4px 10px; border-radius: 20px; font-weight: 600; font-size: 0.75rem; ${rCol}">${log.userRole || 'Desconocido'}</span>`;
+
+    let entityHtml = log.entityLabel ? ` sobre <i style="color:var(--color-text-main); font-weight:700;">${log.entityLabel}</i>` : '';
+    document.getElementById('audit-modal-action-box').innerHTML = `El usuario efectuó una acción de <b>${log.action}</b>${entityHtml}.`;
+    
+    document.getElementById('audit-modal-details-grid').innerHTML = window.renderAuditJSONToGrid(log.details);
+
+    const modal = document.getElementById('audit-details-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+    }
+};
+
+window.closeAuditModal = function() {
+    const modal = document.getElementById('audit-details-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
+};
 
 window.applyAuditFilter = function (key, value) {
     window.auditFilters[key] = value;
@@ -238,7 +384,7 @@ window.applyAuditFilter = function (key, value) {
 };
 
 window.clearAuditFilters = function () {
-    window.auditFilters = { module: 'Todos', action: 'Todas', user: 'Todos', dateFrom: '', dateTo: '' };
+    window.auditFilters = { module: 'Todos', action: 'Todas', user: 'Todos', dateFrom: '', dateTo: '', search: '' };
     window.auditCurrentPage = 1;
     if (typeof renderModule === 'function') renderModule('auditoria');
 };

@@ -48,51 +48,36 @@ const ProjectsView = {
                 </div>
 
                 <div style="display: flex; justify-content: flex-start; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: var(--space-lg);">
+                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                            <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
+                            <input type="text" id="filter-project-search" placeholder="Buscar Proyecto..." oninput="window.lastFocusedInput = this.id; window.globalProjectSearch = this.value; window.debouncedRenderModule('projects');" value="${window.globalProjectSearch || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 150px; font-size: 0.85rem; outline: none; font-weight: 500;">
+                        </div>
                         <select onchange="window.globalProjectStatusFilter = this.value; if(typeof changePage === 'function'){changePage('projects', 1)} else {renderModule('projects')}" style="padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
                             <option value="Todos" ${window.globalProjectStatusFilter === 'Todos' || !window.globalProjectStatusFilter ? 'selected' : ''}>Todos los Estados</option>
                             <option value="Destacado" ${window.globalProjectStatusFilter === 'Destacado' ? 'selected' : ''}>Destacados</option>
                             <option value="En Progreso" ${window.globalProjectStatusFilter === 'En Progreso' ? 'selected' : ''}>En Progreso</option>
                             <option value="A Futuro" ${window.globalProjectStatusFilter === 'A Futuro' ? 'selected' : ''}>A Futuro</option>
                         </select>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                            <span style="color: var(--color-text-muted); font-size: 0.85rem; font-weight: 600;"><i class="fas fa-calendar-alt"></i> Publicado:</span>
+                            <input type="date" onchange="window.globalProjectDateFrom = this.value; if(typeof changePage === 'function'){changePage('projects', 1)} else {renderModule('projects')}" value="${window.globalProjectDateFrom || ''}" style="padding: 0 12px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; color: var(--color-text-main); font-weight: 500; background: white; box-sizing: border-box;" title="Desde">
+                            <span style="color: var(--color-text-muted); font-size: 0.85rem;">a</span>
+                            <input type="date" onchange="window.globalProjectDateTo = this.value; if(typeof changePage === 'function'){changePage('projects', 1)} else {renderModule('projects')}" value="${window.globalProjectDateTo || ''}" style="padding: 0 12px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; color: var(--color-text-main); font-weight: 500; background: white; box-sizing: border-box;" title="Hasta">
+                        </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">
                     ${projects.map(p => {
             const coverImage = (p.images && p.images.length > 0) ? (p.images[0].image || p.images[0]) : (p.image || 'assets/images/img8.jpg');
-            return `
-                        <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative;">
-                            ${p.status === 'Destacado' ? `
-                                <div style="position: absolute; top: 12px; left: 12px; background: #f59e0b; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                                    <i class="fas fa-star"></i> DESTACADO
-                                </div>
-                            ` : ''}
-                            <div style="height: 140px; background: #f1f5f9; overflow: hidden; position: relative;">
-                                <img src="${coverImage}" style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
-                            <div style="padding: var(--space-md); flex: 1; display: flex; flex-direction: column;">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-                                    <span style="font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; font-weight: 700; background: ${p.status === 'Destacado' ? '#fef3c7' : (p.status === 'En Progreso' ? '#dbeafe' : '#f3f4f6')}; color: ${p.status === 'Destacado' ? '#b45309' : (p.status === 'En Progreso' ? '#1e40af' : '#374151')}; border: 1px solid ${p.status === 'Destacado' ? '#fde68a' : (p.status === 'En Progreso' ? '#bfdbfe' : '#e5e7eb')};">
-                                        ${p.status}
-                                    </span>
-                                    <div style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 600;">ID: #${p.id}</div>
-                                </div>
-                                
-                                <h3 style="font-size: 0.95rem; color: var(--color-text-main); margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.8em;">${p.title}</h3>
-                                <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 12px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 3em;">${p.description}</p>
-                                
-                                <div style="margin-bottom: 15px; margin-top: auto; padding-top: 10px; border-top: 1px dashed #e2e8f0;">
-                                    <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 6px; font-weight: 700;">Últimos Avances:</div>
-                                    <p style="font-size: 0.8rem; color: var(--color-text-main); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.8em;">${p.advances || 'Sin registrar...'}</p>
-                                    <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 8px; font-style: italic;">Última act: ${p.updatedAt ? new Date(p.updatedAt).toLocaleDateString('es-VE') : ''} por <b>${p.updatedBy || 'Sistema'}</b></p>
-                                </div>
-    
-                                <div style="display: flex; gap: 8px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
-                                    <button onclick="openProjectModal(${p.id})" title="Editar" style="flex: 1; background: none; border: 1px solid var(--color-border); padding: 8px; border-radius: 6px; cursor: pointer; color: var(--color-text-main); transition: 0.2s;"><i class="fas fa-edit"></i></button>
-                                    <button onclick="deleteProject(${p.id})" title="Eliminar" style="flex: 1; background: none; border: 1px solid #fee2e2; color: #ef4444; padding: 8px; border-radius: 6px; cursor: pointer; transition: 0.2s;"><i class="fas fa-trash-alt"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                        `;
+            return window.AdminTemplate.Card({
+                id: p.id,
+                title: p.title,
+                image: coverImage,
+                badge: { text: p.status, type: p.status === 'Destacado' ? 'warning' : (p.status === 'En Progreso' ? 'info' : 'default') },
+                module: 'projects',
+                onEdit: 'openProjectModal(' + p.id + ')',
+                onDelete: 'deleteProject(' + p.id + ')'
+            });
         }).join('')}
                     ${projects.length === 0 ? `
                         <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--color-text-muted); background: white; border-radius: var(--radius-md); border: 1px dashed var(--color-border);">
@@ -103,17 +88,7 @@ const ProjectsView = {
                 </div>
 
                 <!-- Paginación Footer -->
-                ${paginated && paginated.totalPages > 1 ? `
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; padding: 20px 0;">
-                        <button onclick="changePage('projects', ${paginated.currentPage - 1})" ${paginated.currentPage === 1 ? 'disabled' : ''} style="width: 35px; height: 35px; border: 1px solid var(--color-border); background: white; border-radius: 50%; cursor: ${paginated.currentPage === 1 ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === 1 ? '0.3' : '1'}; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-chevron-left" style="font-size: 0.8rem;"></i>
-                        </button>
-                        <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-main);">Página ${paginated.currentPage} de ${paginated.totalPages}</span>
-                        <button onclick="changePage('projects', ${paginated.currentPage + 1})" ${paginated.currentPage === paginated.totalPages ? 'disabled' : ''} style="width: 35px; height: 35px; border: 1px solid var(--color-border); background: white; border-radius: 50%; cursor: ${paginated.currentPage === paginated.totalPages ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === paginated.totalPages ? '0.3' : '1'}; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-chevron-right" style="font-size: 0.8rem;"></i>
-                        </button>
-                    </div>
-                ` : ''}
+                ${paginated ? window.AdminTemplate.Pagination('projects', paginated.currentPage, paginated.totalPages) : ''}
 
                 <!-- Modal de Proyectos (HU001, HU004) -->
                 <div id="project-modal" class="modal-overlay hidden">
@@ -187,13 +162,9 @@ const ProjectsView = {
                                         <textarea id="admin-project-advances" placeholder="Describa los avances actuales del proyecto..." style="width: 100%; height: 80px; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; resize: vertical;" required></textarea>
                                     </div>
 
-                                    <div class="form-group" style="display: flex; gap: 15px; margin-top: auto; padding-top: 15px; border-top: 1px solid #eee;">
-                                        <button type="submit" title="Publicar" class="btn-save-circle"><i class="fas fa-save"></i></button>
-                                        <button type="button" class="btn-secondary" onclick="closeProjectModal()" style="flex: 1; padding: 12px; border-radius: 6px; background: #9333ea; color: white; border: none; font-weight: 600;">Borrar / Cancelar</button>
-                                    </div>
+                                    ${window.AdminTemplate.ModalFooter('closeProjectModal()', 'project-admin-form')}
                                     
-                                    <!-- Auditoría Section -->
-                                    <div id="project-audit-container" style="padding-top: 20px; border-top: 1px solid var(--color-border); margin-top: 20px; display: none;"></div>
+
                                 </div>
                             </div>
                         </form>

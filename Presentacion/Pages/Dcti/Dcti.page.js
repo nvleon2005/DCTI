@@ -205,15 +205,7 @@ const AdminDctiView = {
                             return auditHtml;
                         })()}
                         
-                        <!-- Actions -->
-                        <div style="margin-top: var(--space-md); padding-top: var(--space-md); border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 15px; align-items: center;">
-                            <button type="button" onclick="if(typeof restoreDefaultDcti === 'function') restoreDefaultDcti()" title="Restaurar a valores predeterminados" style="background: #ef4444; color: white; border: none; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3); transition: transform 0.2s, background 0.2s;">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                            <button type="submit" title="Guardar Cambios" class="btn-save-circle">
-                                <i class="fas fa-save"></i>
-                            </button>
-                        </div>
+                            ${window.AdminTemplate.ModalFooter("if(typeof changePage === 'function') changePage('news'); else renderModule('news')", 'dcti-admin-form')}
                     </form>
                 </div>
             </div>

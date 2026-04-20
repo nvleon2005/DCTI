@@ -11,17 +11,37 @@ function initMainApp() {
 
     if (sidebarToggle && sidebar && sidebarOverlay) {
         sidebarToggle.addEventListener('click', () => {
+            const icon = sidebarToggle.querySelector('i');
+            
             if (window.innerWidth <= 1024) {
                 sidebar.classList.toggle('sidebar--open');
                 sidebarOverlay.classList.toggle('active');
+                if (icon) {
+                    if (sidebar.classList.contains('sidebar--open')) {
+                        icon.classList.replace('fa-bars', 'fa-xmark');
+                    } else {
+                        icon.classList.replace('fa-xmark', 'fa-bars');
+                    }
+                }
             } else {
                 sidebar.classList.toggle('sidebar--closed');
+                if (icon) {
+                    if (icon.classList.contains('fa-bars')) {
+                        icon.classList.replace('fa-bars', 'fa-xmark');
+                    } else {
+                        icon.classList.replace('fa-xmark', 'fa-bars');
+                    }
+                }
             }
         });
 
         sidebarOverlay.addEventListener('click', () => {
             sidebar.classList.remove('sidebar--open');
             sidebarOverlay.classList.remove('active');
+            const icon = sidebarToggle.querySelector('i');
+            if (icon && icon.classList.contains('fa-xmark')) {
+                icon.classList.replace('fa-xmark', 'fa-bars');
+            }
         });
     }
 

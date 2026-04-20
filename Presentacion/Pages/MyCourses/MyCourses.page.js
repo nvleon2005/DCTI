@@ -134,13 +134,19 @@ const MyCoursesView = {
                     <p style="color: var(--color-text-muted); font-size: 1.05rem; margin-top: 0.3rem;">Haz seguimiento a tu progreso y continúa tu formación académica.</p>
                 </div>
                 
-                <div style="display: flex; gap: 1rem; align-items: center;">
-                    <label for="filter-my-courses-status" style="font-weight: 600; font-size: 0.9rem; color: var(--color-text-muted);"><i class="fas fa-filter" style="margin-right: 5px;"></i> Estado:</label>
-                    <select id="filter-my-courses-status" onchange="MyCoursesController.filterByStatus(this.value)" style="padding: 0.6rem 1rem; border: 1px solid var(--color-border); border-radius: 6px; font-family: 'Outfit', sans-serif; font-size: 0.9rem; background: var(--color-surface); color: var(--color-text); outline: none; cursor: pointer; min-width: 160px; box-shadow: var(--shadow-sm);">
-                        <option value="Todos" ${statusFilter === 'Todos' ? 'selected' : ''}>Todos los cursos</option>
-                        <option value="En Progreso" ${statusFilter === 'En Progreso' ? 'selected' : ''}>En Progreso</option>
-                        <option value="Completado" ${statusFilter === 'Completado' ? 'selected' : ''}>Completados</option>
-                    </select>
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 6px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                        <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
+                        <input type="text" id="filter-mycourses-search" placeholder="Buscar mi curso..." oninput="window.lastFocusedInput = this.id; window.globalSearchQuery = this.value; window.debouncedRenderModule('my-courses');" value="${window.globalSearchQuery || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 140px; font-size: 0.85rem; outline: none; font-weight: 500; font-family: 'Outfit', sans-serif;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <label for="filter-my-courses-status" style="font-weight: 600; font-size: 0.9rem; color: var(--color-text-muted);"><i class="fas fa-filter" style="margin-right: 5px;"></i> Estado:</label>
+                        <select id="filter-my-courses-status" onchange="MyCoursesController.filterByStatus(this.value)" style="padding: 0.6rem 1rem; border: 1px solid var(--color-border); border-radius: 6px; font-family: 'Outfit', sans-serif; font-size: 0.9rem; background: var(--color-surface); color: var(--color-text); outline: none; cursor: pointer; min-width: 140px; box-shadow: var(--shadow-sm);">
+                            <option value="Todos" ${statusFilter === 'Todos' ? 'selected' : ''}>Todos los cursos</option>
+                            <option value="En Progreso" ${statusFilter === 'En Progreso' ? 'selected' : ''}>En Progreso</option>
+                            <option value="Completado" ${statusFilter === 'Completado' ? 'selected' : ''}>Completados</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 

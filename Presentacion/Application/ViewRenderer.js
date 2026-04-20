@@ -14,6 +14,18 @@ const PAGINATION_STATE = {
 /**
  * Helper para obtener datos paginados
  */
+window.globalSearchDebounceTimer = null;
+window.debouncedRenderModule = function(module) {
+    if (window.globalSearchDebounceTimer) clearTimeout(window.globalSearchDebounceTimer);
+    window.globalSearchDebounceTimer = setTimeout(() => {
+        if(typeof changePage === 'function') {
+            changePage(module, 1);
+        } else {
+            renderModule(module);
+        }
+    }, 450);
+};
+
 function getPaginatedData(data, module) {
     const config = PAGINATION_STATE[module];
     if (!config) return { items: data, totalPages: 1, currentPage: 1 };
@@ -135,17 +147,39 @@ function renderModule(id, skipAnimation = false) {
 
         if (id === 'users') {
             let filteredUsers = allUsers;
+            
+            if (typeof window.globalUserColName !== 'undefined' && window.globalUserColName) {
+                const q = window.globalUserColName.toLowerCase();
+                filteredUsers = filteredUsers.filter(u => (u.username || u.name || '').toLowerCase().includes(q));
+            }
+            if (typeof window.globalUserColEmail !== 'undefined' && window.globalUserColEmail) {
+                const q = window.globalUserColEmail.toLowerCase();
+                filteredUsers = filteredUsers.filter(u => (u.email || '').toLowerCase().includes(q));
+            }
+
             if (typeof window.globalUserRoleFilter !== 'undefined' && window.globalUserRoleFilter !== 'Todos') {
                 filteredUsers = filteredUsers.filter(u => u.role === window.globalUserRoleFilter);
             }
             if (typeof window.globalUserStatusFilter !== 'undefined' && window.globalUserStatusFilter !== 'Todos') {
                 filteredUsers = filteredUsers.filter(u => u.status === window.globalUserStatusFilter);
             }
+            if (typeof window.globalUserDateFrom !== 'undefined' && window.globalUserDateFrom) {
+                const d = new Date(window.globalUserDateFrom); d.setHours(0,0,0,0);
+                filteredUsers = filteredUsers.filter(u => u.updatedAt && new Date(u.updatedAt) >= d);
+            }
+            if (typeof window.globalUserDateTo !== 'undefined' && window.globalUserDateTo) {
+                const d = new Date(window.globalUserDateTo); d.setHours(23,59,59,999);
+                filteredUsers = filteredUsers.filter(u => u.updatedAt && new Date(u.updatedAt) <= d);
+            }
             viewData.pagination = getPaginatedData(filteredUsers, 'users');
         }
 
         if (id === 'news') {
             let filteredNews = allNews;
+            if (typeof window.globalNewsSearch !== 'undefined' && window.globalNewsSearch) {
+                const q = window.globalNewsSearch.toLowerCase();
+                filteredNews = filteredNews.filter(n => (n.headline || '').toLowerCase().includes(q) || (n.author || '').toLowerCase().includes(q));
+            }
             if (typeof currentNewsCategoryFilter !== 'undefined' && currentNewsCategoryFilter !== 'Todas') {
                 filteredNews = filteredNews.filter(n => n.category === currentNewsCategoryFilter);
             }
@@ -155,26 +189,62 @@ function renderModule(id, skipAnimation = false) {
                     return s.some(val => val === window.globalNewsStatusFilter || (window.globalNewsStatusFilter === 'Publicado' && val === 'Publicada'));
                 });
             }
+            if (typeof window.globalNewsDateFrom !== 'undefined' && window.globalNewsDateFrom) {
+                const d = new Date(window.globalNewsDateFrom); d.setHours(0,0,0,0);
+                filteredNews = filteredNews.filter(n => n.published && new Date(n.published) >= d);
+            }
+            if (typeof window.globalNewsDateTo !== 'undefined' && window.globalNewsDateTo) {
+                const d = new Date(window.globalNewsDateTo); d.setHours(23,59,59,999);
+                filteredNews = filteredNews.filter(n => n.published && new Date(n.published) <= d);
+            }
             viewData.pagination = getPaginatedData(filteredNews, 'news');
         }
 
         if (id === 'projects') {
             let filteredProjects = viewData.projects;
+            if (typeof window.globalProjectSearch !== 'undefined' && window.globalProjectSearch) {
+                const q = window.globalProjectSearch.toLowerCase();
+                filteredProjects = filteredProjects.filter(p => (p.title || '').toLowerCase().includes(q) || (p.desc || p.description || '').toLowerCase().includes(q));
+            }
             if (typeof window.globalProjectStatusFilter !== 'undefined' && window.globalProjectStatusFilter !== 'Todos' && window.globalProjectStatusFilter !== '') {
                 filteredProjects = filteredProjects.filter(p => p.status === window.globalProjectStatusFilter);
+            }
+            if (typeof window.globalProjectDateFrom !== 'undefined' && window.globalProjectDateFrom) {
+                const d = new Date(window.globalProjectDateFrom); d.setHours(0,0,0,0);
+                filteredProjects = filteredProjects.filter(p => p.createdAt && new Date(p.createdAt) >= d);
+            }
+            if (typeof window.globalProjectDateTo !== 'undefined' && window.globalProjectDateTo) {
+                const d = new Date(window.globalProjectDateTo); d.setHours(23,59,59,999);
+                filteredProjects = filteredProjects.filter(p => p.createdAt && new Date(p.createdAt) <= d);
             }
             viewData.pagination = getPaginatedData(filteredProjects, 'projects');
         }
 
         if (id === 'strategic') {
             let filteredStrategic = viewData.strategic;
+            if (typeof window.globalStrategicSearch !== 'undefined' && window.globalStrategicSearch) {
+                const q = window.globalStrategicSearch.toLowerCase();
+                filteredStrategic = filteredStrategic.filter(s => (s.name || '').toLowerCase().includes(q) || (s.description || '').toLowerCase().includes(q));
+            }
             viewData.pagination = getPaginatedData(filteredStrategic, 'strategic');
         }
 
         if (id === 'courses') {
             let filteredCourses = viewData.courses;
-            if (typeof globalCourseFilter !== 'undefined' && globalCourseFilter !== 'Todos') {
-                filteredCourses = filteredCourses.filter(c => c.estadoCurso === globalCourseFilter);
+            if (typeof window.globalCourseSearch !== 'undefined' && window.globalCourseSearch) {
+                const q = window.globalCourseSearch.toLowerCase();
+                filteredCourses = filteredCourses.filter(c => (c.nombreCurso || c.title || '').toLowerCase().includes(q) || (c.instructor || '').toLowerCase().includes(q));
+            }
+            if (typeof window.globalCourseFilter !== 'undefined' && window.globalCourseFilter !== 'Todos') {
+                filteredCourses = filteredCourses.filter(c => c.estadoCurso === window.globalCourseFilter || c.status === window.globalCourseFilter);
+            }
+            if (typeof window.globalCourseDateFrom !== 'undefined' && window.globalCourseDateFrom) {
+                const d = new Date(window.globalCourseDateFrom); d.setHours(0,0,0,0);
+                filteredCourses = filteredCourses.filter(c => c.fechaLiberacionMateriales && new Date(c.fechaLiberacionMateriales) >= d);
+            }
+            if (typeof window.globalCourseDateTo !== 'undefined' && window.globalCourseDateTo) {
+                const d = new Date(window.globalCourseDateTo); d.setHours(23,59,59,999);
+                filteredCourses = filteredCourses.filter(c => c.fechaLiberacionMateriales && new Date(c.fechaLiberacionMateriales) <= d);
             }
             viewData.pagination = getPaginatedData(filteredCourses, 'courses');
         }
@@ -244,13 +314,31 @@ function renderModule(id, skipAnimation = false) {
     if (id === 'dashboard' && typeof DashboardController !== 'undefined') {
         DashboardController.initChart();
     }
-    if ((id === 'admin-dcti' || id === 'dcti') && typeof initAdminMap === 'function') {
-        setTimeout(initAdminMap, 100);
+    if ((id === 'admin-dcti' || id === 'dcti')) {
+        if (typeof initAdminMap === 'function') setTimeout(initAdminMap, 100);
+        setTimeout(() => { if (window.AdminTemplate) window.AdminTemplate.initFormBackup('dcti-admin-form'); }, 150);
     }
 
     // Event Listeners for pages
     if (id === 'profile' && typeof handleProfileSubmit === 'function') {
         const form = document.getElementById('profile-user-form');
         if (form) form.addEventListener('submit', handleProfileSubmit);
+    }
+
+    // Restaurar foco para filtros de texto dinámicos
+    if (window.lastFocusedInput) {
+        setTimeout(() => {
+            const el = document.getElementById(window.lastFocusedInput);
+            if (el) {
+                el.focus();
+                // Colocar cursor al final del texto si es un input text
+                try {
+                    if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'email' || el.type === 'search')) {
+                        const len = el.value.length;
+                        el.setSelectionRange(len, len);
+                    }
+                } catch (e) {}
+            }
+        }, 10);
     }
 }

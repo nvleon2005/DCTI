@@ -132,6 +132,7 @@ function openProjectModal(id = null) {
     }
 
     renderProjectGallery();
+    setTimeout(() => { if (window.AdminTemplate) window.AdminTemplate.initFormBackup('project-admin-form'); }, 50);
 }
 
 function closeProjectModal() {

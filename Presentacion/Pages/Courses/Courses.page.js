@@ -67,53 +67,20 @@ const CoursesView = {
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">
                     ${courses.map(c => {
             const coverImage = (c.images && c.images.length > 0) ? (c.images[0].image || c.images[0]) : 'assets/images/img9.jpg';
-            const isFinalizado = c.estadoCurso === 'Finalizado';
             const isPublicado = c.estadoCurso === 'Publicado';
-
-            return `
-                        <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; opacity: ${isFinalizado ? '0.75' : '1'};">
-                            ${isPublicado ? `
-                                <div style="position: absolute; top: 12px; left: 12px; background: #22c55e; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                                    <i class="fas fa-satellite-dish"></i> EN EMISIÓN
-                                </div>
-                            ` : ''}
-                            <div style="height: 150px; background: #f1f5f9; overflow: hidden; position: relative;">
-                                <img src="${coverImage}" style="width: 100%; height: 100%; object-fit: cover; filter: ${isFinalizado ? 'grayscale(90%)' : 'none'};">
-                            </div>
-                            <div style="padding: var(--space-md); flex: 1; display: flex; flex-direction: column;">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-                                    <span style="font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; font-weight: 700; background: ${c.estadoCurso === 'Publicado' ? '#dcfce7' : (c.estadoCurso === 'Finalizado' ? '#fee2e2' : '#f3f4f6')}; color: ${c.estadoCurso === 'Publicado' ? '#166534' : (c.estadoCurso === 'Finalizado' ? '#991b1b' : '#374151')}; border: 1px solid ${c.estadoCurso === 'Publicado' ? '#bbf7d0' : (c.estadoCurso === 'Finalizado' ? '#fecaca' : '#e5e7eb')};">
-                                        ${c.estadoCurso}
-                                    </span>
-                                    <div style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 600;"><i class="fas fa-users"></i> Max: ${c.cupoMaximo}</div>
-                                </div>
-                                
-                                <h3 style="font-size: 0.95rem; color: var(--color-text-main); margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.8em;">${c.nombreCurso}</h3>
-                                <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.4em;">${c.descripcion}</p>
-                                
-                                <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.7rem;">
-                                    ${c.areaTematica ? `<span style="background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px;">${c.areaTematica}</span>` : ''}
-                                    ${c.modalidad ? `<span style="background: #fef3c7; color: #b45309; padding: 2px 6px; border-radius: 4px;"><i class="fas ${c.modalidad === 'Virtual' ? 'fa-laptop' : (c.modalidad === 'Presencial' ? 'fa-chalkboard-teacher' : 'fa-sync-alt')}"></i> ${c.modalidad}</span>` : ''}
-                                </div>
-                                
-                                <div style="margin-bottom: 15px; margin-top: auto; font-size: 0.75rem; color: var(--color-text-muted); display:flex; justify-content: space-between; background: #f8fafc; padding: 6px; border-radius: 4px;">
-                                    <span><i class="far fa-calendar-alt"></i> ${c.fechaInicio}</span>
-                                    <span><i class="far fa-flag"></i> ${c.fechaFin}</span>
-                                </div>
-    
-                                <div style="display: flex; gap: 8px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
-                                    <button onclick="openCourseModal(${c.id})" title="Gestionar (Alumnos, Materiales, Edición)" style="flex: 1; background: none; border: 1px solid var(--color-border); padding: 8px; border-radius: 6px; cursor: pointer; color: var(--color-text-main); transition: 0.2s;"><i class="fas fa-folder-open" style="margin-right:5px;"></i> Abrir</button>
-                                    ${c.estadoCurso !== 'Finalizado' ? `
-                                    <button type="button" onclick="if(typeof toggleCoursePublish === 'function') toggleCoursePublish(${c.id}, '${c.estadoCurso === 'Publicado' ? 'Desactivar' : 'Publicar'}')" title="${c.estadoCurso === 'Publicado' ? 'Desactivar/Mover a Borrador' : 'Publicar Curso'}" style="flex: 1; background: none; border: 1px solid var(--color-border); padding: 8px; border-radius: 6px; cursor: pointer; color: var(--color-text-main); transition: 0.2s;"><i class="fas ${c.estadoCurso === 'Publicado' ? 'fa-eye-slash' : 'fa-eye'}" style="margin-right:5px;"></i> ${c.estadoCurso === 'Publicado' ? 'Desactivar' : 'Publicar'}</button>
-                                    ` : ''}
-                                    <button onclick="deleteCourse(${c.id})" title="Eliminar (Físico)" style="flex: 0 0 auto; width: 40px; background: none; border: 1px solid #fee2e2; color: #ef4444; padding: 8px; border-radius: 6px; cursor: pointer; transition: 0.2s;"><i class="fas fa-trash-alt"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                        `;
+            
+            return window.AdminTemplate.Card({
+                id: c.id,
+                title: c.nombreCurso,
+                image: coverImage,
+                badge: { text: c.estadoCurso, type: isPublicado ? 'success' : (c.estadoCurso === 'Finalizado' ? 'danger' : 'default') },
+                module: 'courses',
+                onEdit: 'openCourseModal(' + c.id + ')',
+                onDelete: 'deleteCourse(' + c.id + ')'
+            });
         }).join('')}
                     ${courses.length === 0 ? `
                         <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--color-text-muted); background: white; border-radius: var(--radius-md); border: 1px dashed var(--color-border);">
@@ -124,17 +91,7 @@ const CoursesView = {
                 </div>
 
                 <!-- Paginación Footer -->
-                ${paginated && paginated.totalPages > 1 ? `
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; padding: 20px 0;">
-                        <button onclick="changePage('courses', ${paginated.currentPage - 1})" ${paginated.currentPage === 1 ? 'disabled' : ''} style="width: 35px; height: 35px; border: 1px solid var(--color-border); background: white; border-radius: 50%; cursor: ${paginated.currentPage === 1 ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === 1 ? '0.3' : '1'}; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-chevron-left" style="font-size: 0.8rem;"></i>
-                        </button>
-                        <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-main);">Página ${paginated.currentPage} de ${paginated.totalPages}</span>
-                        <button onclick="changePage('courses', ${paginated.currentPage + 1})" ${paginated.currentPage === paginated.totalPages ? 'disabled' : ''} style="width: 35px; height: 35px; border: 1px solid var(--color-border); background: white; border-radius: 50%; cursor: ${paginated.currentPage === paginated.totalPages ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === paginated.totalPages ? '0.3' : '1'}; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-chevron-right" style="font-size: 0.8rem;"></i>
-                        </button>
-                    </div>
-                ` : ''}
+                ${paginated ? window.AdminTemplate.Pagination('courses', paginated.currentPage, paginated.totalPages) : ''}
 
                 <!-- Modal Multifase de Cursos -->
                 <div id="course-modal" class="modal-overlay hidden">
@@ -290,10 +247,9 @@ const CoursesView = {
                                             
                                             <!-- Auditoría Informática Disclaimer Removed -->
                                             
-                                            <div style="margin-top: 20px; text-align: right;">
-                                                <button type="button" id="btn-reactivate-course" onclick="changeCourseStatusToReactivate()" style="display:none; padding: 10px 20px; background: #eab308; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; margin-right: 10px;"><i class="fas fa-unlock"></i> Reactivar Ciclo</button>
-                                                <button type="button" class="btn-secondary" onclick="closeCourseModal()" style="padding: 10px 20px; margin-right: 10px; border-radius: 6px; font-weight: 600;">Cancelar</button>
-                                                <button type="submit" id="btn-save-course" title="Guardar Estructura" class="btn-save-circle"><i class="fas fa-save"></i></button>
+                                            <div style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; gap: 10px;">
+                                                <button type="button" id="btn-reactivate-course" onclick="changeCourseStatusToReactivate()" style="display:none; padding: 12px 20px; background: #eab308; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; flex-shrink: 0;"><i class="fas fa-unlock"></i> Reactivar Ciclo</button>
+                                                ${window.AdminTemplate.ModalFooter('closeCourseModal()', 'course-admin-form')}
                                             </div>
 
                                         </div>

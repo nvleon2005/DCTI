@@ -141,15 +141,43 @@ const App = {
             const newToggle = sidebarToggle.cloneNode(true);
             sidebarToggle.parentNode.replaceChild(newToggle, sidebarToggle);
 
+            // Ajustar ícono inicial según resolución
+            const icon = newToggle.querySelector('i');
+            if (icon) {
+                if (window.innerWidth > 1024 && !sidebar.classList.contains('sidebar--closed')) {
+                    icon.className = 'fas fa-xmark';
+                } else if (window.innerWidth <= 1024 && !sidebar.classList.contains('sidebar--open')) {
+                    icon.className = 'fas fa-bars';
+                }
+            }
+
             newToggle.addEventListener('click', () => {
                 const currentOverlay = document.getElementById('sidebar-overlay');
                 if (window.innerWidth <= 1024) {
                     sidebar.classList.toggle('sidebar--open');
                     if (currentOverlay) currentOverlay.classList.toggle('active');
+                    if (icon) {
+                        icon.className = sidebar.classList.contains('sidebar--open') ? 'fas fa-xmark' : 'fas fa-bars';
+                    }
                 } else {
                     sidebar.classList.toggle('sidebar--closed');
+                    if (icon) {
+                        icon.className = sidebar.classList.contains('sidebar--closed') ? 'fas fa-bars' : 'fas fa-xmark';
+                    }
                 }
             });
+            
+            // Asegurar que clic en overlay restaure el ícono en móvil
+            const finalOverlay = document.getElementById('sidebar-overlay');
+            if (finalOverlay && !finalOverlay.dataset.overlayListener) {
+                finalOverlay.dataset.overlayListener = 'true';
+                finalOverlay.addEventListener('click', () => {
+                    const currentIcon = document.getElementById('sidebar-toggle')?.querySelector('i');
+                    if (currentIcon) {
+                        currentIcon.className = 'fas fa-bars';
+                    }
+                });
+            }
         }
 
         // Inyección dinámica directa para garantizar que el buscador funcione independientemente de cachés

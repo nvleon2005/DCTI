@@ -37,6 +37,40 @@ const ConsultasController = {
             consultas = consultas.filter(c => c.estado === statusFilter);
         }
 
+        // c) Filtrado por fechas
+        if (window.globalConsultaDateFrom) {
+            const dFrom = new Date(window.globalConsultaDateFrom); dFrom.setHours(0,0,0,0);
+            consultas = consultas.filter(c => {
+                // Convertir c.fecha (asumiendo DD/MM/AAAA o ISO) a Date. asumiendo formato ISO desde localStorage (o algo parseable)
+                // Usualmente se guarda como string en c.fecha o c.timestamp, adaptamos:
+                if(!c.fecha) return true; 
+                // Suponiendo formato que `new Date(string)` entienda:
+                let isoDateStr = c.fecha;
+                if(c.fecha.includes('/')) {
+                   const parts = c.fecha.split('/');
+                   if(parts.length===3) {
+                       // Si es DD/MM/YYYY
+                       isoDateStr = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                   }
+                }
+                const docDate = new Date(isoDateStr);
+                return docDate >= dFrom;
+            });
+        }
+        if (window.globalConsultaDateTo) {
+            const dTo = new Date(window.globalConsultaDateTo); dTo.setHours(23,59,59,999);
+            consultas = consultas.filter(c => {
+                if(!c.fecha) return true;
+                let isoDateStr = c.fecha;
+                if(c.fecha.includes('/')) {
+                   const parts = c.fecha.split('/');
+                   if(parts.length===3) isoDateStr = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                }
+                const docDate = new Date(isoDateStr);
+                return docDate <= dTo;
+            });
+        }
+
         // Paginación
         const limit = 10;
         const totalItems = consultas.length;

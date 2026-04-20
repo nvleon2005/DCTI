@@ -101,6 +101,7 @@ function openNewsModal(id = null) {
         
         document.querySelectorAll('input[name="status"]').forEach(cb => cb.checked = false);
     }
+    setTimeout(() => { if (window.AdminTemplate) window.AdminTemplate.initFormBackup('news-admin-form'); }, 50);
 }
 
 function closeNewsModal() {

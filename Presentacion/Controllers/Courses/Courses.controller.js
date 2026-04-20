@@ -286,6 +286,7 @@ function openCourseModal(id = null) {
 
     document.getElementById('course-modal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+    setTimeout(() => { if (window.AdminTemplate) window.AdminTemplate.initFormBackup('course-admin-form'); }, 50);
 }
 
 function closeCourseModal() {

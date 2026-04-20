@@ -56,11 +56,11 @@ const UsersView = {
                 <div style="display: flex; justify-content: flex-start; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: var(--space-lg);">
                     <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                             <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
-                            <input type="text" id="filter-user-name" placeholder="Buscar Usuario..." oninput="window.lastFocusedInput = this.id; window.globalUserColName = this.value; if(typeof changePage === 'function'){changePage('users', 1)} else {renderModule('users')}" value="${window.globalUserColName || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 130px; font-size: 0.85rem; outline: none; font-weight: 500;">
+                            <input type="text" id="filter-user-name" placeholder="Buscar Usuario..." oninput="window.lastFocusedInput = this.id; window.globalUserColName = this.value; window.debouncedRenderModule('users');" value="${window.globalUserColName || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 130px; font-size: 0.85rem; outline: none; font-weight: 500;">
                         </div>
                         <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                             <i class="fas fa-envelope" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
-                            <input type="text" id="filter-user-email" placeholder="Buscar Email..." oninput="window.lastFocusedInput = this.id; window.globalUserColEmail = this.value; if(typeof changePage === 'function'){changePage('users', 1)} else {renderModule('users')}" value="${window.globalUserColEmail || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 130px; font-size: 0.85rem; outline: none; font-weight: 500;">
+                            <input type="text" id="filter-user-email" placeholder="Buscar Email..." oninput="window.lastFocusedInput = this.id; window.globalUserColEmail = this.value; window.debouncedRenderModule('users');" value="${window.globalUserColEmail || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 130px; font-size: 0.85rem; outline: none; font-weight: 500;">
                         </div>
                         <select onchange="window.globalUserRoleFilter = this.value; if(typeof changePage === 'function'){changePage('users', 1)} else {renderModule('users')}" style="padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
                             <option value="Todos" ${window.globalUserRoleFilter === 'Todos' || !window.globalUserRoleFilter ? 'selected' : ''}>Todos los Roles</option>
@@ -73,6 +73,12 @@ const UsersView = {
                             <option value="Activo" ${window.globalUserStatusFilter === 'Activo' ? 'selected' : ''}>Activos</option>
                             <option value="Inactivo" ${window.globalUserStatusFilter === 'Inactivo' ? 'selected' : ''}>Inactivos</option>
                         </select>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                            <span style="color: var(--color-text-muted); font-size: 0.85rem; font-weight: 600;"><i class="fas fa-calendar-alt"></i> Actividad:</span>
+                            <input type="date" onchange="window.globalUserDateFrom = this.value; if(typeof changePage === 'function'){changePage('users', 1)} else {renderModule('users')}" value="${window.globalUserDateFrom || ''}" style="padding: 0 12px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; color: var(--color-text-main); font-weight: 500; background: white; box-sizing: border-box;" title="Desde">
+                            <span style="color: var(--color-text-muted); font-size: 0.85rem;">a</span>
+                            <input type="date" onchange="window.globalUserDateTo = this.value; if(typeof changePage === 'function'){changePage('users', 1)} else {renderModule('users')}" value="${window.globalUserDateTo || ''}" style="padding: 0 12px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; color: var(--color-text-main); font-weight: 500; background: white; box-sizing: border-box;" title="Hasta">
+                        </div>
                 </div>
 
                 <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
@@ -137,21 +143,7 @@ const UsersView = {
                     </table>
 
                     <!-- Paginación Footer -->
-                    ${paginated ? `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8fafc; border-top: 1px solid var(--color-border);">
-                            <span style="font-size: 0.85rem; color: var(--color-text-muted);">
-                                Mostrando página ${paginated.currentPage} de ${paginated.totalPages}
-                            </span>
-                            <div style="display: flex; gap: 5px;">
-                                <button onclick="changePage('users', ${paginated.currentPage - 1})" ${paginated.currentPage === 1 ? 'disabled' : ''} style="padding: 5px 12px; border: 1px solid var(--color-border); background: white; border-radius: 4px; cursor: ${paginated.currentPage === 1 ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === 1 ? '0.5' : '1'};">
-                                    <i class="fas fa-chevron-left"></i>
-                                </button>
-                                <button onclick="changePage('users', ${paginated.currentPage + 1})" ${paginated.currentPage === paginated.totalPages ? 'disabled' : ''} style="padding: 5px 12px; border: 1px solid var(--color-border); background: white; border-radius: 4px; cursor: ${paginated.currentPage === paginated.totalPages ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === paginated.totalPages ? '0.5' : '1'};">
-                                    <i class="fas fa-chevron-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    ` : ''}
+                    ${paginated ? window.AdminTemplate.Pagination('users', paginated.currentPage, paginated.totalPages) : ''}
                 </div>
 
                 <!-- Modal de Usuario -->
@@ -181,15 +173,22 @@ const UsersView = {
                                 <div style="grid-column: 1; grid-row: 2; display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
                                     <div class="form-field">
                                         <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Nombre</label>
-                                        <input type="text" id="admin-user-name" required style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                        <input type="text" id="admin-user-name" required oninput="this.value = this.value.replace(/[0-9]/g, '')" style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
                                     </div>
                                     <div class="form-field">
                                         <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Apellido</label>
-                                        <input type="text" id="admin-user-lastname" style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                        <input type="text" id="admin-user-lastname" oninput="this.value = this.value.replace(/[0-9]/g, '')" style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
                                     </div>
                                     <div class="form-field">
                                         <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Cedula</label>
-                                        <input type="text" id="admin-user-cedula" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                        <div style="display: flex; gap: 8px;">
+                                            <select id="admin-user-cedula-type" style="padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); background: white;">
+                                                <option value="V">V-</option>
+                                                <option value="E">E-</option>
+                                                <option value="J">J-</option>
+                                            </select>
+                                            <input type="text" id="admin-user-cedula" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="flex: 1; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                        </div>
                                     </div>
                                 </div>
 
@@ -206,7 +205,7 @@ const UsersView = {
                                     <div class="form-field" id="pass-field-group">
                                         <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Contraseña</label>
                                         <div style="position: relative; display: flex; align-items: center;">
-                                            <input type="password" id="admin-user-pass" placeholder="Ingrese contraseña segura..." style="width: 100%; padding: 8px 34px 8px 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); font-size: 0.8rem;">
+                                            <input type="password" id="admin-user-pass" placeholder="" style="width: 100%; padding: 8px 34px 8px 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); font-size: 0.8rem;">
                                             <button type="button" onclick="toggleAdminUserPassword()" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 0.85rem; padding: 0; display: flex; align-items: center; justify-content: center;" title="Mostrar/ocultar contraseña">
                                                 <i class="fas fa-eye" id="admin-pass-toggle-icon"></i>
                                             </button>
@@ -239,14 +238,12 @@ const UsersView = {
                                         </select>
                                     </div>
                                     
-                                    <!-- Auditoría Section -->
-                                    <div id="user-audit-container" style="padding-top: 15px; border-top: 1px dashed var(--color-border); margin: 5px 0 10px 10px; display: none;"></div>
+
 
                                     <div id="admin-user-error" class="login-error hidden" style="background: #fff1f2; border: 1px solid #fda4af; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #e11d48; margin-bottom: 10px; margin-left: 10px;"></div>
 
-                                    <div style="display: flex; justify-content: flex-start; margin-left: 10px; margin-top: auto;">
-                                        <button type="submit" title="Registrar" class="btn-save-circle"><i class="fas fa-save"></i></button>
-                                        <button type="button" class="btn-secondary" onclick="closeUserModal()" style="display: none;">Cancelar</button>
+                                    <div style="margin-left: 10px;">
+                                        ${window.AdminTemplate.ModalFooter('closeUserModal()', 'user-admin-form')}
                                     </div>
                                 </div>
                             </form>

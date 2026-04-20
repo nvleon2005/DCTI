@@ -26,7 +26,7 @@ const ConsultasView = {
                     <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                         <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
                         <input type="text" id="filter-consulta-search" placeholder="Buscar por nombre o correo..." 
-                            oninput="window.lastFocusedInput = this.id; window.globalConsultaSearch = this.value; if(typeof changePage === 'function'){changePage('consultas', 1)} else {renderModule('consultas')}" 
+                            oninput="window.lastFocusedInput = this.id; window.globalConsultaSearch = this.value; window.debouncedRenderModule('consultas');" 
                             value="${window.globalConsultaSearch || ''}" 
                             style="background: transparent; border: none; color: var(--color-text-main); width: 200px; font-size: 0.85rem; outline: none; font-weight: 500;">
                     </div>
@@ -36,6 +36,12 @@ const ConsultasView = {
                         <option value="Pendiente" ${window.globalConsultaStatus === 'Pendiente' ? 'selected' : ''}>Pendientes</option>
                         <option value="Respondida" ${window.globalConsultaStatus === 'Respondida' ? 'selected' : ''}>Respondidas</option>
                     </select>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                        <span style="color: var(--color-text-muted); font-size: 0.85rem; font-weight: 600;"><i class="fas fa-calendar-alt"></i> Fecha:</span>
+                        <input type="date" onchange="window.globalConsultaDateFrom = this.value; if(typeof changePage === 'function'){changePage('consultas', 1)} else {renderModule('consultas')}" value="${window.globalConsultaDateFrom || ''}" style="padding: 0 12px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; color: var(--color-text-main); font-weight: 500; background: white; box-sizing: border-box;" title="Desde">
+                        <span style="color: var(--color-text-muted); font-size: 0.85rem;">a</span>
+                        <input type="date" onchange="window.globalConsultaDateTo = this.value; if(typeof changePage === 'function'){changePage('consultas', 1)} else {renderModule('consultas')}" value="${window.globalConsultaDateTo || ''}" style="padding: 0 12px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; color: var(--color-text-main); font-weight: 500; background: white; box-sizing: border-box;" title="Hasta">
+                    </div>
                 </div>
 
                 <!-- Tabla de Datos -->
@@ -97,21 +103,7 @@ const ConsultasView = {
                     </table>
 
                     <!-- Paginación Footer -->
-                    ${paginated && paginated.totalPages > 1 ? `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8fafc; border-top: 1px solid var(--color-border);">
-                            <span style="font-size: 0.85rem; color: var(--color-text-muted);">
-                                Mostrando página ${paginated.currentPage} de ${paginated.totalPages}
-                            </span>
-                            <div style="display: flex; gap: 5px;">
-                                <button onclick="changePage('consultas', ${paginated.currentPage - 1})" ${paginated.currentPage === 1 ? 'disabled' : ''} style="padding: 5px 12px; border: 1px solid var(--color-border); background: white; border-radius: 4px; cursor: ${paginated.currentPage === 1 ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === 1 ? '0.5' : '1'};">
-                                    <i class="fas fa-chevron-left"></i>
-                                </button>
-                                <button onclick="changePage('consultas', ${paginated.currentPage + 1})" ${paginated.currentPage === paginated.totalPages ? 'disabled' : ''} style="padding: 5px 12px; border: 1px solid var(--color-border); background: white; border-radius: 4px; cursor: ${paginated.currentPage === paginated.totalPages ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === paginated.totalPages ? '0.5' : '1'};">
-                                    <i class="fas fa-chevron-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    ` : ''}
+                    ${paginated ? window.AdminTemplate.Pagination('consultas', paginated.currentPage, paginated.totalPages) : ''}
                 </div>
 
                 <!-- Modal Ver Consulta -->

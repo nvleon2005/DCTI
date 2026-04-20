@@ -35,56 +35,33 @@ const StrategicView = {
                         ${createStatCard('fas fa-sitemap', globalAllStrategic.length, 'Líneas Estratégicas', '#3b82f6', 'rgba(59, 130, 246, 0.1)')}
                         ${createStatCard('fas fa-user-md', countLideres, 'Líderes de Área', '#10b981', 'rgba(16, 185, 129, 0.1)')}
                     </div>
+
+                    <div style="display: flex; justify-content: flex-start; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                            <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
+                            <input type="text" id="filter-strategic-search" placeholder="Buscar Área..." oninput="window.lastFocusedInput = this.id; window.globalStrategicSearch = this.value; window.debouncedRenderModule('strategic');" value="${window.globalStrategicSearch || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 220px; font-size: 0.85rem; outline: none; font-weight: 500;">
+                        </div>
+                    </div>
                     
                     <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-md);">
-                    ${areas.map(s => `
-                        <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                            <div style="height: 120px; background: #f1f5f9; position: relative; overflow: hidden;">
-                                <img src="${s.image || 'assets/images/img4.jpg'}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;" onerror="this.src='assets/images/img4.jpg'">
-                                <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 10px; background: linear-gradient(transparent, rgba(0,0,0,0.6)); color: white;">
-                                    <h3 style="font-size: 1rem; margin: 0;">${s.area}</h3>
-                                </div>
-                            </div>
-                            <div style="padding: 15px; flex: 1; display: flex; flex-direction: column;">
-                                <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
-                                    ${s.description || 'Sin descripción disponible.'}
-                                </p>
-                                <div style="margin-top: auto; padding-top: 10px; border-top: 1px solid #f1f5f9;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                        <span style="font-size: 0.75rem; color: var(--color-text-main); font-weight: 600;">
-                                            <i class="fas fa-user-tie" style="margin-right: 5px;"></i>${s.responsible}
-                                        </span>
-                                        <div style="display: flex; gap: 5px;">
-                                            <button onclick="openStrategicModal(${s.id})" title="Editar" style="background: none; border: 1px solid var(--color-border); padding: 5px 8px; border-radius: 4px; cursor: pointer; color: var(--color-text-main);"><i class="fas fa-edit" style="font-size: 0.8rem;"></i></button>
-                                            <button onclick="deleteStrategic(${s.id})" title="Eliminar" style="background: none; border: 1px solid #fee2e2; color: #ef4444; padding: 5px 8px; border-radius: 4px; cursor: pointer;"><i class="fas fa-trash-alt" style="font-size: 0.8rem;"></i></button>
-                                        </div>
-                                    </div>
-                                    ${s.audit ? `
-                                        <p style="font-size: 0.65rem; color: var(--color-text-muted); margin: 0; font-style: italic;">
-                                            <i class="fas fa-history" style="margin-right: 3px;"></i> Ult. mod: ${s.audit.updatedAt} por ${s.audit.updatedBy}
-                                        </p>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-md);">
+                    ${areas.map(s => {
+            return window.AdminTemplate.Card({
+                id: s.id,
+                title: s.area || s.title || 'Área Estratégica',
+                image: s.image || 'assets/images/img4.jpg',
+                badge: { text: s.responsible || 'Responsable', type: 'info' },
+                module: 'strategic',
+                onEdit: 'openStrategicModal(' + s.id + ')',
+                onDelete: 'deleteStrategic(' + s.id + ')'
+            });
+        }).join('')}
                 </div>
 
                 <!-- Paginación Footer -->
-                ${paginated && paginated.totalPages > 1 ? `
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; padding: 20px 0;">
-                        <button onclick="changePage('strategic', ${paginated.currentPage - 1})" ${paginated.currentPage === 1 ? 'disabled' : ''} style="width: 35px; height: 35px; border: 1px solid var(--color-border); background: white; border-radius: 50%; cursor: ${paginated.currentPage === 1 ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === 1 ? '0.3' : '1'}; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-chevron-left" style="font-size: 0.8rem;"></i>
-                        </button>
-                        <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-main);">Página ${paginated.currentPage} de ${paginated.totalPages}</span>
-                        <button onclick="changePage('strategic', ${paginated.currentPage + 1})" ${paginated.currentPage === paginated.totalPages ? 'disabled' : ''} style="width: 35px; height: 35px; border: 1px solid var(--color-border); background: white; border-radius: 50%; cursor: ${paginated.currentPage === paginated.totalPages ? 'default' : 'pointer'}; opacity: ${paginated.currentPage === paginated.totalPages ? '0.3' : '1'}; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-chevron-right" style="font-size: 0.8rem;"></i>
-                        </button>
-                    </div>
-                ` : ''}
+                ${paginated ? window.AdminTemplate.Pagination('strategic', paginated.currentPage, paginated.totalPages) : ''}
 
                 <!-- Modal de Áreas -->
                 <div id="strategic-modal" class="modal-overlay hidden">
@@ -126,10 +103,7 @@ const StrategicView = {
                                         <input type="text" id="admin-strategic-responsible" placeholder="Nombre completo" style="width: 100%; padding: 12px; border: 1.5px solid var(--color-border); border-radius: 6px; font-size: 0.95rem; background: #ebf0f7;" required>
                                     </div>
                                     
-                                    <div style="margin-top: auto; display: flex; gap: 10px;">
-                                        <button type="submit" title="Guardar Área" class="btn-save-circle"><i class="fas fa-save"></i></button>
-                                        <button type="button" class="btn-secondary" onclick="closeStrategicModal()" style="padding: 10px 24px;">Cancelar</button>
-                                    </div>
+                                    ${window.AdminTemplate.ModalFooter('closeStrategicModal()', 'strategic-admin-form')}
                                 </div>
                             </div>
                         </form>

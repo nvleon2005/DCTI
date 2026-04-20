@@ -15,6 +15,7 @@
         "Presentacion/Components/Carousel.js",
         "Presentacion/Components/Mapa.js",
         "Presentacion/Components/AdminShell.js",
+        "Presentacion/Components/AdminCardTemplate.js",
 
         // --- Servicios ---
         "Service/AuditService.js",
