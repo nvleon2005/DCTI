@@ -96,7 +96,7 @@ const AdminShell = {
                             <span class="user-pill__role" id="user-display-role">${displayRole}</span>
                         </div>
                         <i class="fas fa-sign-out-alt"
-                            style="margin-left: auto; font-size: 0.8rem; color: var(--color-text-muted);"></i>
+                            style="margin-left: auto; font-size: 0.8rem; color: #fff;"></i>
                     </div>
                 </div>
             </aside>

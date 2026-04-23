@@ -54,8 +54,8 @@ const StrategicView = {
                 image: s.image || 'assets/images/img4.jpg',
                 badge: { text: s.responsible || 'Responsable', type: 'info' },
                 module: 'strategic',
-                onEdit: 'openStrategicModal(' + s.id + ')',
-                onDelete: 'deleteStrategic(' + s.id + ')'
+                onEdit: `openStrategicModal('${s.id}')`,
+                onDelete: `deleteStrategic('${s.id}')`
             });
         }).join('')}
                 </div>

@@ -17,7 +17,13 @@ function getLocalStrategic() {
         ...s,
         area: s.area || s.title || s.name || 'Sin nombre',
         responsible: s.responsible || s.responsable || s.lead || s.encargado || 'Sin asignar'
-    }));
+    })).map(s => {
+        // Autocurado: Si el id se dañó (NaN) asignar un timestamp
+        if (s.id == null || isNaN(Number(s.id))) {
+            s.id = Date.now() + Math.floor(Math.random() * 1000);
+        }
+        return s;
+    });
 }
 
 
@@ -252,7 +258,7 @@ async function handleStrategicSubmit(e) {
 
     if (editId) {
         // ACTUALIZAR
-        const index = allAreas.findIndex(a => a.id == editId);
+        const index = allAreas.findIndex(a => String(a.id) === String(editId));
         if (index !== -1) {
             allAreas[index] = {
                 ...allAreas[index],
@@ -268,7 +274,9 @@ async function handleStrategicSubmit(e) {
         }
     } else {
         // AGREGAR
-        const newId = allAreas.length > 0 ? Math.max(...allAreas.map(a => a.id)) + 1 : 1;
+        // Asegurar que solo comprobamos ids que sean números
+        const validIds = allAreas.map(a => Number(a.id)).filter(id => !isNaN(id));
+        const newId = validIds.length > 0 ? Math.max(...validIds) + 1 : 1;
         const newArea = {
             id: newId,
             area: areaName,

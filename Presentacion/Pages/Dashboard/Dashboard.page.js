@@ -20,7 +20,7 @@ const DashboardView = {
                     <h2 style="margin: 0; color: var(--color-text-main);">Panel de Control</h2>
                 </div>
                 <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 24px;">
-                    ${createStatCard('fas fa-users', data.stats.users, 'Usuarios Totales', 'var(--color-primary)', 'rgba(94, 27, 174, 0.1)')}
+                    ${createStatCard('fas fa-eye', data.stats.visitantes, 'Visitantes', '#10b981', 'rgba(16, 185, 129, 0.1)')}
                     ${createStatCard('fas fa-project-diagram', data.stats.projects, 'Proyectos Activos', '#3b82f6', 'rgba(59, 130, 246, 0.1)')}
                     ${createStatCard('fas fa-newspaper', data.stats.news, 'Noticias Publicadas', '#22c55e', 'rgba(34, 197, 94, 0.1)')}
                     ${createStatCard('fas fa-graduation-cap', data.stats.courses, 'Ofertas de Cursos', '#f59e0b', 'rgba(245, 158, 11, 0.1)')}

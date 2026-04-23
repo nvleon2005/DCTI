@@ -103,6 +103,7 @@ function renderModule(id, skipAnimation = false) {
         viewData.adminUsers = adminUsers;
         viewData.localUsers = localUsers;
         viewData.stats.users = allUsers.length;
+        viewData.stats.visitantes = allUsers.filter(u => u.role === 'visitante').length;
 
         if (id === 'profile' || id === 'my-courses') {
             const session = JSON.parse(localStorage.getItem('dcti_session')) || {};

@@ -54,7 +54,9 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-html { font-size: 14.5px; }
+html {
+    font-size: 14.5px;
+}
 
 * {
     margin: 0;
@@ -613,7 +615,7 @@ body {
 
 .sidebar__footer .user-pill__role {
     font-size: 0.75rem;
-    color: var(--color-text-muted);
+    color: #fff;
 }
 
 /* MAIN CONTENT */
@@ -994,11 +996,14 @@ body {
     /* Hospital shadow adaptation */
     background-color: #ffffff;
 }
+
 /* ========================== 6. PORTAL P�BLICO CSS ========================== */
 /* --- PORTAL DCTI - CONSOLIDATED STYLES --- */
 
 /* Reset & General */
-html { font-size: 14.5px; }
+html {
+    font-size: 14.5px;
+}
 
 * {
     margin: 0;
@@ -2095,8 +2100,7 @@ footer {
     margin: 3% auto;
     padding: 1% 3% 1% 3%;
     width: 80%;
-    height: auto;
-    min-height: 200px;
+    height: fit-content;
     background-color: #ffffff;
     border-left: 5px solid #000000;
     border-radius: 10px 10px 0 0;
@@ -3844,7 +3848,7 @@ footer {
     margin: 3% auto;
     padding: 1% 3%;
     width: 80%;
-    min-height: 200px;
+    height: fit-content;
     background-color: #ffffff;
     border-left: 5px solid var(--color-primary);
     border-radius: 10px 10px 0 0;
@@ -3876,8 +3880,92 @@ footer {
 
 #view-dcti .organigrama {
     margin: 20px auto;
-    width: 90%;
-    max-width: 1000px;
+    width: 95%;
+    max-width: 700px;
+}
+
+/* --- Organigrama Zoom & Lightbox --- */
+.zoom-wrapper {
+    position: relative;
+    overflow: hidden;
+    cursor: zoom-in;
+    margin: 20px auto;
+    width: 95%;
+    max-width: 700px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    background: #ffffff;
+}
+
+.zoom-wrapper img {
+    display: block;
+    width: 100%;
+    margin: 0;
+    max-width: none;
+    border-radius: 12px;
+}
+
+/* Lightbox styles */
+.lightbox-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.lightbox-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.lightbox-content {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.lightbox-overlay.active .lightbox-content {
+    transform: scale(1);
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: #1e293b;
+    background: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    border: none;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.lightbox-close:hover {
+    transform: scale(1.1);
+    background: #f1f5f9;
 }
 
 /* Ejes de Gesti�n Styles */
@@ -4282,6 +4370,7 @@ html {
     overflow-y: auto !important;
     overflow-x: hidden !important;
 }
+
 /* ========================== 7. SISTEMA DE ALERTAS ========================== */
 /* CUSTOM ALERTS SYSTEM - DCTI */
 
@@ -4576,29 +4665,62 @@ html {
 }
 
 @keyframes load-progress {
-    0% { left: -40%; }
-    100% { left: 100%; }
+    0% {
+        left: -40%;
+    }
+
+    100% {
+        left: 100%;
+    }
 }
 
 @keyframes pulse-ring {
-    0% { transform: scale(0.95); box-shadow: inset 0 0 10px var(--color-primary), 0 0 15px var(--color-primary); }
-    50% { transform: scale(1); box-shadow: inset 0 0 35px var(--color-primary), 0 0 45px var(--color-primary); }
-    100% { transform: scale(0.95); box-shadow: inset 0 0 10px var(--color-primary), 0 0 15px var(--color-primary); }
+    0% {
+        transform: scale(0.95);
+        box-shadow: inset 0 0 10px var(--color-primary), 0 0 15px var(--color-primary);
+    }
+
+    50% {
+        transform: scale(1);
+        box-shadow: inset 0 0 35px var(--color-primary), 0 0 45px var(--color-primary);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: inset 0 0 10px var(--color-primary), 0 0 15px var(--color-primary);
+    }
 }
 
 
 /* BOTONES PREMIUM (STANDARD DASHBOARD) */
 .premium-save-btn {
-    background: linear-gradient(135deg, #4f46e5, #4338ca); color: white;
-    border: none; padding: 0.8rem 2.5rem; border-radius: 12px; font-size: 1.05rem; font-weight: 600;
-    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); font-family: inherit;
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
+    color: white;
+    border: none;
+    padding: 0.8rem 2.5rem;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+    font-family: inherit;
 }
+
 .premium-save-btn:hover:not(:disabled) {
-    transform: translateY(-2px); box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
 }
+
 .premium-save-btn:disabled {
-    background: #cbd5e1; color: #94a3b8; box-shadow: none; cursor: not-allowed;
+    background: #cbd5e1;
+    color: #94a3b8;
+    box-shadow: none;
+    cursor: not-allowed;
 }
 
 
@@ -4618,10 +4740,12 @@ html {
     box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
     transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
 }
+
 .btn-save-circle:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(37, 99, 235, 0.4);
 }
+
 .btn-save-circle:active {
     transform: translateY(0);
 }
@@ -4638,11 +4762,13 @@ html {
     border: 1px solid transparent;
     transition: all 0.3s ease;
 }
+
 .top-nav-filter-wrap:focus-within {
     border-color: var(--color-primary);
     background: white;
-    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
+
 .top-nav-filter-input {
     border: none;
     background: transparent;
@@ -4652,6 +4778,7 @@ html {
     color: #1e293b;
     width: 250px;
 }
+
 .hidden-by-filter {
     display: none !important;
 }
@@ -4666,7 +4793,7 @@ html {
     padding: 12px 18px 12px 14px;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
     width: max-content;
     min-width: 160px;
     transition: transform 0.2s, box-shadow 0.2s;
@@ -4674,7 +4801,7 @@ html {
 
 .dcti-stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
 }
 
 .dcti-stat-card-header {
@@ -4769,12 +4896,12 @@ html {
     gap: 7px;
     font-family: 'Outfit', sans-serif;
     transition: all 0.25s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .audit-export-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
 }
 
 .audit-export-btn--pdf {
@@ -4796,7 +4923,7 @@ html {
     flex-wrap: wrap;
     gap: 14px;
     align-items: flex-end;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .audit-filter-group {
@@ -4865,7 +4992,7 @@ html {
     border: 1px solid var(--color-border);
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .audit-table-header {
@@ -4969,13 +5096,40 @@ html {
     white-space: nowrap;
 }
 
-.audit-action-badge--create { background: rgba(34, 197, 94, 0.1); color: #15803d; }
-.audit-action-badge--edit { background: rgba(59, 130, 246, 0.1); color: #1d4ed8; }
-.audit-action-badge--delete { background: rgba(239, 68, 68, 0.1); color: #b91c1c; }
-.audit-action-badge--status { background: rgba(245, 158, 11, 0.1); color: #b45309; }
-.audit-action-badge--login { background: rgba(124, 58, 237, 0.1); color: #6d28d9; }
-.audit-action-badge--logout { background: rgba(100, 116, 139, 0.1); color: #475569; }
-.audit-action-badge--recovery { background: rgba(236, 72, 153, 0.1); color: #be185d; }
+.audit-action-badge--create {
+    background: rgba(34, 197, 94, 0.1);
+    color: #15803d;
+}
+
+.audit-action-badge--edit {
+    background: rgba(59, 130, 246, 0.1);
+    color: #1d4ed8;
+}
+
+.audit-action-badge--delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #b91c1c;
+}
+
+.audit-action-badge--status {
+    background: rgba(245, 158, 11, 0.1);
+    color: #b45309;
+}
+
+.audit-action-badge--login {
+    background: rgba(124, 58, 237, 0.1);
+    color: #6d28d9;
+}
+
+.audit-action-badge--logout {
+    background: rgba(100, 116, 139, 0.1);
+    color: #475569;
+}
+
+.audit-action-badge--recovery {
+    background: rgba(236, 72, 153, 0.1);
+    color: #be185d;
+}
 
 /* Badge de módulo */
 .audit-module-badge {
@@ -5096,8 +5250,15 @@ html {
 
 /* Animación de entrada */
 @keyframes audit-fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .audit-table-container,
@@ -5110,9 +5271,11 @@ html {
     .audit-filters {
         flex-direction: column;
     }
+
     .audit-filter-group {
         min-width: 100%;
     }
+
     .audit-header {
         flex-direction: column;
         align-items: flex-start;
