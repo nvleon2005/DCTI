@@ -81,22 +81,41 @@ const AdminShell = {
                         </li>` : ''}
                         <li class="sidebar__section-title">NAVEGACIÓN</li>
                         <li class="sidebar__item" onclick="window.location.href='index.html'"
-                            style="color: #fff; font-weight: 600;">
-                            <i class="fas fa-external-link-alt"></i>
+                            style="
+                                color: #7dd3fc;
+                                font-weight: 700;
+                                background: rgba(56, 189, 248, 0.15);
+                                border: 1px solid rgba(56, 189, 248, 0.35);
+                                box-shadow: 0 2px 10px rgba(56, 189, 248, 0.15);
+                                transition: all 0.25s ease;
+                                margin: 0 4px;
+                                box-sizing: border-box;
+                            "
+                            onmouseenter="this.style.background='rgba(56,189,248,0.28)'; this.style.boxShadow='0 4px 14px rgba(56,189,248,0.28)'; this.style.borderColor='rgba(56,189,248,0.6)'; this.style.color='#e0f2fe';"
+                            onmouseleave="this.style.background='rgba(56,189,248,0.15)'; this.style.boxShadow='0 2px 10px rgba(56,189,248,0.15)'; this.style.borderColor='rgba(56,189,248,0.35)'; this.style.color='#7dd3fc';">
+                            <i class="fas fa-house-chimney"></i>
                             <span>Ir al Portal</span>
                         </li>
                     </ul>
                 </nav>
 
                 <div class="sidebar__footer">
-                    <div class="user-pill" id="logout-btn" title="Cerrar Sesión" style="cursor: pointer;">
+                    <div class="user-pill" id="logout-btn" title="Cerrar Sesión" style="
+                        cursor: pointer;
+                        background: rgba(239, 68, 68, 0.22);
+                        border: 1px solid rgba(239, 68, 68, 0.5);
+                        box-shadow: 0 2px 10px rgba(239, 68, 68, 0.2);
+                        transition: all 0.25s ease;
+                    "
+                    onmouseenter="this.style.background='rgba(239,68,68,0.35)'; this.style.boxShadow='0 4px 16px rgba(239,68,68,0.35)'; this.style.borderColor='rgba(239,68,68,0.7)';"
+                    onmouseleave="this.style.background='rgba(239,68,68,0.22)'; this.style.boxShadow='0 2px 10px rgba(239,68,68,0.2)'; this.style.borderColor='rgba(239,68,68,0.5)';">
                         <div class="user-pill__avatar" id="user-initials">${initials}</div>
                         <div class="user-pill__info">
                             <span class="user-pill__name" id="user-display-name">${displayName}</span>
-                            <span class="user-pill__role" id="user-display-role">${displayRole}</span>
+                            <span class="user-pill__role" id="user-display-role" style="color: #fca5a5;">${displayRole}</span>
                         </div>
-                        <i class="fas fa-sign-out-alt"
-                            style="margin-left: auto; font-size: 0.8rem; color: #fff;"></i>
+                        <i class="fas fa-right-from-bracket"
+                            style="margin-left: auto; font-size: 1.4rem; color: #ef4444;"></i>
                     </div>
                 </div>
             </aside>

@@ -332,7 +332,7 @@ const App = {
             if (initialsEl) {
                 initialsEl.textContent = '';
                 initialsEl.style.backgroundImage = 'none';
-                initialsEl.style.border = 'none';
+                initialsEl.style.removeProperty('border');
             }
             if (nameEl) nameEl.textContent = '';
             if (roleEl) roleEl.textContent = '';
@@ -352,10 +352,10 @@ const App = {
                 initialsEl.style.backgroundPosition = 'center';
                 initialsEl.style.border = '2px solid rgba(255,255,255,0.2)';
             } else {
-                // Sin foto: mostrar iniciales
+                // Sin foto: mostrar iniciales y dejar que CSS controle el contorno
                 initialsEl.textContent = user.initials || '?';
                 initialsEl.style.backgroundImage = 'none';
-                initialsEl.style.border = 'none';
+                initialsEl.style.removeProperty('border');
             }
         }
         if (nameEl) nameEl.textContent = displayName;
