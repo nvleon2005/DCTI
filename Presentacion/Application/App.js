@@ -329,7 +329,11 @@ const App = {
         const headerInitials = document.getElementById('header-user-initials');
 
         if (!user) {
-            if (initialsEl) initialsEl.textContent = '';
+            if (initialsEl) {
+                initialsEl.textContent = '';
+                initialsEl.style.backgroundImage = 'none';
+                initialsEl.style.border = 'none';
+            }
             if (nameEl) nameEl.textContent = '';
             if (roleEl) roleEl.textContent = '';
             if (headerInitials) headerInitials.textContent = '';
@@ -339,7 +343,21 @@ const App = {
         const displayName = user.name || user.username || 'Usuario';
         const displayRole = user.role ? (user.role.charAt(0).toUpperCase() + user.role.slice(1)) : 'Editor';
 
-        if (initialsEl) initialsEl.textContent = user.initials || '?';
+        if (initialsEl) {
+            if (user.avatar) {
+                // Mostrar foto de perfil en el pill del sidebar
+                initialsEl.textContent = '';
+                initialsEl.style.backgroundImage = `url(${user.avatar})`;
+                initialsEl.style.backgroundSize = 'cover';
+                initialsEl.style.backgroundPosition = 'center';
+                initialsEl.style.border = '2px solid rgba(255,255,255,0.2)';
+            } else {
+                // Sin foto: mostrar iniciales
+                initialsEl.textContent = user.initials || '?';
+                initialsEl.style.backgroundImage = 'none';
+                initialsEl.style.border = 'none';
+            }
+        }
         if (nameEl) nameEl.textContent = displayName;
         if (roleEl) roleEl.textContent = displayRole;
 

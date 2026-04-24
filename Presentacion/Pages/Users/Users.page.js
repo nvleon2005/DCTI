@@ -102,9 +102,10 @@ const UsersView = {
                                     <tr style="border-bottom: 1px solid var(--color-border); opacity: ${u.status === 'Inactivo' ? '0.6' : '1'}">
                                         <td style="padding: 15px;">
                                             <div style="display: flex; align-items: center; gap: 10px;">
-                                                <div style="width: 32px; height: 32px; background: var(--grad-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700;">
-                                                    ${u.initials || '??'}
-                                                </div>
+                                                ${u.avatar
+                                                    ? `<img src="${u.avatar}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid #e2e8f0;">`
+                                                    : `<div style="width: 32px; height: 32px; background: var(--grad-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;">${u.initials || '??'}</div>`
+                                                }
                                                 <span style="font-weight: 600;">${u.username || u.name || 'Sin Usuario'}</span>
                                             </div>
                                         </td>

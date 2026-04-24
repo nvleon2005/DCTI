@@ -167,9 +167,23 @@ const Router = {
             if (authRoot) authRoot.classList.add('hidden');
             if (adminRoot) adminRoot.classList.remove('hidden');
 
+            // Enriquecer la sesión con el perfil completo del usuario en localStorage
+            // (incluye avatar, nombre actualizado, etc.) para que el sidebar sea preciso
+            let enrichedSession = session;
+            try {
+                const localUsers = JSON.parse(localStorage.getItem('dcti_users') || '[]');
+                const fullProfile = localUsers.find(u => u.email === session.email);
+                if (fullProfile) {
+                    enrichedSession = { ...session, ...fullProfile };
+                }
+            } catch (e) { /* silencioso */ }
+
             // Asegurar que el Shell administrativo esté renderizado
             if (!document.getElementById('content-area') && typeof App !== 'undefined') {
-                App.start(session);
+                App.start(enrichedSession);
+            } else if (typeof App !== 'undefined') {
+                // Shell ya existe: solo sincronizar el avatar/nombre en el pill
+                App.updateUserProfile(enrichedSession);
             }
 
             if (typeof renderModule === 'function') {

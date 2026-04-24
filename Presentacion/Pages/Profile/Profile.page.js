@@ -37,10 +37,12 @@ const ProfileView = {
                             ${user.avatar
                 ? `<img id="profile-avatar-preview" src="${user.avatar}" class="premium-avatar-img">`
                 : `<div id="profile-avatar-preview" class="premium-avatar-initials">${userInitials}</div>`}
+                            ${!isHardcoded ? `
                             <label for="profile-avatar-input" class="premium-avatar-upload" title="Actualizar fotografía">
                                 <i class="fas fa-camera"></i>
                             </label>
-                            <input type="file" id="profile-avatar-input" accept="image/*" style="display: none;">
+                            <input type="file" id="profile-avatar-input" accept="image/*" style="display: none;" onchange="previewProfileAvatar(event)">
+                            ` : ''}
                         </div>
 
                         <!-- User Info -->
