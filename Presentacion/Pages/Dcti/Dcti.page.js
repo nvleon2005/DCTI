@@ -44,7 +44,7 @@ const AdminDctiView = {
                                         <img id="admin-dcti-organigrama-preview" src="${dcti.organigrama || ''}" style="max-width: 100%; max-height: 100%; height: auto; object-fit: contain; border-radius: 6px; display: ${dcti.organigrama ? 'block' : 'none'};">
                                         <input type="file" id="admin-dcti-organigrama-input" accept="image/*" style="display: none;" onchange="typeof previewOrganigrama === 'function' ? previewOrganigrama(event) : null">
                                         <button type="button" onclick="document.getElementById('admin-dcti-organigrama-input').click()" style="position: absolute; bottom: -12px; right: -12px; width: 36px; height: 36px; border-radius: 50%; background: var(--color-primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 1.1rem; transition: background 0.2s; z-index: 10;" title="Subir Organigrama">
-                                            <i class="fas fa-upload" style="font-size: 14px;"></i>
+                                            <i class="fas fa-plus" style="font-size: 14px;"></i>
                                         </button>
                                         ${!dcti.organigrama ? '<div id="admin-dcti-organigrama-placeholder" style="color: #94a3b8; font-size: 0.9rem; display: flex; flex-direction: column; align-items: center; gap: 8px;"><i class="fas fa-image" style="font-size: 1.5rem;"></i><span>Clic en + para subir</span></div>' : ''}
                                     </div>
@@ -123,7 +123,7 @@ const AdminDctiView = {
                                         <div id="admin-dcti-consultas-placeholder" style="color: #94a3b8; font-size: 0.9rem; display: ${dcti.consultasImage ? 'none' : 'flex'}; flex-direction: column; align-items: center; gap: 8px;"><i class="fas fa-image" style="font-size: 1.5rem;"></i><span>Clic en + para subir</span></div>
                                         <input type="file" id="admin-dcti-consultas-input" accept="image/*" style="display: none;" onchange="typeof previewConsultasImage === 'function' ? previewConsultasImage(event) : null">
                                         <button type="button" onclick="document.getElementById('admin-dcti-consultas-input').click()" style="position: absolute; bottom: -12px; right: -12px; width: 36px; height: 36px; border-radius: 50%; background: var(--color-primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 1.1rem; transition: background 0.2s; z-index: 10;" title="Subir Imagen de Consultas">
-                                            <i class="fas fa-upload" style="font-size: 14px;"></i>
+                                            <i class="fas fa-plus" style="font-size: 14px;"></i>
                                         </button>
                                     </div>
                                     <div style="margin-top: 15px; font-size: 0.8rem; color: var(--color-text-muted);">

@@ -8,22 +8,20 @@ const ReportsView = {
 
         return `
             <div class="view-container" style="display: flex; flex-direction: column; gap: 25px;">
-                <!-- Cabecera Limpia con Acciones -->
-                <div style="background: white; border-radius: 16px; padding: 25px 30px; border: 1px solid var(--color-border); box-shadow: 0 2px 10px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="background: var(--color-primary); color: white; width: 45px; height: 45px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 1.3rem;">
-                            <i class="fas fa-chart-line"></i>
+                <!-- Cabecera estándar igual al resto de módulos -->
+                <div style="display: flex; flex-direction: column; gap: var(--space-md); margin-bottom: var(--space-md);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <h2>Reportes del Sistema</h2>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <button onclick="if(typeof exportReportToExcel === 'function') exportReportToExcel()" style="padding: 10px 18px; background: white; border: 1px solid #cbd5e1; border-radius: 8px; color: #166534; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.04);" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#94a3b8'" onmouseout="this.style.background='white'; this.style.borderColor='#cbd5e1'">
+                                <i class="fas fa-file-excel"></i> Exportar Excel
+                            </button>
+                            <button onclick="if(typeof previewReportPDF === 'function') previewReportPDF()" style="padding: 10px 18px; background: #dc2626; border: 1px solid #b91c1c; border-radius: 8px; color: white; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);" onmouseover="this.style.background='#b91c1c'; this.style.borderColor='#991b1b'" onmouseout="this.style.background='#dc2626'; this.style.borderColor='#b91c1c'">
+                                <i class="fas fa-file-pdf"></i> Generar PDF
+                            </button>
                         </div>
-                        <h2 style="margin: 0; font-size: 1.6rem; color: #0f172a; font-weight: 700;">Reportes del Sistema</h2>
                     </div>
-                    <div style="display: flex; gap: 12px; align-items: center;">
-                        <button onclick="if(typeof exportReportToExcel === 'function') exportReportToExcel()" style="padding: 10px 18px; background: white; border: 1px solid #cbd5e1; border-radius: 8px; color: #166534; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#94a3b8'" onmouseout="this.style.background='white'; this.style.borderColor='#cbd5e1'">
-                            <i class="fas fa-file-excel"></i> Exportar Excel
-                        </button>
-                        <button onclick="if(typeof previewReportPDF === 'function') previewReportPDF()" style="padding: 10px 18px; background: #dc2626; border: 1px solid #b91c1c; border-radius: 8px; color: white; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);" onmouseover="this.style.background='#b91c1c'; this.style.borderColor='#991b1b'" onmouseout="this.style.background='#dc2626'; this.style.borderColor='#b91c1c'">
-                            <i class="fas fa-file-pdf"></i> Generar PDF
-                        </button>
-                    </div>
+                    <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">
                 </div>
 
                 <!-- Panel Principal de Configuración de Reporte -->
