@@ -101,6 +101,7 @@ function getLocalParticipations() {
 let courseImageQueue = []; // Cola de subida para el modal
 let courseMaterialsQueue = []; // Cola de materiales didácticos
 let globalCourseFilter = 'Publicado'; // Query de Listado por Defecto
+window.globalCourseFilter = globalCourseFilter; // Exponer al scope global
 
 
 // ==========================================
@@ -199,7 +200,11 @@ function openCourseModal(id = null) {
             document.getElementById('admin-course-description').value = course.descripcion;
             if(document.getElementById('admin-course-objetivos')) document.getElementById('admin-course-objetivos').value = course.objetivos || '';
             if(document.getElementById('admin-course-area')) document.getElementById('admin-course-area').value = course.areaTematica || 'Tecnología e Informática';
-            if(document.getElementById('admin-course-modalidad')) document.getElementById('admin-course-modalidad').value = course.modalidad || 'Virtual';
+            if(document.getElementById('admin-course-modalidad')) {
+                document.getElementById('admin-course-modalidad').value = course.modalidad || 'Virtual';
+                toggleCourseVirtualUrl(course.modalidad || 'Virtual');
+            }
+            if(document.getElementById('admin-course-url')) document.getElementById('admin-course-url').value = course.urlCurso || '';
             if(document.getElementById('admin-course-duracion')) document.getElementById('admin-course-duracion').value = course.duracion || '';
             // Costo: parsear costo guardado en moneda + monto
             const monedaEl = document.getElementById('admin-course-moneda');
@@ -237,13 +242,14 @@ function openCourseModal(id = null) {
             }
 
             // LÓGICA DE "SOLO LECTURA": ESTADO FINALIZADO
+            const btnSaveCourse = document.querySelector('#course-admin-form button[type="submit"]');
             if (course.estadoCurso === "Finalizado") {
                 inputs.forEach(el => el.disabled = true);
                 document.getElementById('btn-reactivate-course').style.display = 'inline-block';
-                document.getElementById('btn-save-course').style.display = 'none';
+                if (btnSaveCourse) btnSaveCourse.style.display = 'none';
                 AlertService.warning('El curso está Finalizado. Los datos han sido congelados por control de auditoría.', 'Modo Lectura');
             } else {
-                document.getElementById('btn-save-course').style.display = 'inline-block';
+                if (btnSaveCourse) btnSaveCourse.style.display = 'inline-flex';
             }
 
             // Cargar Materiales y Fechas
@@ -268,11 +274,16 @@ function openCourseModal(id = null) {
         if (monedaElNew) monedaElNew.value = 'Gratuito';
         if (montoElNew) { montoElNew.value = ''; montoElNew.style.display = 'none'; }
         if(document.getElementById('admin-course-area')) document.getElementById('admin-course-area').value = 'Tecnología e Informática';
-        if(document.getElementById('admin-course-modalidad')) document.getElementById('admin-course-modalidad').value = 'Virtual';
+        if(document.getElementById('admin-course-modalidad')) {
+            document.getElementById('admin-course-modalidad').value = 'Virtual';
+            toggleCourseVirtualUrl('Virtual'); // Virtual es el default, mostrar campo URL
+        }
+        if(document.getElementById('admin-course-url')) document.getElementById('admin-course-url').value = '';
         if (document.getElementById('admin-course-carousel')) {
             document.getElementById('admin-course-carousel').value = "Ninguno";
         }
-        document.getElementById('btn-save-course').style.display = 'inline-block';
+        const btnSaveCourseNew = document.querySelector('#course-admin-form button[type="submit"]');
+        if (btnSaveCourseNew) btnSaveCourseNew.style.display = 'inline-flex';
 
         // Bloquear tabs que requieren ID del curso para relacionarse (Alumnos)
         document.getElementById('tab-students-btn').style.opacity = '0.5';
@@ -303,7 +314,8 @@ function changeCourseStatusToReactivate() {
     document.getElementById('admin-course-status').value = "Borrador";
 
     document.getElementById('btn-reactivate-course').style.display = 'none';
-    document.getElementById('btn-save-course').style.display = 'inline-block';
+    const btnSaveReactivate = document.querySelector('#course-admin-form button[type="submit"]');
+    if (btnSaveReactivate) btnSaveReactivate.style.display = 'inline-flex';
 
     AlertService.success('El ciclo se ha abierto para edición. Al guardar se registrará en la auditoría.', 'Curso Reactivado');
 }
@@ -352,6 +364,7 @@ window.handleCourseSubmit = window.rateLimitAction(async function(e) {
     const objetivos = document.getElementById('admin-course-objetivos') ? window.sanitizeHTML(document.getElementById('admin-course-objetivos').value.trim()) : '';
     const areaTematica = document.getElementById('admin-course-area') ? document.getElementById('admin-course-area').value : 'Tecnología e Informática';
     const modalidad = document.getElementById('admin-course-modalidad') ? document.getElementById('admin-course-modalidad').value : 'Virtual';
+    const urlCurso = (modalidad === 'Virtual' && document.getElementById('admin-course-url')) ? document.getElementById('admin-course-url').value.trim() : '';
     // Construir costo compuesto desde moneda + monto
     const monedaVal = document.getElementById('admin-course-moneda') ? document.getElementById('admin-course-moneda').value : 'Gratuito';
     const montoVal = document.getElementById('admin-course-monto') ? document.getElementById('admin-course-monto').value.trim() : '';
@@ -366,7 +379,15 @@ window.handleCourseSubmit = window.rateLimitAction(async function(e) {
     const carouselPlacement = document.getElementById('admin-course-carousel') ? document.getElementById('admin-course-carousel').value : 'Ninguno';
     const fechaLiberacionMateriales = document.getElementById('admin-course-materials-date') ? document.getElementById('admin-course-materials-date').value : '';
 
-    // Validación Anti-Espacios Vacíos (Hard Stop)
+    // Validación URL obligatoria si modalidad es Virtual
+    if (modalidad === 'Virtual' && !urlCurso) {
+        AlertService.error('Debe ingresar la URL de acceso al curso virtual (Zoom, Meet, Teams, etc.).', 'URL Requerida');
+        return;
+    }
+    if (urlCurso && !/^https?:\/\/.+/.test(urlCurso)) {
+        AlertService.error('La URL ingresada no es válida. Debe comenzar con http:// o https://', 'URL Inválida');
+        return;
+    }
     if (!nombreCurso || !descripcion || !objetivos) {
         AlertService.error('El nombre, la descripción y los objetivos no pueden contener únicamente espacios en blanco o estar vacíos.', 'Campos Vacíos');
         return;
@@ -443,6 +464,7 @@ window.handleCourseSubmit = window.rateLimitAction(async function(e) {
                 objetivos,
                 areaTematica,
                 modalidad,
+                urlCurso,
                 costo,
                 duracion,
                 instructor,
@@ -475,6 +497,7 @@ window.handleCourseSubmit = window.rateLimitAction(async function(e) {
             objetivos,
             areaTematica,
             modalidad,
+            urlCurso,
             costo,
             duracion,
             instructor,
@@ -825,6 +848,7 @@ function filterCoursesAdmin(category, resetPage = true) {
     if (typeof renderModule !== 'function') return;
 
     globalCourseFilter = category;
+    window.globalCourseFilter = category; // Sincronizar con scope global
 
     // Respetar paginación (Ir a pag 1 si cambia filtro)
     if (resetPage && typeof PAGINATION_STATE !== 'undefined' && PAGINATION_STATE['courses']) {
@@ -834,3 +858,25 @@ function filterCoursesAdmin(category, resetPage = true) {
     // Delegar el renderizado al orquestador central
     renderModule('courses');
 }
+
+// ==========================================
+// 11. URL DEL CURSO VIRTUAL
+// ==========================================
+
+function toggleCourseVirtualUrl(modalidad) {
+    const urlGroup = document.getElementById('course-url-group');
+    const urlInput = document.getElementById('admin-course-url');
+    if (!urlGroup) return;
+
+    if (modalidad === 'Virtual') {
+        urlGroup.style.display = 'block';
+        if (urlInput) urlInput.setAttribute('required', 'required');
+    } else {
+        urlGroup.style.display = 'none';
+        if (urlInput) {
+            urlInput.removeAttribute('required');
+            urlInput.value = '';
+        }
+    }
+}
+window.toggleCourseVirtualUrl = toggleCourseVirtualUrl;

@@ -58,11 +58,11 @@ const AdminNewsView = {
                     <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: var(--space-lg);">
-                    <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; flex: 1;">
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: var(--space-lg);">
+                    <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;">
                         ${filterButtons}
                     </div>
-                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; flex-wrap: wrap; flex-shrink: 0;">
+                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; flex-wrap: wrap;">
                         <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                             <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
                             <input type="text" id="filter-news-search" placeholder="Buscar Noticia..." oninput="window.lastFocusedInput = this.id; window.globalNewsSearch = this.value; window.debouncedRenderModule('news');" value="${window.globalNewsSearch || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 140px; font-size: 0.85rem; outline: none; font-weight: 500;">
@@ -72,7 +72,7 @@ const AdminNewsView = {
                             <option value="Publicado" ${window.globalNewsStatusFilter === 'Publicado' || window.globalNewsStatusFilter === 'Publicada' ? 'selected' : ''}>Publicadas</option>
                             <option value="Borrador" ${window.globalNewsStatusFilter === 'Borrador' ? 'selected' : ''}>Borradores</option>
                         </select>
-                        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
                             <span style="color: var(--color-text-muted); font-size: 0.85rem; font-weight: 600;"><i class="fas fa-calendar-alt"></i> Pub:</span>
                             <input type="date" onchange="window.globalNewsDateFrom = this.value; if(typeof changePage === 'function'){changePage('news', 1)} else {renderModule('news')}" value="${window.globalNewsDateFrom || ''}" style="padding: 0 12px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; color: var(--color-text-main); font-weight: 500; background: white; box-sizing: border-box;" title="Desde">
                             <span style="color: var(--color-text-muted); font-size: 0.85rem;">a</span>

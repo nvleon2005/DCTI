@@ -9,7 +9,6 @@ const ProjectsView = {
         // Obtención de data global para estadísticas exactas
         const globalAllProjects = typeof getLocalProjects === 'function' ? getLocalProjects() : [];
         const countDestacados = globalAllProjects.filter(p => p.status === 'Destacado').length;
-        const countResp = [...new Set(globalAllProjects.map(p => p.manager || p.author || p.updatedBy).filter(Boolean))].length;
 
         const createStatCard = (icon, number, label, textColor, bgColor) => `
             <div class="dcti-stat-card">
@@ -41,7 +40,6 @@ const ProjectsView = {
                     <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 5px;">
                         ${createStatCard('fas fa-project-diagram', globalAllProjects.length, 'Validados', '#3b82f6', 'rgba(59, 130, 246, 0.1)')}
                         ${createStatCard('fas fa-star', countDestacados, 'Destacados', '#f59e0b', 'rgba(245, 158, 11, 0.1)')}
-                        ${createStatCard('fas fa-user-tie', countResp, 'Responsables', '#10b981', 'rgba(16, 185, 129, 0.1)')}
                     </div>
 
                     <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">

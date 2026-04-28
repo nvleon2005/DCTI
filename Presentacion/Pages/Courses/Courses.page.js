@@ -174,30 +174,30 @@ const CoursesView = {
                                                 <span style="font-size: 0.72rem; color: var(--color-text-muted); display: block; margin-top: 5px;"><i class="fas fa-lightbulb" style="color: #f59e0b;"></i> Puede seleccionar una categoría predefinida o escribir un área temática personalizada.</span>
                                             </div>
 
-                                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                                                 <div class="form-group">
                                                     <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Modalidad <span style="color: #ef4444;">*</span></label>
-                                                    <select id="admin-course-modalidad" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
+                                                    <select id="admin-course-modalidad" onchange="toggleCourseVirtualUrl(this.value)" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
                                                         <option value="Virtual">Virtual</option>
                                                         <option value="Presencial">Presencial</option>
                                                         <option value="Híbrido">Híbrido</option>
                                                     </select>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;"><i class="fas fa-tag"></i> Costo</label>
-                                                    <div style="display: flex; gap: 6px; align-items: center;">
-                                                        <select id="admin-course-moneda" onchange="const a=document.getElementById('admin-course-monto'); a.style.display=this.value==='Gratuito'?'none':'block'; if(this.value==='Gratuito') a.value='';" style="padding: 10px 8px; border: 1px solid var(--color-border); border-radius: 6px; font-weight: 700; font-size: 0.85rem; min-width: 100px;">
-                                                            <option value="Gratuito">Gratuito</option>
-                                                            <option value="Bs.">Bs.</option>
-                                                            <option value="$">$ (USD)</option>
-                                                        </select>
-                                                        <input type="number" min="0" step="0.01" id="admin-course-monto" placeholder="0.00" style="display: none; width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
                                                     <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;"><i class="fas fa-user-friends"></i> Cupo Máximo <span style="color: #ef4444;">*</span></label>
                                                     <input type="number" min="1" step="1" onkeypress="return event.charCode >= 48 && event.charCode <= 57" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="admin-course-quota" placeholder="Ej: 30" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
                                                 </div>
+                                            </div>
+
+                                            <div id="course-url-group" class="form-group" style="display: none; animation: fadeIn 0.25s ease;">
+                                                <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;"><i class="fas fa-link" style="color: var(--color-primary);"></i> URL del Curso Virtual <span style="color: #ef4444;">*</span></label>
+                                                <div style="display: flex; align-items: stretch; border: 1px solid var(--color-border); border-radius: 6px; overflow: hidden;">
+                                                    <span style="display: flex; align-items: center; justify-content: center; padding: 0 10px; background: #f8fafc; border-right: 1px solid var(--color-border); flex-shrink: 0;">
+                                                        <i class="fas fa-globe" style="color: var(--color-text-muted); font-size: 0.85rem;"></i>
+                                                    </span>
+                                                    <input type="url" id="admin-course-url" placeholder="https://meet.google.com/xxx  |  https://zoom.us/j/xxx" style="flex: 1; padding: 10px; border: none; background: white; font-size: 0.9rem; color: var(--color-text-main); outline: none; min-width: 0;">
+                                                </div>
+                                                <span style="font-size: 0.72rem; color: var(--color-text-muted); display: block; margin-top: 4px;"><i class="fas fa-info-circle" style="color: #3b82f6;"></i> Ingrese el enlace de acceso a la plataforma virtual (Zoom, Meet, Teams, Moodle, etc.).</span>
                                             </div>
 
                                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">

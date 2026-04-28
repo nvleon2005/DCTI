@@ -4,7 +4,6 @@ const StrategicView = {
         const areas = paginated ? paginated.items : data.strategic;
         // Obtención global de datos para estadísticas precisas reales
         const globalAllStrategic = typeof getLocalStrategic === 'function' ? getLocalStrategic() : [];
-        const countLideres = [...new Set(globalAllStrategic.map(s => s.responsible).filter(r => r && r !== 'No Asignado'))].length;
 
         const createStatCard = (icon, number, label, textColor, bgColor) => `
             <div class="dcti-stat-card">
@@ -33,7 +32,6 @@ const StrategicView = {
                     
                     <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 5px;">
                         ${createStatCard('fas fa-sitemap', globalAllStrategic.length, 'Líneas Estratégicas', '#3b82f6', 'rgba(59, 130, 246, 0.1)')}
-                        ${createStatCard('fas fa-user-md', countLideres, 'Líderes de Área', '#10b981', 'rgba(16, 185, 129, 0.1)')}
                     </div>
 
                     <div style="display: flex; justify-content: flex-start; align-items: center; gap: 15px; flex-wrap: wrap;">
@@ -52,7 +50,7 @@ const StrategicView = {
                 id: s.id,
                 title: s.area || s.title || 'Área Estratégica',
                 image: s.image || 'assets/images/img4.jpg',
-                badge: { text: s.responsible || 'Responsable', type: 'info' },
+                badge: { text: s.area || s.title || 'Estratégico', type: 'info' },
                 module: 'strategic',
                 onEdit: `openStrategicModal('${s.id}')`,
                 onDelete: `deleteStrategic('${s.id}')`
@@ -98,11 +96,7 @@ const StrategicView = {
                                         <textarea id="admin-strategic-description" placeholder="Resumen de objetivos y alcance..." style="width: 100%; padding: 12px; border: 1.5px solid var(--color-border); border-radius: 6px; font-size: 0.95rem; height: 180px; resize: vertical; background: #ebf0f7;" required></textarea>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--color-primary); font-weight: 700;">Responsable <span style="color: #ef4444;">*</span></label>
-                                        <input type="text" id="admin-strategic-responsible" placeholder="Nombre completo" style="width: 100%; padding: 12px; border: 1.5px solid var(--color-border); border-radius: 6px; font-size: 0.95rem; background: #ebf0f7;" required>
-                                    </div>
-                                    
+
                                     ${window.AdminTemplate.ModalFooter('closeStrategicModal()', 'strategic-admin-form')}
                                 </div>
                             </div>

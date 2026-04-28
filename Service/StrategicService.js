@@ -57,7 +57,6 @@ function openStrategicModal(id = null) {
 
         if (area) {
             document.getElementById('admin-strategic-name').value = area.area || '';
-            document.getElementById('admin-strategic-responsible').value = area.responsible || '';
             document.getElementById('admin-strategic-description').value = area.description || '';
 
             if (area.image) {
@@ -222,11 +221,10 @@ async function handleStrategicSubmit(e) {
 
     const editId = document.getElementById('edit-strategic-id').value;
     const areaName = document.getElementById('admin-strategic-name').value.trim();
-    const responsible = document.getElementById('admin-strategic-responsible').value.trim();
     const description = document.getElementById('admin-strategic-description').value.trim();
 
     // 1. VALIDACIÓN DE OBLIGATORIEDAD Y ESPACIOS VACÍOS
-    if (!areaName || !description || !responsible || areaName === '' || description === '' || responsible === '') {
+    if (!areaName || !description || areaName === '' || description === '') {
         AlertService.notify('Campos Vacíos', 'Los campos no pueden estar vacíos ni contener solo espacios.', 'warning');
         return;
     }
@@ -263,7 +261,6 @@ async function handleStrategicSubmit(e) {
             allAreas[index] = {
                 ...allAreas[index],
                 area: areaName,
-                responsible: responsible,
                 description: description,
                 image: imageToSave,
                 images: imagesToSave,
@@ -280,7 +277,6 @@ async function handleStrategicSubmit(e) {
         const newArea = {
             id: newId,
             area: areaName,
-            responsible: responsible,
             description: description,
             image: imageToSave,
             images: imagesToSave,

@@ -232,12 +232,17 @@ function renderModule(id, skipAnimation = false) {
 
         if (id === 'courses') {
             let filteredCourses = viewData.courses;
+            const activeCourseFilter = typeof window.globalCourseFilter !== 'undefined' ? window.globalCourseFilter : 'Publicado';
+            viewData.categoryFilter = activeCourseFilter;
             if (typeof window.globalCourseSearch !== 'undefined' && window.globalCourseSearch) {
                 const q = window.globalCourseSearch.toLowerCase();
                 filteredCourses = filteredCourses.filter(c => (c.nombreCurso || c.title || '').toLowerCase().includes(q) || (c.instructor || '').toLowerCase().includes(q));
             }
-            if (typeof window.globalCourseFilter !== 'undefined' && window.globalCourseFilter !== 'Todos') {
-                filteredCourses = filteredCourses.filter(c => c.estadoCurso === window.globalCourseFilter || c.status === window.globalCourseFilter);
+            if (activeCourseFilter !== 'Todos') {
+                filteredCourses = filteredCourses.filter(c => c.estadoCurso === activeCourseFilter || c.status === activeCourseFilter);
+            }
+            if (typeof window.globalCourseModalityFilter !== 'undefined' && window.globalCourseModalityFilter && window.globalCourseModalityFilter !== 'Todas') {
+                filteredCourses = filteredCourses.filter(c => c.modalidad === window.globalCourseModalityFilter);
             }
             if (typeof window.globalCourseDateFrom !== 'undefined' && window.globalCourseDateFrom) {
                 const d = new Date(window.globalCourseDateFrom); d.setHours(0,0,0,0);
