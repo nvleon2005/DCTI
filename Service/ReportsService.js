@@ -8,6 +8,13 @@ let currentReportDomain = 'users';
 function getReportData(domain, filters = {}) {
     let rawData = [];
 
+    const ensureDate = (val) => {
+        if (!val || val === 'N/A') return null;
+        if (typeof val === 'number') return new Date(val).toISOString();
+        if (typeof val === 'string' && val.length === 10) return new Date(`${val}T12:00:00`).toISOString();
+        try { return new Date(val).toISOString(); } catch(e) { return null; }
+    };
+
     // Extracción de datos minimizados (limpiando passwords, detalles intrusivos, etc)
     switch (domain) {
         case 'users':
@@ -19,7 +26,8 @@ function getReportData(domain, filters = {}) {
                 Email: u.email,
                 Rol: u.role,
                 Estado: u.status || (u.active === false ? 'Inactivo' : 'Activo'),
-                'Fecha Ingreso': u.id && typeof u.id === 'number' && u.id > 1000000 ? new Date(u.id).toISOString().split('T')[0] : 'Por defecto'
+                'Fecha Ingreso': u.createdAt ? new Date(u.createdAt).toISOString().split('T')[0] : (u.id && typeof u.id === 'number' && u.id > 1000000 ? new Date(u.id).toISOString().split('T')[0] : 'Por defecto'),
+                _rawDate: u.createdAt ? ensureDate(u.createdAt) : (u.id && typeof u.id === 'number' && u.id > 1000000 ? ensureDate(u.id) : null)
             }));
             break;
         case 'news':
@@ -49,7 +57,8 @@ function getReportData(domain, filters = {}) {
                     Categoría: n.category || 'General',
                     Autor: n.author || 'Desconocido',
                     Publicación: pubDate,
-                    Status: Array.isArray(n.status) ? n.status.join(' | ') : (n.status || 'Borrador')
+                    Status: Array.isArray(n.status) ? n.status.join(' | ') : (n.status || 'Borrador'),
+                    _rawDate: ensureDate(n.published)
                 };
             });
             break;
@@ -57,9 +66,9 @@ function getReportData(domain, filters = {}) {
             const allStrategic = typeof getLocalStrategic === 'function' ? getLocalStrategic() : [];
             rawData = allStrategic.map(s => ({
                 Eje_Gestión: s.area || 'No Definido',
-                Responsable: s.responsible || 'No Asignado',
                 Creación: s.createdAt ? new Date(s.createdAt).toISOString().split('T')[0] : 'N/A',
-                Resumen: s.description ? s.description.substring(0, 50) + '...' : 'N/A'
+                Resumen: s.description ? s.description.substring(0, 50) + '...' : 'N/A',
+                _rawDate: ensureDate(s.createdAt)
             }));
             break;
         case 'projects':
@@ -68,11 +77,11 @@ function getReportData(domain, filters = {}) {
             rawData = projects.map(p => ({
                 Código: p.id,
                 Iniciativa: p.title,
-                Responsable: p.manager || p.author || 'No asignado',
                 Apertura: p.date,
                 Relevancia: p.featured ? 'Alta (Destacado)' : 'Estándar',
                 Objetivos: p.objectives ? p.objectives.substring(0, 50) + '...' : 'N/A',
-                Status: Array.isArray(p.status) ? p.status.join(' | ') : (p.status || 'Borrador')
+                Status: Array.isArray(p.status) ? p.status.join(' | ') : (p.status || 'Borrador'),
+                _rawDate: ensureDate(p.date)
             }));
             break;
         case 'courses':
@@ -89,7 +98,8 @@ function getReportData(domain, filters = {}) {
                     Capacidad: c.cupoMaximo || c.enrollment || 'N/A',
                     Estatus: c.estadoCurso || c.type || 'Público',
                     Inicio: c.fechaInicio || 'Pendiente',
-                    Fin: c.fechaFin || 'Pendiente'
+                    Fin: c.fechaFin || 'Pendiente',
+                    _rawDate: ensureDate(c.fechaInicio)
                 };
             });
             break;
@@ -98,16 +108,18 @@ function getReportData(domain, filters = {}) {
     // Aplicar Filtros Dinámicos (Fechas)
     if (filters.dateFrom) {
         rawData = rawData.filter(item => {
-            const dateVal = item['Fecha Ingreso'] || item.Publicación || item.Apertura || item.Convocatoria || item.Creación;
-            if (!dateVal || dateVal === 'N/A' || dateVal === 'Por defecto' || dateVal === 'Pendiente') return true;
-            return new Date(dateVal) >= new Date(filters.dateFrom);
+            if (!item._rawDate) return true;
+            // Forzar zona horaria local añadiendo T00:00:00
+            const dateFromLimit = new Date(`${filters.dateFrom}T00:00:00`);
+            return new Date(item._rawDate) >= dateFromLimit;
         });
     }
     if (filters.dateTo) {
         rawData = rawData.filter(item => {
-            const dateVal = item['Fecha Ingreso'] || item.Publicación || item.Apertura || item.Convocatoria || item.Creación;
-            if (!dateVal || dateVal === 'N/A' || dateVal === 'Por defecto' || dateVal === 'Pendiente') return true;
-            return new Date(dateVal) <= new Date(filters.dateTo);
+            if (!item._rawDate) return true;
+            // Forzar zona horaria local añadiendo T23:59:59 para incluir todo el día
+            const dateToLimit = new Date(`${filters.dateTo}T23:59:59.999`);
+            return new Date(item._rawDate) <= dateToLimit;
         });
     }
 
@@ -117,7 +129,6 @@ function getReportData(domain, filters = {}) {
             if (domain === 'news') return item.Autor === filters.customFilter1;
             if (domain === 'projects') return item.Status.includes(filters.customFilter1);
             if (domain === 'courses') return item.Estatus === filters.customFilter1;
-            if (domain === 'strategic') return item.Responsable === filters.customFilter1;
             return true;
         });
     }
@@ -126,7 +137,6 @@ function getReportData(domain, filters = {}) {
         rawData = rawData.filter(item => {
             if (domain === 'users') return item.Estado === filters.customFilter2;
             if (domain === 'news') return item.Categoría === filters.customFilter2;
-            if (domain === 'projects') return item.Responsable === filters.customFilter2;
             if (domain === 'courses') return item.Instructor === filters.customFilter2;
             return true;
         });
@@ -162,14 +172,8 @@ function renderReportDashboard() {
     const dateFromInput = document.getElementById('report-date-from');
     const dateToInput = document.getElementById('report-date-to');
 
-    // Cross-validation of dates to prevent logical errors (dateTo < dateFrom)
+    // Cross-validation of dates to restrict calendar native selection without breaking typing
     if (dateFromInput && dateToInput) {
-        if (dateFromInput.value && dateToInput.value && dateFromInput.value > dateToInput.value) {
-            // Auto-correct to match the selected reference if there's a clash
-            dateToInput.value = dateFromInput.value;
-        }
-
-        // Lock HTML date pickers
         if (dateFromInput.value) dateToInput.min = dateFromInput.value;
         else dateToInput.min = '';
 
@@ -219,7 +223,7 @@ function renderReportDashboard() {
         headHTML = `<tr><th>Atención del Motor</th></tr>`;
         bodyHTML = `<tr><td style="text-align: center; color: var(--color-text-muted); padding: 40px;">No se hallaron registros coincidentes en la base de datos local para la parametrización dada.</td></tr>`;
     } else {
-        const keys = Object.keys(data[0]);
+        const keys = Object.keys(data[0]).filter(k => !k.startsWith('_'));
         headHTML = `<tr>${keys.map(k => `<th style="padding: 12px; border-bottom: 2px solid var(--color-border);">${k.replace(/_/g, ' ')}</th>`).join('')}</tr>`;
 
         data.forEach((row, rowIndex) => {
@@ -302,13 +306,6 @@ function renderReportExtraFilters(domain) {
                 </select>
             </div>
             <div>
-                <label style="${labelStyle}">Responsable</label>
-                <select id="report-custom-filter-2" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
-                    <option value="all">Todos los Responsables</option>
-                    ${uniqueManagers.map(m => `<option value="${m}">${m}</option>`).join('')}
-                </select>
-            </div>
-            <div>
                 <label style="${labelStyle}">Relevancia</label>
                 <select id="report-custom-filter-3" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
                     <option value="all">Todas</option>
@@ -334,17 +331,6 @@ function renderReportExtraFilters(domain) {
                 <select id="report-custom-filter-2" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
                     <option value="all">Todos los Instructores</option>
                     ${uniqueInstructor.map(i => `<option value="${i}">${i}</option>`).join('')}
-                </select>
-            </div>
-        `;
-    } else if (domain === 'strategic') {
-        const uniqueResponsible = [...new Set(currentReportData.map(s => s.Responsable))].filter(Boolean);
-        filterHTML = `
-            <div>
-                <label style="${labelStyle}">Responsable del Área</label>
-                <select id="report-custom-filter-1" onchange="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="${selectStyle}" ${focusEvt}>
-                    <option value="all">Todos los Responsables</option>
-                    ${uniqueResponsible.map(r => `<option value="${r}">${r}</option>`).join('')}
                 </select>
             </div>
         `;
@@ -396,7 +382,7 @@ async function exportReportToExcel() {
         workbook.created = new Date();
 
         const sheet = workbook.addWorksheet('Reporte ' + currentReportDomain.toUpperCase());
-        const keys = Object.keys(currentReportData[0]);
+        const keys = Object.keys(currentReportData[0]).filter(k => !k.startsWith('_'));
 
         // Definir y estilizar encabezados
         sheet.columns = keys.map(k => ({
@@ -457,7 +443,7 @@ function previewReportPDF() {
     }
 
     const session = JSON.parse(localStorage.getItem('dcti_session')) || {};
-    const keys = Object.keys(currentReportData[0]);
+    const keys = Object.keys(currentReportData[0]).filter(k => !k.startsWith('_'));
 
     // Nombres más limpios para el encabezado según select
     const domainNames = {
@@ -590,7 +576,7 @@ function executePDFPrint() {
         doc.text(`Registros Consolidados: ${currentReportData.length}`, 15, 67);
         
         // --- 3. CREAR TABLA VECTORIAL ---
-        const keys = Object.keys(currentReportData[0]);
+        const keys = Object.keys(currentReportData[0]).filter(k => !k.startsWith('_'));
         const bodyData = currentReportData.map(row => keys.map(k => row[k]));
         
         doc.autoTable({
@@ -644,3 +630,23 @@ function executePDFPrint() {
         }
     }
 }
+
+window.clearReportFilters = function() {
+    const dateFrom = document.getElementById('report-date-from');
+    const dateTo = document.getElementById('report-date-to');
+    if (dateFrom) dateFrom.value = '';
+    if (dateTo) dateTo.value = '';
+
+    const globalSearch = document.getElementById('dashboard-search-input');
+    if (globalSearch) globalSearch.value = '';
+
+    const filter1 = document.getElementById('report-custom-filter-1');
+    const filter2 = document.getElementById('report-custom-filter-2');
+    const filter3 = document.getElementById('report-custom-filter-3');
+    if (filter1) filter1.value = 'all';
+    if (filter2) filter2.value = 'all';
+    if (filter3) filter3.value = 'all';
+
+    if (typeof renderReportDashboard === 'function') renderReportDashboard();
+};
+

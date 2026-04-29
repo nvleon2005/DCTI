@@ -264,6 +264,7 @@ async function handleStrategicSubmit(e) {
                 description: description,
                 image: imageToSave,
                 images: imagesToSave,
+                updatedAt: new Date().toISOString(),
                 audit: auditData // Trazabilidad Obligatoria
             };
             AlertService.notify('Área Actualizada', 'Los cambios han sido registrados con éxito.', 'success');
@@ -280,6 +281,8 @@ async function handleStrategicSubmit(e) {
             description: description,
             image: imageToSave,
             images: imagesToSave,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             audit: auditData // Trazabilidad Obligatoria
         };
         allAreas.push(newArea);

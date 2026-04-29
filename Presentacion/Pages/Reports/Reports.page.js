@@ -56,8 +56,8 @@ const ReportsView = {
                         </div>
 
                         <div>
-                            <button class="btn-primary" onclick="if(typeof renderReportDashboard === 'function') renderReportDashboard()" style="width: 100%; padding: 11px 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); white-space: nowrap; height: 43px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-filter" style="margin-right: 8px;"></i> Aplicar Filtros
+                            <button onclick="if(typeof clearReportFilters === 'function') clearReportFilters()" style="width: 100%; padding: 11px 15px; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; background: #f1f5f9; color: #64748b; transition: 0.2s; display: flex; align-items: center; justify-content: center; height: 43px; white-space: nowrap;" onmouseover="this.style.background='#e2e8f0';this.style.color='#475569';" onmouseout="this.style.background='#f1f5f9';this.style.color='#64748b';">
+                                <i class="fas fa-times" style="margin-right: 8px;"></i> Limpiar Filtros
                             </button>
                         </div>
                     </div>

@@ -6,8 +6,8 @@
 const UsersController = {
     AUTH_CONFIG: {
         hardcodedUsers: [
-            { email: 'admin@dcti.gob', password: '123', name: 'Administrador', role: 'admin', initials: 'AD', status: 'Activo' },
-            { email: 'editor@dcti.gob', password: '123', name: 'Editor de Contenidos', role: 'editor', initials: 'EC', status: 'Activo' }
+            { email: 'admin@dcti.gob', password: '123', name: 'Administrador', role: 'admin', initials: 'AD', status: 'Activo', createdAt: '2025-01-15T10:00:00.000Z' },
+            { email: 'editor@dcti.gob', password: '123', name: 'Editor de Contenidos', role: 'editor', initials: 'EC', status: 'Activo', createdAt: '2025-02-20T14:30:00.000Z' }
         ]
     },
 

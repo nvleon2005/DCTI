@@ -18,12 +18,12 @@ const DEFAULT_COURSES = [
         areaTematica: "Tecnología e Informática",
         modalidad: "Virtual",
         duracion: "120 horas",
-        fechaInicio: "2024-05-01",
-        fechaFin: "2024-06-15",
+        fechaInicio: "2025-04-01",
+        fechaFin: "2025-05-15",
         cupoMaximo: 45,
         estadoCurso: "Publicado",
         images: ["assets/images/img9.jpg"],
-        activaciones: [{ id: 1, label: "Activación 1 (2024-05-01 a 2024-06-15)" }],
+        activaciones: [{ id: 1, label: "Activación 1 (2025-04-01 a 2025-05-15)" }],
         auditLogs: [{ fecha: new Date().toISOString(), estado: "Publicado", motivo: "Creación inicial del curso", autor: "Sistema" }]
     },
     {
@@ -34,12 +34,12 @@ const DEFAULT_COURSES = [
         areaTematica: "Gestión Estratégica",
         modalidad: "Híbrido",
         duracion: "40 horas",
-        fechaInicio: "2024-03-10",
-        fechaFin: "2024-04-20",
+        fechaInicio: "2025-03-10",
+        fechaFin: "2025-04-20",
         cupoMaximo: 25,
         estadoCurso: "Finalizado",
         images: ["assets/images/img10.jpg"],
-        activaciones: [{ id: 1, label: "Activación 1 (2024-03-10 a 2024-04-20)" }],
+        activaciones: [{ id: 1, label: "Activación 1 (2025-03-10 a 2025-04-20)" }],
         auditLogs: [{ fecha: new Date().toISOString(), estado: "Finalizado", motivo: "Cierre de ciclo formal", autor: "Sistema" }]
     }
 ];

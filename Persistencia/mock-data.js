@@ -81,6 +81,7 @@ const MOCK_DATA = {
             description: "Desarrollo de un sistema de gestión de aprendizaje para escuelas del estado Monagas, integrando recursos multimedia y seguimiento académico en línea.",
             objectives: "- Facilitar clases en línea para todos los niveles\n- Seguimiento individualizado del desempeño estudiantil\n- Proveer una biblioteca de recursos digitales gratuitos",
             status: "Destacado",
+            date: "2025-02-10",
             advances: "Se completó la plataforma base y fue lanzada exitosamente en 15 escuelas piloto con más de 2.000 estudiantes activos.",
             image: "assets/images/img5.jpg"
         },
@@ -90,6 +91,7 @@ const MOCK_DATA = {
             description: "Implementación de sensores IoT para monitoreo y control de cultivos en el estado Monagas, apoyando a pequenos y medianos productores agrícolas.",
             objectives: "- Optimizar el uso del riego mediante sensores de humedad\n- Control temprano de plagas con alertas automáticas\n- Aumentar el rendimiento de cultivos en un 30%",
             status: "En Progreso",
+            date: "2025-03-20",
             advances: "Fase de instalación de sensores en 5 fincas piloto completada. Se está procesando la integración con la plataforma de monitoreo central.",
             image: "assets/images/img10.jpg"
         },
@@ -99,6 +101,7 @@ const MOCK_DATA = {
             description: "Proyecto de ampliación de la cobertura de internet de alta velocidad en zonas rurales y comunidades aisladas del estado Monagas.",
             objectives: "- Conectar al menos 50 escuelas rurales a internet\n- Instalar 20 puntos de acceso Wi-Fi público gratuito\n- Capacitar a comunidades en el uso de la tecnología",
             status: "A Futuro",
+            date: "2025-04-05",
             advances: "",
             image: "assets/images/img7.jpg"
         }

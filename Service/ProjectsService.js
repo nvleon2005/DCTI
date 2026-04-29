@@ -352,6 +352,7 @@ window.handleProjectSubmit = window.rateLimitAction(async function(e) {
             carouselPlacement,
             image: imageToSave,
             images: [...projectImageQueue],
+            date: new Date().toISOString().split('T')[0],
             createdAt: new Date().toISOString(),
             createdBy: session.name || session.username || "Usuario",
             updatedAt: new Date().toISOString(),

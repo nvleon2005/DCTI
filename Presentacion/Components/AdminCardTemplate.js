@@ -122,7 +122,6 @@ window.AdminTemplate = {
                     titleField = dataItem.title;
                     descHtml = `
                         <p><strong>Estado:</strong> ${dataItem.status}</p>
-                        <p><strong>Responsable:</strong> ${dataItem.manager || 'No asignado'}</p>
                         <hr style="border:0; border-top:1px solid #eee; margin: 15px 0;">
                         <p><strong>Descripción:</strong><br>${dataItem.description}</p>
                         <p style="margin-top: 15px;"><strong>Avances Registrados:</strong><br>${dataItem.advances || 'Sin registrar'}</p>
@@ -137,8 +136,7 @@ window.AdminTemplate = {
                 if (dataItem) {
                     titleField = dataItem.area || dataItem.title || 'Área Estratégica';
                     descHtml = `
-                        <p><strong>Responsable/Líder:</strong> ${dataItem.responsible || 'No asignado'}</p>
-                        <hr style="border:0; border-top:1px solid #eee; margin: 15px 0;">
+                        <hr style="border:0; border-top:1px solid #eee; margin: 15px 0; display: none;">
                         <div style="white-space: pre-line;"><strong>Resumen:</strong><br>${dataItem.description || 'Sin resumen'}</div>
                         ${dataItem.goals ? `<div style="white-space: pre-line; margin-top: 15px;"><strong>Metas/Objetivos:</strong><br>${dataItem.goals}</div>` : ''}
                     `;
@@ -314,13 +312,15 @@ window.AdminTemplate = {
         console.log(`[AdminTemplate] Cambios descartados. Formulario restaurado a su backup visual en: ${formId}`);
     },
 
-    ModalFooter: function(cancelFn, formId) {
+    ModalFooter: function(cancelFn, formId, hideCancel = false) {
         return `
             <div style="margin-top: auto; display: flex; gap: 12px; justify-content: flex-end; align-items: center; padding-top: 15px;">
                 <!-- 1. CANCELAR -->
+                ${!hideCancel ? `
                 <button type="button" class="btn-modal-cancel" onclick="${cancelFn}" title="Cancelar Operación">
                     <i class="fas fa-times"></i>
                 </button>
+                ` : ''}
                 
                 <!-- 2. RESET/RESTAURAR -->
                 <button type="button" class="btn-modal-reset" onclick="window.AdminTemplate.resetForm('${formId}')" title="Limpiar / Restaurar Valores">

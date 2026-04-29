@@ -5,8 +5,8 @@
 
 const AUTH_CONFIG = {
     hardcodedUsers: [
-        { email: 'admin@dcti.gob', password: '123', name: 'Administrador', role: 'admin', initials: 'AD', status: 'Activo' },
-        { email: 'editor@dcti.gob', password: '123', name: 'Editor de Contenidos', role: 'editor', initials: 'EC', status: 'Activo' }
+        { email: 'admin@dcti.gob', password: '123', name: 'Administrador', role: 'admin', initials: 'AD', status: 'Activo', createdAt: '2025-01-15T10:00:00.000Z' },
+        { email: 'editor@dcti.gob', password: '123', name: 'Editor de Contenidos', role: 'editor', initials: 'EC', status: 'Activo', createdAt: '2025-02-20T14:30:00.000Z' }
     ]
 };
 
@@ -327,6 +327,15 @@ async function deleteUser(email) {
         return;
     }
 
+    const sessionStr = localStorage.getItem('dcti_session');
+    if (sessionStr) {
+        const session = JSON.parse(sessionStr);
+        if (session.email === email) {
+            AlertService.notify('Acción Denegada', 'No puedes eliminar tu propia cuenta.', 'error');
+            return;
+        }
+    }
+
     const allUsers = [...AUTH_CONFIG.hardcodedUsers, ...getLocalUsers()];
 
     // Identificar rol del usuario a eliminar
@@ -367,6 +376,15 @@ function toggleUserStatus(email) {
     if (email === 'admin@dcti.gob') {
         AlertService.notify('Acción Denegada', 'El administrador principal no puede ser inhabilitado.', 'error');
         return;
+    }
+
+    const sessionStr = localStorage.getItem('dcti_session');
+    if (sessionStr) {
+        const session = JSON.parse(sessionStr);
+        if (session.email === email) {
+            AlertService.notify('Acción Denegada', 'No puedes inhabilitar tu propia cuenta.', 'error');
+            return;
+        }
     }
 
     const localUsers = getLocalUsers();

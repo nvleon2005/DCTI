@@ -205,7 +205,7 @@ const AdminDctiView = {
                             return auditHtml;
                         })()}
                         
-                            ${window.AdminTemplate.ModalFooter("if(typeof changePage === 'function') changePage('news'); else renderModule('news')", 'dcti-admin-form')}
+                            ${window.AdminTemplate.ModalFooter("if(typeof changePage === 'function') changePage('news'); else renderModule('news')", 'dcti-admin-form', true)}
                     </form>
                 </div>
             </div>

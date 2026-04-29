@@ -97,6 +97,9 @@ const UsersView = {
                             ${users.map(u => {
             const isSystemProtected = systemProtectedEmails.includes(u.email);
             const statusColor = u.status === 'Activo' ? '#22c55e' : '#ef4444';
+            const sessionStr = localStorage.getItem('dcti_session');
+            const sessionEmail = sessionStr ? JSON.parse(sessionStr).email : null;
+            const isCurrentUser = u.email === sessionEmail;
 
             return `
                                     <tr style="border-bottom: 1px solid var(--color-border); opacity: ${u.status === 'Inactivo' ? '0.6' : '1'}">
@@ -128,12 +131,14 @@ const UsersView = {
                                             <div style="display: flex; justify-content: center; gap: 8px;">
                                                 ${!isSystemProtected ? `
                                                     <button onclick="openUserModal('${u.email}')" title="Editar" style="background: none; border: 1px solid var(--color-border); padding: 6px 10px; border-radius: 6px; cursor: pointer; color: var(--color-text-main);"><i class="fas fa-edit"></i></button>
+                                                    ${!isCurrentUser ? `
                                                     <button onclick="toggleUserStatus('${u.email}')" 
                                                         title="${u.status === 'Pendiente' ? 'Activar Cuenta' : (u.status === 'Inactivo' ? 'Habilitar Usuario' : 'Inhabilitar Usuario')}" 
                                                         style="background: none; border: 1px solid var(--color-border); padding: 6px 10px; border-radius: 6px; cursor: pointer; color: ${u.status === 'Inactivo' ? '#94a3b8' : (u.status === 'Pendiente' ? '#22c55e' : '#22c55e')};">
                                                         <i class="fas fa-${u.status === 'Pendiente' ? 'user-check' : (u.status === 'Inactivo' ? 'toggle-off' : 'toggle-on')}"></i>
                                                     </button>
                                                     <button onclick="deleteUser('${u.email}')" title="Eliminar" style="background: none; border: 1px solid #fee2e2; padding: 6px 10px; border-radius: 6px; cursor: pointer; color: #ef4444;"><i class="fas fa-trash-alt"></i></button>
+                                                    ` : ''}
                                                 ` : `<span style="font-size: 0.75rem; color: var(--color-text-muted); font-style: italic;">Sistema Protegido</span>`}
                                             </div>
                                         </td>

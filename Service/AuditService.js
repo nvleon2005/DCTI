@@ -92,13 +92,11 @@ const AuditService = {
                     logs = logs.filter(l => l.user === filters.user);
                 }
                 if (filters.dateFrom) {
-                    const from = new Date(filters.dateFrom);
-                    from.setHours(0, 0, 0, 0);
+                    const from = new Date(`${filters.dateFrom}T00:00:00`);
                     logs = logs.filter(l => new Date(l.timestamp) >= from);
                 }
                 if (filters.dateTo) {
-                    const to = new Date(filters.dateTo);
-                    to.setHours(23, 59, 59, 999);
+                    const to = new Date(`${filters.dateTo}T23:59:59.999`);
                     logs = logs.filter(l => new Date(l.timestamp) <= to);
                 }
             }
