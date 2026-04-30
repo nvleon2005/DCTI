@@ -166,10 +166,11 @@ const UsersView = {
                                 
                                 <!-- Izquierda Arriba: Imagen y botón "+" -->
                                 <div style="grid-column: 1; grid-row: 1; display: flex; justify-content: flex-start;">
-                                    <div style="background: #e2e8f0; border-radius: 4px; width: 130px; height: 160px; position: relative; overflow: visible;">
-                                        <img id="admin-user-avatar-preview" src="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px; display: none;">
+                                    <div id="admin-user-avatar-container" style="background: #e2e8f0; border-radius: 4px; width: 130px; height: 160px; position: relative; overflow: hidden; border: 1px solid var(--color-border);">
+                                        <div id="admin-user-avatar-blur" style="position: absolute; inset: 0; backdrop-filter: blur(10px); background: rgba(255,255,255,0.15); display: none;"></div>
+                                        <img id="admin-user-avatar-preview" src="" style="width: 100%; height: 100%; object-fit: contain; position: relative; z-index: 1; border-radius: 4px; display: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));">
                                         <input type="file" id="admin-user-avatar-input" accept="image/*" style="display: none;" onchange="previewAvatar(event)">
-                                        <button type="button" onclick="document.getElementById('admin-user-avatar-input').click()" style="position: absolute; bottom: -12px; right: -12px; background: #2563eb; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                        <button type="button" onclick="document.getElementById('admin-user-avatar-input').click()" style="position: absolute; bottom: 5px; right: 5px; z-index: 2; background: #2563eb; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                                             <i class="fas fa-plus"></i>
                                         </button>
                                     </div>

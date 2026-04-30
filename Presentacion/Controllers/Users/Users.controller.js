@@ -41,8 +41,8 @@ function previewAvatar(event) {
             const img = new Image();
             img.onload = function () {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 150;
-                const MAX_HEIGHT = 150;
+                const MAX_WIDTH = 400;
+                const MAX_HEIGHT = 400;
                 let width = img.width;
                 let height = img.height;
 
@@ -64,8 +64,16 @@ function previewAvatar(event) {
 
                 const dataUrl = canvas.toDataURL('image/webp', 0.85);
                 const preview = document.getElementById('admin-user-avatar-preview');
+                const container = document.getElementById('admin-user-avatar-container');
+                const blur = document.getElementById('admin-user-avatar-blur');
                 preview.src = dataUrl;
                 preview.style.display = 'block';
+                if (container) {
+                    container.style.backgroundImage = `url('${dataUrl}')`;
+                    container.style.backgroundSize = 'cover';
+                    container.style.backgroundPosition = 'center';
+                }
+                if (blur) blur.style.display = 'block';
             };
             img.src = e.target.result;
         };
@@ -122,12 +130,22 @@ function openUserModal(email = null) {
             }
 
             const avatarPreview = document.getElementById('admin-user-avatar-preview');
+            const container = document.getElementById('admin-user-avatar-container');
+            const blur = document.getElementById('admin-user-avatar-blur');
             if (user.avatar) {
                 avatarPreview.src = user.avatar;
                 avatarPreview.style.display = 'block';
+                if (container) {
+                    container.style.backgroundImage = `url('${user.avatar}')`;
+                    container.style.backgroundSize = 'cover';
+                    container.style.backgroundPosition = 'center';
+                }
+                if (blur) blur.style.display = 'block';
             } else {
                 avatarPreview.src = '';
                 avatarPreview.style.display = 'none';
+                if (container) container.style.backgroundImage = 'none';
+                if (blur) blur.style.display = 'none';
             }
 
             const isHardcoded = AUTH_CONFIG.hardcodedUsers.some(u => u.email === email);
@@ -142,8 +160,15 @@ function openUserModal(email = null) {
         if (submitBtn) submitBtn.title = 'Registrar';
 
         // Limpiar previo de avatar y radios
-        document.getElementById('admin-user-avatar-preview').src = '';
-        document.getElementById('admin-user-avatar-preview').style.display = 'none';
+        const avatarPreview = document.getElementById('admin-user-avatar-preview');
+        const container = document.getElementById('admin-user-avatar-container');
+        const blur = document.getElementById('admin-user-avatar-blur');
+        if (avatarPreview) {
+            avatarPreview.src = '';
+            avatarPreview.style.display = 'none';
+        }
+        if (container) container.style.backgroundImage = 'none';
+        if (blur) blur.style.display = 'none';
 
         const avatarInput = document.getElementById('admin-user-avatar-input');
         if (avatarInput) avatarInput.value = '';
@@ -439,8 +464,8 @@ function previewProfileAvatar(event) {
             const img = new Image();
             img.onload = function () {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 150;
-                const MAX_HEIGHT = 150;
+                const MAX_WIDTH = 400;
+                const MAX_HEIGHT = 400;
                 let width = img.width;
                 let height = img.height;
 
@@ -474,6 +499,17 @@ function previewProfileAvatar(event) {
 
                 preview.src = dataUrl;
                 preview.style.display = 'block';
+                preview.style.objectFit = 'contain';
+                const parent = preview.parentNode;
+                if (parent) {
+                    parent.style.backgroundImage = `url('${dataUrl}')`;
+                    parent.style.backgroundSize = 'cover';
+                    parent.style.backgroundPosition = 'center';
+                    parent.style.overflow = 'hidden';
+                    parent.style.borderRadius = '50%';
+                    // We don't have an explicit blur div here, so we will use backdrop-filter on the image itself or just leave the background. 
+                    // Actually, for profile avatar it's usually circular, so just contain + background is fine.
+                }
                 const placeholder = document.getElementById('profile-avatar-placeholder');
                 if (placeholder) placeholder.style.display = 'none';
             };

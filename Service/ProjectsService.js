@@ -189,7 +189,7 @@ document.addEventListener('change', async (e) => {
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
 
-                            resolve(canvas.toDataURL('image/webp', 0.7)); // Usando WEBP con soporte de transparencia
+                            resolve(canvas.toDataURL('image/webp', 0.85)); // Usando WEBP con mejor calidad
                         };
                         img.onerror = reject;
                         img.src = reader.result;
@@ -212,6 +212,7 @@ document.addEventListener('change', async (e) => {
 
 function renderProjectGallery() {
     const preview = document.getElementById('admin-project-preview');
+    const previewImg = document.getElementById('admin-project-preview-img');
     const gallery = document.getElementById('admin-project-gallery');
     const icon = document.getElementById('admin-project-icon');
 
@@ -219,9 +220,19 @@ function renderProjectGallery() {
 
     if (projectImageQueue.length > 0) {
         preview.style.backgroundImage = `url(${projectImageQueue[0]})`;
+        preview.style.display = 'block';
+        if (previewImg) {
+            previewImg.src = projectImageQueue[0];
+            previewImg.style.display = 'block';
+        }
         if (icon) icon.style.display = 'none';
     } else {
         preview.style.backgroundImage = 'none';
+        preview.style.display = 'none';
+        if (previewImg) {
+            previewImg.src = '';
+            previewImg.style.display = 'none';
+        }
         if (icon) icon.style.display = 'block';
     }
 

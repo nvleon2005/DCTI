@@ -91,11 +91,10 @@ const AuditoriaView = {
                             ${log.user}
                         </span>
                     </td>
-                    <td class="audit-details-cell" title="${log.details || ''}">
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; display: inline-block;">${log.details || '—'}</span>
-                            <button onclick="openAuditModal('${log.id}')" title="Ver Detalles" style="background: none; border: 1px solid var(--color-border); padding: 4px 8px; border-radius: 6px; cursor: pointer; color: var(--color-text-main); font-size: 0.75rem; flex-shrink: 0;"><i class="fas fa-eye"></i></button>
-                        </div>
+                    <td class="audit-details-cell" style="text-align: center;">
+                        <button onclick="openAuditModal('${log.id}')" title="Ver Detalles Completos" style="background: none; border: 1px solid var(--color-border); padding: 6px 12px; border-radius: 6px; cursor: pointer; color: var(--color-text-main); font-size: 0.85rem; transition: all 0.2s; flex-shrink: 0;" onmouseover="this.style.background='var(--color-primary)'; this.style.color='white'; this.style.borderColor='var(--color-primary)';" onmouseout="this.style.background='none'; this.style.color='var(--color-text-main)'; this.style.borderColor='var(--color-border)';">
+                            <i class="fas fa-eye"></i>
+                        </button>
                     </td>
                 </tr>
             `).join('')
@@ -231,7 +230,7 @@ const AuditoriaView = {
                                     <th>Módulo</th>
                                     <th>Entidad</th>
                                     <th>Usuario</th>
-                                    <th>Detalles</th>
+                                    <th style="text-align: center;">Detalles</th>
                                 </tr>
                             </thead>
                             <tbody>

@@ -154,10 +154,20 @@ function previewOrganigrama(event) {
                 // evitando el fondo negro del JPEG tradicional.
                 const dataUrl = canvas.toDataURL('image/webp', 0.85);
                 const preview = document.getElementById('admin-dcti-organigrama-preview');
+                const container = document.getElementById('admin-dcti-organigrama-container');
+                const blur = document.getElementById('admin-dcti-organigrama-blur');
                 if (preview) {
                     preview.src = dataUrl;
                     preview.style.display = 'block';
                 }
+                if (container) {
+                    container.style.backgroundImage = `url('${dataUrl}')`;
+                    container.style.backgroundSize = 'cover';
+                    container.style.backgroundPosition = 'center';
+                }
+                if (blur) blur.style.display = 'block';
+                const placeholder = document.getElementById('admin-dcti-organigrama-placeholder');
+                if (placeholder) placeholder.style.display = 'none';
             };
             img.src = e.target.result;
         };
@@ -187,9 +197,17 @@ function previewConsultasImage(event) {
             else { if (h > MAX_H) { w *= MAX_H / h; h = MAX_H; } }
             canvas.width = w; canvas.height = h;
             canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-            const dataUrl = canvas.toDataURL('image/webp', 0.7);
+            const dataUrl = canvas.toDataURL('image/webp', 0.85);
             const preview = document.getElementById('admin-dcti-consultas-preview');
+            const container = document.getElementById('admin-dcti-consultas-container');
+            const blur = document.getElementById('admin-dcti-consultas-blur');
             if (preview) { preview.src = dataUrl; preview.style.display = 'block'; }
+            if (container) {
+                container.style.backgroundImage = `url('${dataUrl}')`;
+                container.style.backgroundSize = 'cover';
+                container.style.backgroundPosition = 'center';
+            }
+            if (blur) blur.style.display = 'block';
             const placeholder = document.getElementById('admin-dcti-consultas-placeholder');
             if (placeholder) placeholder.style.display = 'none';
         };

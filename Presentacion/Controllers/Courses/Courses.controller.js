@@ -569,8 +569,8 @@ function handleCourseImageUpload(event) {
                 canvas.width = width;
                 canvas.height = height;
                 ctx.drawImage(img, 0, 0, width, height);
-                // Compresión WebP 0.7
-                courseImageQueue.push(canvas.toDataURL('image/webp', 0.7));
+                // Compresión WebP 0.8 (mejor calidad)
+                courseImageQueue.push(canvas.toDataURL('image/webp', 0.8));
                 renderCourseGallery();
             };
             img.src = e.target.result;
@@ -591,11 +591,15 @@ function renderCourseGallery() {
         div.style.borderRadius = '6px';
         div.style.overflow = 'hidden';
         div.style.border = '1px solid var(--color-border)';
+        div.style.backgroundImage = `url('${src}')`;
+        div.style.backgroundSize = 'cover';
+        div.style.backgroundPosition = 'center';
 
         div.innerHTML = `
-            <img src="${src}" style="width: 100%; height: 100%; object-fit: cover;">
-            <button type="button" onclick="removeCourseImage(${index})" style="position: absolute; top: 5px; right: 5px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 22px; height: 22px; border-radius: 50%; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(2px);"><i class="fas fa-times"></i></button>
-            <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.5); color: white; font-size: 0.65rem; padding: 2px 4px; text-align: center;">Imagen ${index + 1}</div>
+            <div style="position: absolute; inset: 0; backdrop-filter: blur(10px); background: rgba(255,255,255,0.15);"></div>
+            <img src="${src}" style="width: 100%; height: 100%; object-fit: contain; position: relative; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));">
+            <button type="button" onclick="removeCourseImage(${index})" style="position: absolute; top: 5px; right: 5px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 22px; height: 22px; border-radius: 50%; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2;"><i class="fas fa-times"></i></button>
+            <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.6); color: white; font-size: 0.65rem; padding: 4px; text-align: center; z-index: 2; font-weight: 500;">Imagen ${index + 1}</div>
         `;
         galleryContainer.appendChild(div);
     });

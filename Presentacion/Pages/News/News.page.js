@@ -109,7 +109,7 @@ const AdminNewsView = {
 
                 <!-- Modal de Noticias -->
                 <div id="news-modal" class="modal-overlay hidden">
-                    <div class="modal-card" style="max-width: 600px; padding: 0; overflow: hidden;">
+                    <div class="modal-card" style="max-width: 1000px; width: 95%; padding: 0; overflow: hidden;">
                         <div class="modal-header" style="padding: 20px; background: var(--color-sidebar); color: white; margin-bottom: 0;">
                             <div>
                                 <h2 id="news-modal-title" style="margin: 0; font-size: 1.25rem;">Nueva Noticia</h2>
@@ -117,63 +117,74 @@ const AdminNewsView = {
                             </div>
                             <button class="close-modal" onclick="closeNewsModal()" style="color: white; opacity: 0.8; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
                         </div>
-                        <form id="news-admin-form" onsubmit="handleNewsAdminSubmit(event)">
+                        <form id="news-admin-form" onsubmit="handleNewsAdminSubmit(event)" style="padding: 25px; max-height: 85vh; overflow-y: auto;">
                             <input type="hidden" id="edit-news-id">
-                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; padding: 25px;">
-                                <div style="display: flex; flex-direction: column; gap: 1.2rem;">
-                                    <div class="form-group">
-                                        <label>Titular de la Noticia <span style="color: #ef4444;">*</span></label>
-                                        <input type="text" id="admin-news-headline" placeholder="Ej: Nueva Beca para Investigadores" required>
+                            <div style="display: grid; grid-template-columns: 38% 1fr; gap: 25px;">
+                                <!-- COLUMNA IZQUIERDA: IMÁGENES -->
+                                <div style="display: flex; flex-direction: column;">
+                                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--color-text-muted);">Añadir imágenes</label>
+                                    <div style="position: relative; width: 100%; aspect-ratio: 4/3; background: #e2e8f0; border-radius: 8px; margin-bottom: 16px; overflow: hidden; border: 2px dashed var(--color-border);" id="admin-news-preview-container">
+                                        <div id="admin-news-preview" style="position: absolute; inset: 0; background-position: center; background-size: cover; filter: blur(10px) brightness(0.9); z-index: 0; display: none;"></div>
+                                        <img id="admin-news-preview-img" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); display: none;" src="">
+                                        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 2; pointer-events: none;">
+                                            <i class="fas fa-image placeholder-icon" id="admin-news-icon" style="font-size: 2rem; color: #94a3b8;"></i>
+                                        </div>
+                                        <input type="file" id="admin-news-file" accept="image/*" multiple style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10;">
+                                        <input type="hidden" id="admin-news-media">
+                                        <button type="button" onclick="document.getElementById('admin-news-file').click()" style="position: absolute; bottom: 5px; right: 5px; width: 36px; height: 36px; border-radius: 50%; background: #2563eb; color: white; border: none; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; z-index: 11; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer;" title="Subir Imagen">+</button>
                                     </div>
-                                    <div class="form-group">
-                                        <label>Categoría <span style="color: #ef4444;">*</span></label>
-                                        <select id="admin-news-category" required style="width: 100%; padding: 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 0.9rem;">
-                                            <option value="">Seleccione Categoría</option>
-                                            <option value="Regional">Regional</option>
-                                            <option value="Nacional">Nacional</option>
-                                            <option value="Internacional">Internacional</option>
-                                            <option value="Local">Local</option>
-                                            <option value="Institucionales">Institucionales</option>
-                                            <option value="Carrusel de Noticias">Carrusel de Noticias</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Ubicación en Carrusel Inicio</label>
-                                        <select id="admin-news-carousel-placement" style="width: 100%; padding: 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 0.9rem;">
-                                            <option value="Ninguno">Ninguno</option>
-                                            <option value="Carrusel Principal">Carrusel Principal (Arriba)</option>
-                                            <option value="Carrusel Noticias">Carrusel de Noticias (Medio)</option>
-                                            <option value="Carrusel Miniaturas">Carrusel Miniaturas (Abajo)</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Contenido Completo <span style="color: #ef4444;">*</span></label>
-                                        <textarea id="admin-news-content" style="width: 100%; padding: 0.8rem; border: 1.5px solid var(--color-border) !important; border-radius: var(--radius-md) !important; height: 180px; font-family: inherit; resize: vertical; background: white !important;" placeholder="Escriba la noticia íntegra aquí..." required></textarea>
-                                    </div>
+                                    
+                                    <label style="display: block; margin-bottom: 10px; font-size: 0.9rem; color: var(--color-text-muted);">Publicadas</label>
+                                    <div id="admin-news-images-preview" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;"></div>
                                 </div>
-                                <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+                                
+                                <!-- COLUMNA DERECHA: DATOS -->
+                                <div style="display: flex; flex-direction: column; gap: 15px;">
                                     <div class="form-group">
-                                        <label>Autor <span style="color: #ef4444;">*</span></label>
-                                        <input type="text" id="admin-news-author" placeholder="Nombre del autor" required>
+                                        <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Titular de la Noticia <span style="color: #ef4444;">*</span></label>
+                                        <input type="text" id="admin-news-headline" placeholder="Ej: Nueva Beca para Investigadores" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
                                     </div>
-                                    <div class="form-group">
-                                        <label>Fecha de Publicación <span style="color: #ef4444;">*</span></label>
-                                        <input type="date" id="admin-news-date" value="${today}" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Imágenes de la Noticia</label>
-                                        <div style="position: relative; min-height: 100px; border: 2px dashed var(--color-border); border-radius: var(--radius-md); display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; overflow: hidden; transition: 0.2s; padding: 10px;" class="upload-area">
-                                            <input type="file" id="admin-news-file" accept="image/*" multiple style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2;">
-                                            <i class="fas fa-images" style="font-size: 1.5rem; color: var(--color-text-muted); margin-bottom: 5px;"></i>
-                                            <span style="font-size: 0.75rem; color: var(--color-text-muted); text-align: center;">Subir imágenes localmente<br>(Puede seleccionar múltiples)</span>
-                                            <div id="admin-news-images-preview" style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; z-index: 1; pointer-events: none;"></div>
-                                            <input type="hidden" id="admin-news-media">
+                                    
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                        <div class="form-group">
+                                            <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Categoría <span style="color: #ef4444;">*</span></label>
+                                            <select id="admin-news-category" required style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; background-color: white;">
+                                                <option value="">Seleccione Categoría</option>
+                                                <option value="Regional">Regional</option>
+                                                <option value="Nacional">Nacional</option>
+                                                <option value="Internacional">Internacional</option>
+                                                <option value="Local">Local</option>
+                                                <option value="Institucionales">Institucionales</option>
+                                                <option value="Carrusel de Noticias">Carrusel de Noticias</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Ubicación en Inicio</label>
+                                            <select id="admin-news-carousel-placement" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; background-color: white;">
+                                                <option value="Ninguno">Ninguno</option>
+                                                <option value="Carrusel Principal">Carrusel Principal (Arriba)</option>
+                                                <option value="Carrusel Noticias">Carrusel de Noticias (Medio)</option>
+                                                <option value="Carrusel Miniaturas">Carrusel Miniaturas (Abajo)</option>
+                                            </select>
                                         </div>
                                     </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                        <div class="form-group">
+                                            <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Autor <span style="color: #ef4444;">*</span></label>
+                                            <input type="text" id="admin-news-author" placeholder="Nombre del autor" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Fecha Publicación <span style="color: #ef4444;">*</span></label>
+                                            <input type="date" id="admin-news-date" value="${today}" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="flex-grow: 1;">
+                                        <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Contenido Completo <span style="color: #ef4444;">*</span></label>
+                                        <textarea id="admin-news-content" style="width: 100%; padding: 10px; border: 1px solid var(--color-border) !important; border-radius: 6px !important; height: 160px; font-family: inherit; resize: vertical; background: white !important;" placeholder="Escriba la noticia íntegra aquí..." required></textarea>
+                                    </div>
                                     <div class="form-group" style="margin-bottom: 0;">
-                                        <label>Estados <span style="color: #ef4444;">*</span></label>
-                                        <div style="display: flex; flex-direction: column; gap: 8px; background: #f8fafc; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                                        <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Estados <span style="color: #ef4444;">*</span></label>
+                                        <div style="display: inline-flex; gap: 15px; background: #f8fafc; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--color-border); flex-wrap: wrap;">
                                             <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer; font-weight: 500;"><input type="checkbox" name="status" value="Destacada"> Destacada</label>
                                             <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer; font-weight: 500;"><input type="checkbox" name="status" value="Validada"> Validada</label>
                                             <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer; font-weight: 500;"><input type="checkbox" name="status" value="Publicada"> Publicada</label>

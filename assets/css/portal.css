@@ -5280,3 +5280,97 @@ html {
         align-items: flex-start;
     }
 }
+/* =========================================================
+   GLOBAL RESPONSIVE OVERRIDES (MOBILE & TABLETS)
+   Ajustes mediante !important para sobrescribir estilos inline
+   y garantizar adaptabilidad sin modificar la lógica del sistema
+   ========================================================= */
+
+@media (max-width: 768px) {
+    /* CONTENEDOR PRINCIPAL Y PADDING */
+    .content-view {
+        padding: var(--space-sm) !important;
+    }
+
+    /* TABLAS RESPONSIVAS */
+    /* Permite que las tablas hagan scroll horizontal en mviles */
+    .view-container table {
+        display: block !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* FILTROS Y BARRA DE HERRAMIENTAS */
+    /* Ajustar inputs de bsqueda y contenedores flex relativos */
+    .view-container div[style*="position: relative"][style*="display: flex"][style*="align-items: center"] {
+        width: 100% !important;
+    }
+    .view-container input[type="text"],
+    .view-container input[type="email"],
+    .view-container input[type="password"] {
+        width: 100% !important;
+    }
+
+    .view-container select {
+        width: 100% !important;
+    }
+
+    /* Contenedores de fechas (Desde - Hasta) */
+    .view-container div[style*="margin-left: auto;"] {
+        margin-left: 0 !important;
+        width: 100% !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    .view-container input[type="date"] {
+        width: 100% !important;
+    }
+
+    /* MODALES */
+    .modal-card {
+        width: 95% !important;
+        max-width: 100% !important;
+        flex-direction: column !important;
+        height: auto !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+    }
+
+    /* Ocultar barra decorativa izquierda en modales */
+    .modal-card > div[style*="width: 40px"] {
+        display: none !important;
+    }
+
+    /* Padding del modal interno */
+    .modal-card > div {
+        padding: 15px !important;
+    }
+
+    /* Formularios con grid (1fr 1fr -> 1fr) */
+    .modal-card form,
+    .modal-card div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+    
+    .modal-card div[style*="grid-column: 2"] {
+        margin-top: 0 !important;
+    }
+
+    /* Ajustar cards de estadsticas (StatCards) */
+    .dcti-stat-card {
+        width: 100% !important;
+        min-width: unset !important;
+    }
+    
+    /* Layouts en grillas generales de Reportes y Estratgico */
+    div[style*="grid-template-columns: repeat"] {
+        grid-template-columns: 1fr !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+}

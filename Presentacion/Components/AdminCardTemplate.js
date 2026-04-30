@@ -279,7 +279,10 @@ window.AdminTemplate = {
                     const icon = uploadArea.querySelector('i');
                     const spanText = uploadArea.querySelector('span');
                     if (icon) icon.style.display = 'block';
-                    if (spanText) spanText.innerHTML = 'Subir imágenes localmente<br>(Puede seleccionar múltiples)';
+                    if (spanText) {
+                        spanText.style.display = 'block';
+                        spanText.innerHTML = 'Subir imágenes localmente<br>(Puede seleccionar múltiples)';
+                    }
                 }
             }
 

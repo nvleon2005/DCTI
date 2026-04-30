@@ -61,20 +61,36 @@ function openNewsModal(id = null) {
             const carouselSelect = document.getElementById('admin-news-carousel-placement');
             if (carouselSelect) carouselSelect.value = newsItem.carouselPlacement || 'Ninguno';
 
-            // Preview
             const previewContainer = document.getElementById('admin-news-images-preview');
-            const icon = document.querySelector('.upload-area i');
-            const spanText = document.querySelector('.upload-area span');
-            if (previewContainer) {
+            const mainPreviewContainer = document.getElementById('admin-news-preview-container');
+            const mainPreviewBlur = document.getElementById('admin-news-preview');
+            const mainPreviewImg = document.getElementById('admin-news-preview-img');
+            const placeholderIcon = document.getElementById('admin-news-icon');
+            
+            if (previewContainer && mainPreviewContainer) {
                 const imagesArray = Array.isArray(newsItem.multimedia) ? newsItem.multimedia : (newsItem.multimedia ? [newsItem.multimedia] : []);
-                previewContainer.innerHTML = imagesArray.map(m => `<img src="${m}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;">`).join('');
-                if (imagesArray.length > 0 && icon && spanText) {
-                    icon.style.display = 'none';
-                    spanText.textContent = `${imagesArray.length} imágenes listas`;
-                } else if (icon && spanText) {
-                    icon.style.display = 'block';
-                    spanText.innerHTML = 'Subir imágenes localmente<br>(Puede seleccionar múltiples)';
+                
+                // Actualizar Main Preview (La primera imagen)
+                if (imagesArray.length > 0) {
+                    mainPreviewBlur.style.backgroundImage = `url('${imagesArray[0]}')`;
+                    mainPreviewBlur.style.display = 'block';
+                    mainPreviewImg.src = imagesArray[0];
+                    mainPreviewImg.style.display = 'block';
+                    if (placeholderIcon) placeholderIcon.style.display = 'none';
+                } else {
+                    mainPreviewBlur.style.display = 'none';
+                    mainPreviewImg.style.display = 'none';
+                    mainPreviewImg.src = '';
+                    if (placeholderIcon) placeholderIcon.style.display = 'flex';
                 }
+
+                // Actualizar Galería
+                previewContainer.innerHTML = imagesArray.map(m => `
+                    <div style="position: relative; width: 100%; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1; background-image: url('${m}'); background-size: cover; background-position: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <div style="position: absolute; inset: 0; backdrop-filter: blur(8px); background: rgba(255,255,255,0.15);"></div>
+                        <img src="${m}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));">
+                    </div>
+                `).join('');
             }
 
             // Set checkboxes
@@ -90,14 +106,17 @@ function openNewsModal(id = null) {
         if (carouselSelect) carouselSelect.value = 'Ninguno';
         
         const previewContainer = document.getElementById('admin-news-images-preview');
-        if (previewContainer) previewContainer.innerHTML = '';
+        const mainPreviewBlur = document.getElementById('admin-news-preview');
+        const mainPreviewImg = document.getElementById('admin-news-preview-img');
+        const placeholderIcon = document.getElementById('admin-news-icon');
         
-        const icon = document.querySelector('.upload-area i');
-        const spanText = document.querySelector('.upload-area span');
-        if (icon && spanText) {
-            icon.style.display = 'block';
-            spanText.innerHTML = 'Subir imágenes localmente<br>(Puede seleccionar múltiples)';
+        if (previewContainer) previewContainer.innerHTML = '';
+        if (mainPreviewBlur) mainPreviewBlur.style.display = 'none';
+        if (mainPreviewImg) {
+            mainPreviewImg.style.display = 'none';
+            mainPreviewImg.src = '';
         }
+        if (placeholderIcon) placeholderIcon.style.display = 'flex';
         
         document.querySelectorAll('input[name="status"]').forEach(cb => cb.checked = false);
     }
@@ -131,14 +150,31 @@ document.addEventListener('change', async (e) => {
             
             // Preview
             const previewContainer = document.getElementById('admin-news-images-preview');
-            const uploadArea = e.target.parentElement;
-            if (previewContainer && uploadArea) {
-                previewContainer.innerHTML = base64Results.map(base64 => 
-                    `<img src="${base64}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;">`
-                ).join('');
-                
-                uploadArea.querySelector('i').style.display = 'none';
-                uploadArea.querySelector('span').textContent = `${base64Results.length} imágenes listas`;
+            const mainPreviewBlur = document.getElementById('admin-news-preview');
+            const mainPreviewImg = document.getElementById('admin-news-preview-img');
+            const placeholderIcon = document.getElementById('admin-news-icon');
+
+            if (previewContainer) {
+                // Main Preview
+                if (base64Results.length > 0) {
+                    if (mainPreviewBlur) {
+                        mainPreviewBlur.style.backgroundImage = `url('${base64Results[0]}')`;
+                        mainPreviewBlur.style.display = 'block';
+                    }
+                    if (mainPreviewImg) {
+                        mainPreviewImg.src = base64Results[0];
+                        mainPreviewImg.style.display = 'block';
+                    }
+                    if (placeholderIcon) placeholderIcon.style.display = 'none';
+                }
+
+                // Gallery
+                previewContainer.innerHTML = base64Results.map(base64 => `
+                    <div style="position: relative; width: 100%; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1; background-image: url('${base64}'); background-size: cover; background-position: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <div style="position: absolute; inset: 0; backdrop-filter: blur(8px); background: rgba(255,255,255,0.15);"></div>
+                        <img src="${base64}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));">
+                    </div>
+                `).join('');
             }
         } catch (err) {
             console.error(err);
@@ -167,8 +203,8 @@ function encodeFileToBase64(file) {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                // Compresión agresiva a WebP para cuidar localStorage
-                resolve(canvas.toDataURL('image/webp', 0.7));
+                // Compresión mejorada a WebP
+                resolve(canvas.toDataURL('image/webp', 0.85));
             };
             img.onerror = () => reject(new Error('Error al cargar la imagen en canvas'));
             img.src = e.target.result;

@@ -40,13 +40,14 @@ const AdminDctiView = {
                                 
                                 <div style="display: flex; flex-direction: column; margin-top: 5px;">
                                     <label style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; color: var(--color-text-main);">Organigrama <span style="color: var(--color-text-muted); font-weight: 400; font-size: 0.8rem;">(Opcional)</span></label>
-                                    <div style="position: relative; width: 100%; height: 160px; background: white; border-radius: 8px; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; padding: 10px; transition: border-color 0.2s; box-sizing: border-box;">
-                                        <img id="admin-dcti-organigrama-preview" src="${dcti.organigrama || ''}" style="max-width: 100%; max-height: 100%; height: auto; object-fit: contain; border-radius: 6px; display: ${dcti.organigrama ? 'block' : 'none'};">
-                                        <input type="file" id="admin-dcti-organigrama-input" accept="image/*" style="display: none;" onchange="typeof previewOrganigrama === 'function' ? previewOrganigrama(event) : null">
-                                        <button type="button" onclick="document.getElementById('admin-dcti-organigrama-input').click()" style="position: absolute; bottom: -12px; right: -12px; width: 36px; height: 36px; border-radius: 50%; background: var(--color-primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 1.1rem; transition: background 0.2s; z-index: 10;" title="Subir Organigrama">
+                                    <div id="admin-dcti-organigrama-container" style="position: relative; width: 100%; height: 180px; background: white; border-radius: 8px; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; padding: 8px; transition: border-color 0.2s; box-sizing: border-box; overflow: hidden; background-image: url('${dcti.organigrama || ''}'); background-size: cover; background-position: center;">
+                                      <div id="admin-dcti-organigrama-blur" style="position: absolute; inset: 0; backdrop-filter: blur(10px); background: rgba(255,255,255,0.15); display: ${dcti.organigrama ? 'block' : 'none'};"></div>
+                                      <img id="admin-dcti-organigrama-preview" src="${dcti.organigrama || ''}" style="max-width: 100%; max-height: 100%; height: auto; object-fit: contain; position: relative; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); border-radius: 6px; display: ${dcti.organigrama ? 'block' : 'none'};">
+                                      <div id="admin-dcti-organigrama-placeholder" style="position: relative; z-index: 1; color: #94a3b8; font-size: 0.9rem; display: ${dcti.organigrama ? 'none' : 'flex'}; flex-direction: column; align-items: center; gap: 8px;"><i class="fas fa-image" style="font-size: 1.5rem;"></i><span>Clic en + para subir</span></div>
+                                      <input type="file" id="admin-dcti-organigrama-input" accept="image/*" style="display: none;" onchange="typeof previewOrganigrama === 'function' ? previewOrganigrama(event) : null">
+                                      <button type="button" onclick="document.getElementById('admin-dcti-organigrama-input').click()" style="position: absolute; bottom: 5px; right: 5px; width: 36px; height: 36px; border-radius: 50%; background: var(--color-primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2); font-size: 1.1rem; transition: background 0.2s; z-index: 10;" title="Subir Organigrama">
                                             <i class="fas fa-plus" style="font-size: 14px;"></i>
                                         </button>
-                                        ${!dcti.organigrama ? '<div id="admin-dcti-organigrama-placeholder" style="color: #94a3b8; font-size: 0.9rem; display: flex; flex-direction: column; align-items: center; gap: 8px;"><i class="fas fa-image" style="font-size: 1.5rem;"></i><span>Clic en + para subir</span></div>' : ''}
                                     </div>
                                     <div style="margin-top: 15px; font-size: 0.8rem; color: var(--color-text-muted);">
                                         La imagen será escalada automáticamente.
@@ -118,11 +119,12 @@ const AdminDctiView = {
                                 <p style="font-size: 0.82rem; color: var(--color-text-muted); margin: 0;">Esta imagen aparece junto al formulario de consultas en el Portal Público.</p>
 
                                 <div style="display: flex; flex-direction: column; margin-top: 5px;">
-                                    <div style="position: relative; width: 100%; height: 180px; background: white; border-radius: 8px; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; padding: 8px; transition: border-color 0.2s; box-sizing: border-box;">
-                                        <img id="admin-dcti-consultas-preview" src="${dcti.consultasImage || ''}" style="max-width: 100%; max-height: 100%; height: auto; object-fit: contain; border-radius: 6px; display: ${dcti.consultasImage ? 'block' : 'none'};">
-                                        <div id="admin-dcti-consultas-placeholder" style="color: #94a3b8; font-size: 0.9rem; display: ${dcti.consultasImage ? 'none' : 'flex'}; flex-direction: column; align-items: center; gap: 8px;"><i class="fas fa-image" style="font-size: 1.5rem;"></i><span>Clic en + para subir</span></div>
-                                        <input type="file" id="admin-dcti-consultas-input" accept="image/*" style="display: none;" onchange="typeof previewConsultasImage === 'function' ? previewConsultasImage(event) : null">
-                                        <button type="button" onclick="document.getElementById('admin-dcti-consultas-input').click()" style="position: absolute; bottom: -12px; right: -12px; width: 36px; height: 36px; border-radius: 50%; background: var(--color-primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 1.1rem; transition: background 0.2s; z-index: 10;" title="Subir Imagen de Consultas">
+                                    <div id="admin-dcti-consultas-container" style="position: relative; width: 100%; height: 180px; background: white; border-radius: 8px; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; padding: 8px; transition: border-color 0.2s; box-sizing: border-box; overflow: hidden; background-image: url('${dcti.consultasImage || ''}'); background-size: cover; background-position: center;">
+                                      <div id="admin-dcti-consultas-blur" style="position: absolute; inset: 0; backdrop-filter: blur(10px); background: rgba(255,255,255,0.15); display: ${dcti.consultasImage ? 'block' : 'none'};"></div>
+                                      <img id="admin-dcti-consultas-preview" src="${dcti.consultasImage || ''}" style="max-width: 100%; max-height: 100%; height: auto; object-fit: contain; position: relative; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); border-radius: 6px; display: ${dcti.consultasImage ? 'block' : 'none'};">
+                                      <div id="admin-dcti-consultas-placeholder" style="position: relative; z-index: 1; color: #94a3b8; font-size: 0.9rem; display: ${dcti.consultasImage ? 'none' : 'flex'}; flex-direction: column; align-items: center; gap: 8px;"><i class="fas fa-image" style="font-size: 1.5rem;"></i><span>Clic en + para subir</span></div>
+                                      <input type="file" id="admin-dcti-consultas-input" accept="image/*" style="display: none;" onchange="typeof previewConsultasImage === 'function' ? previewConsultasImage(event) : null">
+                                      <button type="button" onclick="document.getElementById('admin-dcti-consultas-input').click()" style="position: absolute; bottom: 5px; right: 5px; width: 36px; height: 36px; border-radius: 50%; background: var(--color-primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2); font-size: 1.1rem; transition: background 0.2s; z-index: 10;" title="Subir Imagen de Consultas">
                                             <i class="fas fa-plus" style="font-size: 14px;"></i>
                                         </button>
                                     </div>
@@ -167,44 +169,7 @@ const AdminDctiView = {
                             </div>
                         </div>
                         
-                        <!-- Auditoría Section -->
-                        ${(() => {
-                            const session = JSON.parse(localStorage.getItem('dcti_session')) || {};
-                            const isAdmin = session.role === 'admin';
-                            if (!dcti.createdAt) return '';
 
-                            let auditHtml = `
-                                <div style="margin-top: 10px; padding: 20px; border-top: 1px dashed #e2e8f0;">
-                                    <h4 style="font-size: 0.95rem; color: var(--color-text-main); margin-bottom: 15px;"><i class="fas fa-shield-alt" style="margin-right: 8px; color: var(--color-primary);"></i>Auditoría de Información Institucional</h4>
-                                    <div style="display: flex; gap: 30px; font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 15px;">
-                                        <span><i class="fas fa-calendar-plus" style="margin-right: 5px;"></i> Registro Inicial: ${new Date(dcti.createdAt).toLocaleDateString('es-VE')} por ${dcti.createdBy || 'Sistema'}</span>
-                                        <span><i class="fas fa-edit" style="margin-right: 5px;"></i> Última act: ${dcti.updatedAt ? new Date(dcti.updatedAt).toLocaleDateString('es-VE') : 'N/A'} por ${dcti.updatedBy || 'Sistema'}</span>
-                                    </div>
-                            `;
-
-                            if (isAdmin && dcti.history && dcti.history.length > 0) {
-                                auditHtml += `
-                                    <details style="background: #f8fafc; border: 1px solid var(--color-border); border-radius: 8px; padding: 12px; transition: all 0.3s ease;">
-                                        <summary style="font-size: 0.85rem; font-weight: 600; cursor: pointer; color: var(--color-primary); margin-bottom: 5px; user-select: none;">Ver Historial de Cambios (${dcti.history.length})</summary>
-                                        <ul style="list-style: none; padding: 0; margin: 15px 0 0 0; font-size: 0.85rem;">
-                                            ${dcti.history.map(h => `
-                                                <li style="border-bottom: 1px dashed #e2e8f0; padding: 8px 0; display: flex; justify-content: space-between; align-items: start;">
-                                                    <div>
-                                                        <b style="color: var(--color-text-main);">${h.responsible}</b> 
-                                                        <span style="color: var(--color-text-muted); font-size: 0.8rem; margin-left: 5px;">(${h.action || 'Modificación'})</span>
-                                                        <div style="color: #64748b; margin-top: 3px; font-size: 0.8rem;">Campos editados: ${h.fields}</div>
-                                                    </div>
-                                                    <span style="color: var(--color-text-muted); font-size: 0.8rem; white-space: nowrap;">${h.date}</span>
-                                                </li>
-                                            `).join('')}
-                                        </ul>
-                                    </details>
-                                `;
-                            }
-                            auditHtml += `</div>`;
-                            return auditHtml;
-                        })()}
-                        
                             ${window.AdminTemplate.ModalFooter("if(typeof changePage === 'function') changePage('news'); else renderModule('news')", 'dcti-admin-form', true)}
                     </form>
                 </div>

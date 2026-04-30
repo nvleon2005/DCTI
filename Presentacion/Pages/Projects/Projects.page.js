@@ -103,13 +103,15 @@ const ProjectsView = {
                                 <!-- Columna Izquierda: Imagen y Carrusel -->
                                 <div style="display: flex; flex-direction: column;">
                                     <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--color-text-muted);">Añadir imágenes</label>
-                                    <div style="position: relative; width: 100%; aspect-ratio: 1; background: #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
-                                        <div id="admin-project-preview" style="width: 100%; height: 100%; border-radius: 8px; background-color: #cbd5e1; background-position: center; background-size: cover; position: relative; border: 2px dashed var(--color-border); display: flex; align-items: center; justify-content: center;">
-                                            <input type="file" id="admin-project-file" multiple accept="image/*" style="opacity: 0; position: absolute; width: 100%; height: 100%; cursor: pointer; z-index: 10;">
-                                            <input type="hidden" id="admin-project-media">
-                                            <i class="fas fa-image placeholder-icon" id="admin-project-icon" style="font-size: 2rem; color: #94a3b8; pointer-events: none;"></i>
+                                    <div style="position: relative; width: 100%; aspect-ratio: 1; background: #e2e8f0; border-radius: 8px; margin-bottom: 20px; overflow: hidden; border: 2px dashed var(--color-border);" id="admin-project-preview-container">
+                                        <div id="admin-project-preview" style="position: absolute; inset: 0; background-position: center; background-size: cover; filter: blur(10px) brightness(0.9); z-index: 0; display: none;"></div>
+                                        <img id="admin-project-preview-img" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); display: none;" src="">
+                                        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 2; pointer-events: none;">
+                                            <i class="fas fa-image placeholder-icon" id="admin-project-icon" style="font-size: 2rem; color: #94a3b8;"></i>
                                         </div>
-                                        <button type="button" onclick="document.getElementById('admin-project-file').click()" style="position: absolute; bottom: -15px; right: -15px; width: 40px; height: 40px; border-radius: 50%; background: #1d4ed8; color: white; border: none; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; z-index: 11; box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor: pointer;" title="Subir Imagen">+</button>
+                                        <input type="file" id="admin-project-file" multiple accept="image/*" style="opacity: 0; position: absolute; inset: 0; cursor: pointer; z-index: 10;">
+                                        <input type="hidden" id="admin-project-media">
+                                        <button type="button" onclick="document.getElementById('admin-project-file').click()" style="position: absolute; bottom: 5px; right: 5px; width: 36px; height: 36px; border-radius: 50%; background: #2563eb; color: white; border: none; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; z-index: 11; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer;" title="Subir Imagen">+</button>
                                     </div>
                                     
                                     <label id="project-gallery-title" style="display: block; margin-bottom: 10px; font-size: 0.9rem; color: var(--color-text-muted);">Publicadas</label>
