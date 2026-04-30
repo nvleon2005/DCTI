@@ -265,7 +265,7 @@ const CoursesView = {
                             <div id="tab-students-content" style="display: none;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                                     <h3 style="margin: 0; font-size: 1.1rem; color: var(--color-primary);">Auditoría de Matrícula</h3>
-                                    <button style="padding: 8px 15px; background: white; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: var(--color-text-main);"><i class="fas fa-file-csv" style="color: #16a34a;"></i> Exportar a CSV</button>
+                                    <button class="btn-export btn-export--csv" title="Exportar a CSV"><i class="fas fa-file-csv"></i></button>
                                 </div>
                                 <div id="admin-course-students-list" style="background: white; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden;">
                                     <!-- Inyección de courses-logic.js -> renderCourseParticipants() -->

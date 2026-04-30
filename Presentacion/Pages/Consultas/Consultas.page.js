@@ -14,8 +14,8 @@ const ConsultasView = {
                                 Total: ${total}
                             </span>
                         </div>
-                        <button class="btn-action" onclick="exportConsultasCSV()" title="Exportar CSV" style="width: auto; height: 45px; border-radius: 8px; padding: 0 15px; display: flex; align-items: center; justify-content: center; background: #10b981; color: white; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);">
-                            <i class="fas fa-file-csv" style="font-size: 1.1rem; margin-right: 8px;"></i> Exportar
+                        <button class="btn-export btn-export--csv" onclick="exportConsultasCSV()" title="Exportar CSV">
+                            <i class="fas fa-file-csv"></i>
                         </button>
                     </div>
                     <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">

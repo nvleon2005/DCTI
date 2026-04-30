@@ -12,12 +12,12 @@ const ReportsView = {
                 <div style="display: flex; flex-direction: column; gap: var(--space-md); margin-bottom: var(--space-md);">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <h2>Reportes del Sistema</h2>
-                        <div style="display: flex; gap: 12px; align-items: center;">
-                            <button onclick="if(typeof exportReportToExcel === 'function') exportReportToExcel()" style="padding: 10px 18px; background: white; border: 1px solid #cbd5e1; border-radius: 8px; color: #166534; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.04);" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#94a3b8'" onmouseout="this.style.background='white'; this.style.borderColor='#cbd5e1'">
-                                <i class="fas fa-file-excel"></i> Exportar Excel
+                        <div class="export-btn-group">
+                            <button onclick="if(typeof previewReportPDF === 'function') previewReportPDF()" class="btn-export btn-export--pdf" title="Exportar a PDF">
+                                <i class="fas fa-file-pdf"></i>
                             </button>
-                            <button onclick="if(typeof previewReportPDF === 'function') previewReportPDF()" style="padding: 10px 18px; background: #dc2626; border: 1px solid #b91c1c; border-radius: 8px; color: white; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);" onmouseover="this.style.background='#b91c1c'; this.style.borderColor='#991b1b'" onmouseout="this.style.background='#dc2626'; this.style.borderColor='#b91c1c'">
-                                <i class="fas fa-file-pdf"></i> Generar PDF
+                            <button onclick="if(typeof exportReportToExcel === 'function') exportReportToExcel()" class="btn-export btn-export--excel" title="Exportar a Excel">
+                                <i class="fas fa-file-excel"></i>
                             </button>
                         </div>
                     </div>

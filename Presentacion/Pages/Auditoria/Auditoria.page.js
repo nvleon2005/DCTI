@@ -155,12 +155,12 @@ const AuditoriaView = {
                         <i class="fas fa-clipboard-list"></i>
                         Auditoría del Sistema
                     </h2>
-                    <div class="audit-export-group">
-                        <button onclick="exportAuditPDF()" class="audit-export-btn audit-export-btn--pdf" title="Exportar a PDF">
-                            <i class="fas fa-file-pdf"></i> PDF
+                    <div class="export-btn-group">
+                        <button onclick="exportAuditPDF()" class="btn-export btn-export--pdf" title="Exportar a PDF">
+                            <i class="fas fa-file-pdf"></i>
                         </button>
-                        <button onclick="exportAuditExcel()" class="audit-export-btn audit-export-btn--excel" title="Exportar a Excel">
-                            <i class="fas fa-file-excel"></i> Excel
+                        <button onclick="exportAuditExcel()" class="btn-export btn-export--excel" title="Exportar a Excel">
+                            <i class="fas fa-file-excel"></i>
                         </button>
                     </div>
                 </div>

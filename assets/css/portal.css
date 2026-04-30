@@ -4877,38 +4877,41 @@ html {
     font-size: 1.15rem;
 }
 
-.audit-export-group {
+.export-btn-group {
     display: flex;
     gap: 8px;
 }
 
-.audit-export-btn {
-    padding: 8px 18px;
+.btn-export {
+    width: 42px;
+    height: 42px;
     color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 600;
+    border-radius: 50%;
+    font-size: 1.1rem;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 7px;
-    font-family: 'Outfit', sans-serif;
+    justify-content: center;
     transition: all 0.25s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.audit-export-btn:hover {
+.btn-export:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
 }
 
-.audit-export-btn--pdf {
+.btn-export--pdf {
     background: linear-gradient(135deg, #dc2626, #b91c1c);
 }
 
-.audit-export-btn--excel {
+.btn-export--excel {
     background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+.btn-export--csv {
+    background: linear-gradient(135deg, #0d9488, #0f766e); /* Teal theme for CSV */
 }
 
 /* Panel de Filtros */
