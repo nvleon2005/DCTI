@@ -270,8 +270,8 @@ function validateUserField(fieldId) {
                 setStatus(false, 'El número de documento es obligatorio.', '');
             } else if (!/^[0-9]+$/.test(value)) {
                 setStatus(false, 'Formato no válido (solo números).', '');
-            } else if (value.length < 6) {
-                setStatus(false, 'Mínimo 6 dígitos.', '');
+            } else if (value.length < 7) {
+                setStatus(false, 'Mínimo 7 dígitos.', '');
             } else {
                 setStatus(true, '', 'Documento válido.');
             }
@@ -434,6 +434,17 @@ async function handleUserAdminSubmit(e) {
             initials: nameSafe.substring(0, 2).toUpperCase()
         };
         saveLocalUser(newUser);
+
+        // Registro de Auditoría
+        if (typeof AuditService !== 'undefined') {
+            AuditService.log(
+                'Creación', 
+                'Usuarios', 
+                newUser.email, 
+                newUser.username || newUser.name, 
+                `Creación de usuario manual desde el panel administrativo con rol: ${newUser.role}`
+            );
+        }
     }
 
     closeUserModal();

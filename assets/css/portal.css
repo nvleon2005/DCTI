@@ -73,6 +73,12 @@ html {
     font-family: 'Verdana', sans-serif;
 }
 
+textarea {
+    resize: none !important; /* Desactiva la esquina redimensionable */
+    overflow-y: auto !important; /* Habilita el scroll interno */
+    min-height: 120px; /* Tamaño mínimo fijo recomendado */
+}
+
 /* CUSTOM SCROLLBAR */
 ::-webkit-scrollbar {
     width: 6px;
