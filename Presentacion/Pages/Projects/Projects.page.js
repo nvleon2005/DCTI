@@ -30,6 +30,10 @@ const ProjectsView = {
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <h2>Iniciativas Estratégicas</h2>
                         </div>
+                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex: 1; max-width: 400px; min-width: 200px;">
+                            <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
+                            <input type="text" id="filter-project-search" placeholder="Buscar Proyecto..." oninput="window.lastFocusedInput = this.id; window.globalProjectSearch = this.value; window.debouncedRenderModule('projects');" value="${window.globalProjectSearch || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 100%; font-size: 0.85rem; outline: none; font-weight: 500;">
+                        </div>
                         ${isAdmin ? `
                             <button class="btn-action" onclick="openProjectModal()" title="Nuevo Proyecto" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--color-primary); color: white; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(100, 50, 255, 0.2);">
                                 <i class="fas fa-plus" style="font-size: 1.1rem; margin: 0;"></i>
@@ -46,10 +50,6 @@ const ProjectsView = {
                 </div>
 
                 <div style="display: flex; justify-content: flex-start; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: var(--space-lg);">
-                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                            <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
-                            <input type="text" id="filter-project-search" placeholder="Buscar Proyecto..." oninput="window.lastFocusedInput = this.id; window.globalProjectSearch = this.value; window.debouncedRenderModule('projects');" value="${window.globalProjectSearch || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 150px; font-size: 0.85rem; outline: none; font-weight: 500;">
-                        </div>
                         <select onchange="window.globalProjectStatusFilter = this.value; if(typeof changePage === 'function'){changePage('projects', 1)} else {renderModule('projects')}" style="padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
                             <option value="Todos" ${window.globalProjectStatusFilter === 'Todos' || !window.globalProjectStatusFilter ? 'selected' : ''}>Todos los Estados</option>
                             <option value="Destacado" ${window.globalProjectStatusFilter === 'Destacado' ? 'selected' : ''}>Destacados</option>

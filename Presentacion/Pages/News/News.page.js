@@ -44,6 +44,10 @@ const AdminNewsView = {
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <h2>Gestión de Noticias</h2>
                         </div>
+                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex: 1; max-width: 400px; min-width: 200px;">
+                            <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
+                            <input type="text" id="filter-news-search" placeholder="Buscar Noticia..." oninput="window.lastFocusedInput = this.id; window.globalNewsSearch = this.value; window.debouncedRenderModule('news');" value="${window.globalNewsSearch || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 100%; font-size: 0.85rem; outline: none; font-weight: 500;">
+                        </div>
                         <button class="btn-action" onclick="openNewsModal()" title="Nueva Noticia" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--color-primary); color: white; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(100, 50, 255, 0.2);">
                             <i class="fas fa-plus" style="font-size: 1.1rem; margin: 0;"></i>
                         </button>
@@ -63,10 +67,6 @@ const AdminNewsView = {
                         ${filterButtons}
                     </div>
                     <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; flex-wrap: wrap;">
-                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                            <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
-                            <input type="text" id="filter-news-search" placeholder="Buscar Noticia..." oninput="window.lastFocusedInput = this.id; window.globalNewsSearch = this.value; window.debouncedRenderModule('news');" value="${window.globalNewsSearch || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 140px; font-size: 0.85rem; outline: none; font-weight: 500;">
-                        </div>
                         <select onchange="window.globalNewsStatusFilter = this.value; if(typeof changePage === 'function'){changePage('news', 1)} else {renderModule('news')}" style="padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%236b7280&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;6 9 12 15 18 9&quot;></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
                             <option value="Todos" ${window.globalNewsStatusFilter === 'Todos' || !window.globalNewsStatusFilter ? 'selected' : ''}>Todos los Estados</option>
                             <option value="Publicado" ${window.globalNewsStatusFilter === 'Publicado' || window.globalNewsStatusFilter === 'Publicada' ? 'selected' : ''}>Publicadas</option>

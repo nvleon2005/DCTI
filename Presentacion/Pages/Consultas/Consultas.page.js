@@ -14,6 +14,13 @@ const ConsultasView = {
                                 Total: ${total}
                             </span>
                         </div>
+                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex: 1; max-width: 400px; min-width: 200px; margin: 0 10px;">
+                            <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
+                            <input type="text" id="filter-consulta-search" placeholder="Buscar por nombre o correo..." 
+                                oninput="window.lastFocusedInput = this.id; window.globalConsultaSearch = this.value; window.debouncedRenderModule('consultas');" 
+                                value="${window.globalConsultaSearch || ''}" 
+                                style="background: transparent; border: none; color: var(--color-text-main); width: 100%; font-size: 0.85rem; outline: none; font-weight: 500;">
+                        </div>
                         <button class="btn-export btn-export--csv" onclick="exportConsultasCSV()" title="Exportar CSV">
                             <i class="fas fa-file-csv"></i>
                         </button>
@@ -23,13 +30,6 @@ const ConsultasView = {
 
                 <!-- Filtros -->
                 <div style="display: flex; justify-content: flex-start; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: var(--space-lg);">
-                    <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                        <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
-                        <input type="text" id="filter-consulta-search" placeholder="Buscar por nombre o correo..." 
-                            oninput="window.lastFocusedInput = this.id; window.globalConsultaSearch = this.value; window.debouncedRenderModule('consultas');" 
-                            value="${window.globalConsultaSearch || ''}" 
-                            style="background: transparent; border: none; color: var(--color-text-main); width: 200px; font-size: 0.85rem; outline: none; font-weight: 500;">
-                    </div>
                     <select onchange="window.globalConsultaStatus = this.value; if(typeof changePage === 'function'){changePage('consultas', 1)} else {renderModule('consultas')}" 
                         style="padding: 0 32px 0 16px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; background: white url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><polyline points=%226 9 12 15 18 9%22></polyline></svg>') no-repeat right 12px center; cursor: pointer; box-sizing: border-box; appearance: none; -webkit-appearance: none; color: var(--color-text-main); font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;">
                         <option value="Todos" ${window.globalConsultaStatus === 'Todos' || !window.globalConsultaStatus ? 'selected' : ''}>Todos los Estados</option>

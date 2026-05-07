@@ -25,7 +25,11 @@ const StrategicView = {
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <h2>Áreas y Ejes Estratégicos</h2>
                         </div>
-                        <button class="btn-action" onclick="openStrategicModal()" title="Nueva Área" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;">
+                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex: 1; max-width: 400px; min-width: 200px;">
+                            <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
+                            <input type="text" id="filter-strategic-search" placeholder="Buscar Área..." oninput="window.lastFocusedInput = this.id; window.globalStrategicSearch = this.value; window.debouncedRenderModule('strategic');" value="${window.globalStrategicSearch || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 100%; font-size: 0.85rem; outline: none; font-weight: 500;">
+                        </div>
+                        <button class="btn-action" onclick="openStrategicModal()" title="Nueva Área" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--color-primary); color: white; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(100, 50, 255, 0.2);">
                             <i class="fas fa-plus" style="font-size: 1.1rem; margin: 0;"></i>
                         </button>
                     </div>
@@ -34,12 +38,7 @@ const StrategicView = {
                         ${createStatCard('fas fa-sitemap', globalAllStrategic.length, 'Líneas Estratégicas', '#3b82f6', 'rgba(59, 130, 246, 0.1)')}
                     </div>
 
-                    <div style="display: flex; justify-content: flex-start; align-items: center; gap: 15px; flex-wrap: wrap;">
-                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                            <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
-                            <input type="text" id="filter-strategic-search" placeholder="Buscar Área..." oninput="window.lastFocusedInput = this.id; window.globalStrategicSearch = this.value; window.debouncedRenderModule('strategic');" value="${window.globalStrategicSearch || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 220px; font-size: 0.85rem; outline: none; font-weight: 500;">
-                        </div>
-                    </div>
+
                     
                     <hr style="border: none; border-top: 1px solid var(--color-border); margin: 0 0 var(--space-md) 0;">
                 </div>

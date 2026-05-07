@@ -150,12 +150,16 @@ const AuditoriaView = {
         return `
             <div class="view-container">
                 <!-- Header -->
-                <div class="audit-header">
-                    <h2>
+                <div class="audit-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                    <h2 style="margin: 0; display: flex; align-items: center; gap: 10px;">
                         <i class="fas fa-clipboard-list"></i>
                         Auditoría del Sistema
                     </h2>
-                    <div class="export-btn-group">
+                    <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex: 1; min-width: 250px; max-width: 400px; margin: 0 auto;">
+                        <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
+                        <input type="text" placeholder="Buscar detalle o entidad..." oninput="applyAuditFilter('search', this.value)" value="${window.auditFilters.search || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 100%; font-size: 0.85rem; outline: none; font-weight: 500;">
+                    </div>
+                    <div class="export-btn-group" style="display: flex; gap: 10px;">
                         <button onclick="exportAuditPDF()" class="btn-export btn-export--pdf" title="Exportar a PDF">
                             <i class="fas fa-file-pdf"></i>
                         </button>
@@ -176,11 +180,7 @@ const AuditoriaView = {
                 <!-- Filtros -->
                 <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: var(--space-lg);">
                     <!-- Fila Superior -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;">
-                        <div style="position: relative; display: flex; align-items: center; background: white; border-radius: 20px; padding: 4px 14px; border: 1px solid var(--color-border); transition: all 0.2s; height: 36px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex: 1; min-width: 250px; max-width: 400px;">
-                            <i class="fas fa-search" style="font-size: 0.8rem; color: var(--color-text-muted); margin-right: 8px;"></i>
-                            <input type="text" placeholder="Buscar detalle o entidad..." oninput="applyAuditFilter('search', this.value)" value="${window.auditFilters.search || ''}" style="background: transparent; border: none; color: var(--color-text-main); width: 100%; font-size: 0.85rem; outline: none; font-weight: 500;">
-                        </div>
+                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; flex-wrap: wrap;">
 
                         <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
                             <input type="date" value="${window.auditFilters.dateFrom}" onchange="applyAuditFilter('dateFrom', this.value)" style="padding: 0 12px; height: 36px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.85rem; color: var(--color-text-main); font-weight: 500; background: white; box-sizing: border-box;">
