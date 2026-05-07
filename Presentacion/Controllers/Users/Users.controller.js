@@ -188,9 +188,10 @@ function openUserModal(email = null) {
         document.getElementById('admin-user-role').value = 'visitante';
     }
 
-    // Reset error div
+    // Reset error div y limpiar validaciones previas
     const errorDiv = document.getElementById('admin-user-error');
     if (errorDiv) errorDiv.classList.add('hidden');
+    clearUserValidations();
     setTimeout(() => { if (window.AdminTemplate) window.AdminTemplate.initFormBackup('user-admin-form'); }, 50);
 }
 
@@ -219,10 +220,184 @@ function toggleAdminUserPassword() {
     }
 }
 
+function validateUserField(fieldId) {
+    const el = document.getElementById(fieldId);
+    const valDiv = document.getElementById(`val-${fieldId}`);
+    if (!el || !valDiv) return true;
+
+    const value = el.value.trim();
+    let isValid = false;
+    let errorMsg = '';
+    let successMsg = '';
+
+    const setStatus = (valid, msgErr, msgSucc) => {
+        isValid = valid;
+        errorMsg = msgErr;
+        successMsg = msgSucc;
+    };
+
+    if (value.length > 0 && /[<>]/.test(value)) {
+        setStatus(false, 'Los caracteres < y > no están permitidos por seguridad.', '');
+        valDiv.style.display = 'flex';
+        valDiv.style.color = '#ef4444';
+        valDiv.innerHTML = `<i class="fas fa-times-circle"></i> <span>${errorMsg}</span>`;
+        el.style.borderColor = '#ef4444';
+        el.style.backgroundColor = '#fef2f2';
+        return false;
+    }
+
+    switch(fieldId) {
+        case 'admin-user-name':
+            if (value.length === 0) {
+                setStatus(false, 'El nombre es obligatorio.', '');
+            } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                setStatus(false, 'Formato no válido (solo letras).', '');
+            } else {
+                setStatus(true, '', 'Nombre válido.');
+            }
+            break;
+        case 'admin-user-lastname':
+            if (value.length === 0) {
+                setStatus(false, 'El apellido es obligatorio.', '');
+            } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                setStatus(false, 'Formato no válido (solo letras).', '');
+            } else {
+                setStatus(true, '', 'Apellido válido.');
+            }
+            break;
+        case 'admin-user-cedula':
+            if (value.length === 0) {
+                setStatus(false, 'El número de documento es obligatorio.', '');
+            } else if (!/^[0-9]+$/.test(value)) {
+                setStatus(false, 'Formato no válido (solo números).', '');
+            } else if (value.length < 6) {
+                setStatus(false, 'Mínimo 6 dígitos.', '');
+            } else {
+                setStatus(true, '', 'Documento válido.');
+            }
+            break;
+        case 'admin-user-email':
+            if (value.length === 0) {
+                setStatus(false, 'El correo electrónico es obligatorio.', '');
+            } else if (!value.includes('@')) {
+                setStatus(false, 'Falta el "@" en el correo.', '');
+            } else if (typeof validateEmailFormat === 'function' && !validateEmailFormat(value)) {
+                setStatus(false, 'El formato del correo electrónico no es válido.', '');
+            } else {
+                const allUsers = [...(typeof AUTH_CONFIG !== 'undefined' ? AUTH_CONFIG.hardcodedUsers : []), ...(typeof getLocalUsers === 'function' ? getLocalUsers() : [])];
+                const editEmail = document.getElementById('edit-email-target') ? document.getElementById('edit-email-target').value : '';
+                const emailExists = allUsers.some(u => u.email.toLowerCase() === value.toLowerCase() && u.email !== editEmail);
+                if (emailExists) {
+                    setStatus(false, 'Este correo ya está en uso.', '');
+                } else {
+                    setStatus(true, '', 'Correo válido.');
+                }
+            }
+            break;
+        case 'admin-user-username':
+            if (value.length < 3) {
+                setStatus(false, 'El nombre de usuario debe tener al menos 3 caracteres.', '');
+            } else {
+                const allUsers = [...(typeof AUTH_CONFIG !== 'undefined' ? AUTH_CONFIG.hardcodedUsers : []), ...(typeof getLocalUsers === 'function' ? getLocalUsers() : [])];
+                const editEmail = document.getElementById('edit-email-target') ? document.getElementById('edit-email-target').value : '';
+                const existingUsername = allUsers.find(u => u.username && u.username.toLowerCase() === value.toLowerCase() && u.email !== editEmail);
+                if (existingUsername) {
+                    setStatus(false, 'Este nombre de usuario ya está en uso.', '');
+                } else {
+                    setStatus(true, '', 'Usuario disponible.');
+                }
+            }
+            break;
+        case 'admin-user-pass':
+            const isEdit = document.getElementById('edit-email-target') && document.getElementById('edit-email-target').value !== '';
+            if (isEdit && value === '') {
+                setStatus(true, '', 'Contraseña sin cambios.');
+            } else {
+                const hasLen = value.length >= 8;
+                const hasUpper = /[A-Z]/.test(value);
+                const hasLower = /[a-z]/.test(value);
+                const hasNum = /\d/.test(value);
+                const hasSpec = /[@$!%*?&]/.test(value);
+                
+                const allGood = hasLen && hasUpper && hasLower && hasNum && hasSpec;
+
+                if (allGood) {
+                    setStatus(true, '', 'Contraseña segura.');
+                } else {
+                    const icon = (cond) => cond ? '<i class="fas fa-check" style="color:#10b981; margin-right:3px;"></i>' : '<i class="fas fa-times" style="color:#ef4444; margin-right:3px;"></i>';
+                    const cColor = (cond) => cond ? '#10b981' : '#ef4444';
+                    const html = `
+                        <div style="display:flex; flex-direction:column; gap:6px; width:100%; margin-top:2px;">
+                            <span style="color:#ef4444;"><i class="fas fa-times-circle"></i> La contraseña debe cumplir con los requisitos.</span>
+                            <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:0.65rem; background:rgba(0,0,0,0.02); padding:8px; border-radius:6px; border:1px solid #e2e8f0;">
+                                <span style="color:${cColor(hasLen)}">${icon(hasLen)} 8+ caracteres</span>
+                                <span style="color:${cColor(hasUpper)}">${icon(hasUpper)} Mayúscula</span>
+                                <span style="color:${cColor(hasLower)}">${icon(hasLower)} Minúscula</span>
+                                <span style="color:${cColor(hasNum)}">${icon(hasNum)} Número</span>
+                                <span style="color:${cColor(hasSpec)}">${icon(hasSpec)} Especial</span>
+                            </div>
+                        </div>
+                    `;
+                    setStatus(false, html, '');
+                }
+            }
+            break;
+    }
+
+    valDiv.style.display = 'flex';
+    if (isValid) {
+        valDiv.style.color = '#10b981';
+        valDiv.innerHTML = `<i class="fas fa-check-circle"></i> <span>${successMsg}</span>`;
+        el.style.borderColor = '#10b981';
+        el.style.backgroundColor = '#f0fdf4';
+    } else {
+        valDiv.style.color = '#ef4444';
+        if (errorMsg.includes('<div')) {
+            valDiv.innerHTML = errorMsg;
+        } else {
+            valDiv.innerHTML = `<i class="fas fa-times-circle"></i> <span>${errorMsg}</span>`;
+        }
+        el.style.borderColor = '#ef4444';
+        el.style.backgroundColor = '#fef2f2';
+    }
+
+    return isValid;
+}
+
+function clearUserValidations() {
+    const fields = ['admin-user-name', 'admin-user-lastname', 'admin-user-cedula', 'admin-user-email', 'admin-user-username', 'admin-user-pass'];
+    fields.forEach(fieldId => {
+        const valDiv = document.getElementById(`val-${fieldId}`);
+        const el = document.getElementById(fieldId);
+        if (valDiv) {
+            valDiv.style.display = 'none';
+            valDiv.innerHTML = '';
+        }
+        if (el) {
+            el.style.borderColor = 'var(--color-border)';
+            el.style.backgroundColor = 'transparent';
+        }
+    });
+}
+
 async function handleUserAdminSubmit(e) {
     e.preventDefault();
     const errorDiv = document.getElementById('admin-user-error');
     if (errorDiv) errorDiv.classList.add('hidden');
+
+    // Validar todos los campos antes de continuar
+    const fieldsToValidate = ['admin-user-name', 'admin-user-lastname', 'admin-user-cedula', 'admin-user-email', 'admin-user-username', 'admin-user-pass'];
+    let allValid = true;
+    fieldsToValidate.forEach(fieldId => {
+        if (!validateUserField(fieldId)) {
+            allValid = false;
+        }
+    });
+
+    if (!allValid) {
+        AlertService.notify('Campos Pendientes', 'Hay campos con errores o pendientes por llenar. Verifica las indicaciones en rojo.', 'warning');
+        return;
+    }
 
     const editEmail = document.getElementById('edit-email-target').value;
     const name = document.getElementById('admin-user-name').value;
@@ -237,45 +412,11 @@ async function handleUserAdminSubmit(e) {
     const avatarPreview = document.getElementById('admin-user-avatar-preview');
     const avatar = avatarPreview.style.display === 'block' ? avatarPreview.src : null;
 
-    // 1. Validar formato de email
-    if (typeof validateEmailFormat === 'function' && !validateEmailFormat(email)) {
-        AlertService.notify('Validación Fallida', 'Formato de correo electrónico no válido.', 'error');
-        return;
-    }
-
-    // 2. Validar complejidad de contraseña (solo si se ingresa una nueva)
-    if (pass && typeof validatePasswordComplexity === 'function' && !validatePasswordComplexity(pass)) {
-        AlertService.notify('Contraseña Insegura', 'La contraseña debe tener 8+ caracteres, mayúscula, número y carácter especial.', 'error');
-        return;
-    }
-
-    const allUsers = [...AUTH_CONFIG.hardcodedUsers, ...getLocalUsers()];
-
-    // 3. Validar que el nombre de usuario sea único
-    if (username) {
-        const existingUsername = allUsers.find(u => u.username && u.username.toLowerCase() === username.toLowerCase());
-        if (existingUsername && existingUsername.email !== editEmail) {
-            AlertService.notify('Usuario No Disponible', 'Este nombre de usuario ya está en uso por otra persona.', 'error');
-            return;
-        }
-    }
-
     if (editEmail) {
         // ACTUALIZAR
         await updateUser(editEmail, { name, lastname, cedula, username, email, role, password: pass, avatar });
     } else {
         // AGREGAR
-        if (!pass) {
-            AlertService.notify('Campo Requerido', 'La contraseña es obligatoria para registrar nuevos usuarios.', 'warning');
-            return;
-        }
-
-        const allUsers = [...AUTH_CONFIG.hardcodedUsers, ...getLocalUsers()];
-        if (allUsers.some(u => u.email === email)) {
-            AlertService.notify('Correo Duplicado', 'Error: Este correo ya pertenece a un usuario.', 'error');
-            return;
-        }
-
         // Hashing de contraseña para cumplimiento de HU-001
         const passwordHash = await hashSHA256(pass);
 

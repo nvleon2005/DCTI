@@ -58,6 +58,23 @@ function initMainApp() {
     if (typeof Router !== 'undefined') {
         Router.init();
     }
+
+    // 5. Global Anti-XSS Listener for all Inputs (Restricción de Scripting)
+    document.addEventListener('input', (e) => {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+            const type = e.target.type;
+            if (type !== 'file' && type !== 'checkbox' && type !== 'radio' && type !== 'color') {
+                if (/[<>]/.test(e.target.value)) {
+                    e.target.value = e.target.value.replace(/[<>]/g, '');
+                    
+                    // Disparar un evento input sintético si otros scripts dependen de él para validaciones
+                    const event = new Event('input', { bubbles: true });
+                    // Solo evitamos el bucle infinito comprobando temporalmente
+                    e.target.dispatchEvent(event);
+                }
+            }
+        }
+    });
 }
 
 if (document.readyState === 'loading') {

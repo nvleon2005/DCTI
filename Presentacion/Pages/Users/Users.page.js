@@ -162,9 +162,9 @@ const UsersView = {
                         <!-- Barra vertical izquierda -->
                         <div style="width: 40px; background: var(--grad-primary); flex-shrink: 0;"></div>
                         
-                        <div style="flex: 1; padding: 30px 40px 30px 30px; position: relative;">
+                        <div style="flex: 1; padding: 30px 40px 30px 30px; position: relative; max-height: 90vh; overflow-y: auto;">
                             
-                            <form id="user-admin-form" onsubmit="handleUserAdminSubmit(event)" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <form id="user-admin-form" onsubmit="handleUserAdminSubmit(event)" novalidate style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                                 <input type="hidden" id="edit-email-target">
                                 
                                 <!-- Izquierda Arriba: Imagen y botón "+" -->
@@ -183,22 +183,25 @@ const UsersView = {
                                 <div style="grid-column: 1; grid-row: 2; display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
                                     <div class="form-field">
                                         <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Nombre</label>
-                                        <input type="text" id="admin-user-name" required oninput="this.value = this.value.replace(/[0-9]/g, '')" style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                        <input type="text" id="admin-user-name" required oninput="this.value = this.value.replace(/[0-9<>]/g, ''); if(typeof validateUserField === 'function') validateUserField('admin-user-name');" style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                        <div id="val-admin-user-name" style="font-size: 0.7rem; line-height: 1.1; margin-top: 4px; display: none; align-items: flex-start; gap: 4px;"></div>
                                     </div>
                                     <div class="form-field">
                                         <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Apellido</label>
-                                        <input type="text" id="admin-user-lastname" oninput="this.value = this.value.replace(/[0-9]/g, '')" style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                        <input type="text" id="admin-user-lastname" oninput="this.value = this.value.replace(/[0-9<>]/g, ''); if(typeof validateUserField === 'function') validateUserField('admin-user-lastname');" style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                        <div id="val-admin-user-lastname" style="font-size: 0.7rem; line-height: 1.1; margin-top: 4px; display: none; align-items: flex-start; gap: 4px;"></div>
                                     </div>
                                     <div class="form-field">
                                         <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Cedula</label>
                                         <div style="display: flex; gap: 8px;">
-                                            <select id="admin-user-cedula-type" style="padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); background: white;">
+                                            <select id="admin-user-cedula-type" style="padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); background: white;" onchange="if(typeof validateUserField === 'function') validateUserField('admin-user-cedula');">
                                                 <option value="V">V-</option>
                                                 <option value="E">E-</option>
                                                 <option value="J">J-</option>
                                             </select>
-                                            <input type="text" id="admin-user-cedula" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="flex: 1; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                            <input type="text" id="admin-user-cedula" pattern="[0-9]*" maxlength="9" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(typeof validateUserField === 'function') validateUserField('admin-user-cedula');" style="flex: 1; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
                                         </div>
+                                        <div id="val-admin-user-cedula" style="font-size: 0.7rem; line-height: 1.1; margin-top: 4px; display: none; align-items: flex-start; gap: 4px;"></div>
                                     </div>
                                 </div>
 
@@ -206,20 +209,23 @@ const UsersView = {
                                 <div style="grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 12px;">
                                     <div class="form-field">
                                         <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Correo</label>
-                                        <input type="email" id="admin-user-email" required style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                        <input type="email" id="admin-user-email" required oninput="this.value = this.value.replace(/[<>]/g, ''); if(typeof validateUserField === 'function') validateUserField('admin-user-email');" style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                        <div id="val-admin-user-email" style="font-size: 0.7rem; line-height: 1.1; margin-top: 4px; display: none; align-items: flex-start; gap: 4px;"></div>
                                     </div>
                                     <div class="form-field">
                                         <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Usuario</label>
-                                        <input type="text" id="admin-user-username" required style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                        <input type="text" id="admin-user-username" required oninput="this.value = this.value.replace(/[<>]/g, ''); if(typeof validateUserField === 'function') validateUserField('admin-user-username');" style="width: 100%; padding: 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md);">
+                                        <div id="val-admin-user-username" style="font-size: 0.7rem; line-height: 1.1; margin-top: 4px; display: none; align-items: flex-start; gap: 4px;"></div>
                                     </div>
                                     <div class="form-field" id="pass-field-group">
                                         <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Contraseña</label>
                                         <div style="position: relative; display: flex; align-items: center;">
-                                            <input type="password" id="admin-user-pass" placeholder="" style="width: 100%; padding: 8px 34px 8px 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); font-size: 0.8rem;">
+                                            <input type="password" id="admin-user-pass" placeholder="" oninput="this.value = this.value.replace(/[<>]/g, ''); if(typeof validateUserField === 'function') validateUserField('admin-user-pass');" style="width: 100%; padding: 8px 34px 8px 8px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); font-size: 0.8rem;">
                                             <button type="button" onclick="toggleAdminUserPassword()" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 0.85rem; padding: 0; display: flex; align-items: center; justify-content: center;" title="Mostrar/ocultar contraseña">
                                                 <i class="fas fa-eye" id="admin-pass-toggle-icon"></i>
                                             </button>
                                         </div>
+                                        <div id="val-admin-user-pass" style="font-size: 0.7rem; line-height: 1.1; margin-top: 4px; display: none; align-items: flex-start; gap: 4px;"></div>
                                     </div>
                                 </div>
 
