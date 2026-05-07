@@ -31,6 +31,14 @@
     --color-border: #e2e8f0;
     --color-error: #ef4444;
 
+    /* VARIABLES DE INPUT ESTANDARIZADO (Diseño Login) */
+    --input-bg: #ffffff;
+    --input-bg-hover: #f3f2f1;
+    --input-border: #a19f9d;
+    --input-border-focus: var(--color-primary);
+    --input-shadow-focus: 0 0 0 1px rgba(94, 27, 174, 0.12);
+    --input-placeholder: #94a89c;
+
     /* GRADIENTES */
     --grad-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
     --grad-login-decor: linear-gradient(135deg, #021D41 0%, #540E90 50%, #A01CAD 100%);
@@ -210,23 +218,20 @@ body {
     padding: 0.5rem 0.85rem;
     border-width: 0 0 2px 0;
     border-style: solid;
-    border-color: #a19f9d;
-    /* Hospital Default Neutral Tertiary */
+    border-color: var(--input-border);
     border-radius: 0;
-    background: #ffffff;
+    background: var(--input-bg);
     font-size: 0.9rem;
     transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
 }
 
 .form-field input::placeholder {
-    color: #94a89c;
-    /* Hospital Placeholder Green Muted */
+    color: var(--input-placeholder);
     font-weight: 400;
 }
 
 .form-field input:hover {
-    background-color: #f3f2f1;
-    /* Hospital Hover Neutral Lighter */
+    background-color: var(--input-bg-hover);
 }
 
 .password-wrapper input {
@@ -256,11 +261,9 @@ body {
 
 .form-field input:focus {
     outline: none;
-    border-color: var(--color-primary);
-    /* DCTI Branding */
-    box-shadow: 0 0 0 1px rgba(94, 27, 174, 0.12);
-    /* Hospital shadow adaptation */
-    background-color: #ffffff;
+    border-color: var(--input-border-focus);
+    box-shadow: var(--input-shadow-focus);
+    background-color: var(--input-bg);
 }
 
 .btn-login {
@@ -702,25 +705,30 @@ body {
 
 .search-bar input {
     padding: var(--space-sm) var(--space-md) var(--space-sm) var(--space-xl);
-    border: 1px solid #c8c6c4;
-    border-radius: 50px;
+    border-width: 0 0 2px 0;
+    border-style: solid;
+    border-color: var(--input-border);
+    border-radius: 0;
     width: clamp(180px, 30vw, 380px);
-    background-color: #f3f2f1;
+    background-color: var(--input-bg);
     font-size: 0.9rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.search-bar input:hover {
+    background-color: var(--input-bg-hover);
 }
 
 .search-bar input::placeholder {
-    color: #94a89c;
-    /* Hospital Placeholder Green Muted */
+    color: var(--input-placeholder);
     font-weight: 400;
 }
 
 .search-bar input:focus {
     outline: none;
-    border-color: var(--color-primary);
-    background-color: #ffffff;
-    box-shadow: 0 0 0 1px rgba(94, 27, 174, 0.12);
+    border-color: var(--input-border-focus);
+    background-color: var(--input-bg);
+    box-shadow: var(--input-shadow-focus);
 }
 
 .view-dashboard-btn {
@@ -964,9 +972,9 @@ body {
     padding: 0.5rem 0.85rem;
     border-width: 0 0 2px 0;
     border-style: solid;
-    border-color: #a19f9d;
+    border-color: var(--input-border);
     border-radius: 0;
-    background: #ffffff;
+    background: var(--input-bg);
     font-size: 0.9rem;
     transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
     font-family: inherit;
@@ -974,26 +982,23 @@ body {
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-    color: #94a89c;
-    /* Hospital Placeholder Green Muted */
+    color: var(--input-placeholder);
     font-weight: 400;
 }
 
 .form-group input:hover,
 .form-group textarea:hover,
 .form-group select:hover {
-    background-color: #f3f2f1;
+    background-color: var(--input-bg-hover);
 }
 
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
     outline: none;
-    border-color: var(--color-primary);
-    /* DCTI Theme */
-    box-shadow: 0 0 0 1px rgba(94, 27, 174, 0.12);
-    /* Hospital shadow adaptation */
-    background-color: #ffffff;
+    border-color: var(--input-border-focus);
+    box-shadow: var(--input-shadow-focus);
+    background-color: var(--input-bg);
 }
 
 /* ========================== 6. PORTAL P�BLICO CSS ========================== */
@@ -3373,18 +3378,32 @@ footer {
 .form-group-pill input {
     width: 100%;
     padding: 10px 15px;
-    border-radius: 50px;
-    border: none;
-    background-color: #c9d7ed;
+    border-width: 0 0 2px 0;
+    border-style: solid;
+    border-color: var(--input-border);
+    border-radius: 0;
+    background-color: var(--input-bg);
     font-size: 0.95rem;
     color: #333;
     outline: none;
     box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.form-group-pill input:hover {
+    background-color: var(--input-bg-hover);
+}
+
+.form-group-pill input:focus {
+    outline: none;
+    border-color: var(--input-border-focus);
+    background-color: var(--input-bg);
+    box-shadow: var(--input-shadow-focus);
 }
 
 .form-group-pill input::placeholder {
-    color: #ffffff;
-    font-weight: bold;
+    color: var(--input-placeholder);
+    font-weight: 400;
 }
 
 .form-group-checkbox {
@@ -4947,22 +4966,29 @@ html {
 .audit-filter-date {
     width: 100%;
     padding: 9px 12px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 8px;
+    border-width: 0 0 2px 0;
+    border-style: solid;
+    border-color: var(--input-border);
+    border-radius: 0;
     font-size: 0.82rem;
     font-family: 'Outfit', sans-serif;
-    background: #fafbfc;
+    background: var(--input-bg);
     cursor: pointer;
     transition: all 0.2s ease;
     color: #1e293b;
 }
 
+.audit-filter-select:hover,
+.audit-filter-date:hover {
+    background-color: var(--input-bg-hover);
+}
+
 .audit-filter-select:focus,
 .audit-filter-date:focus {
-    border-color: var(--color-primary);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(83, 14, 144, 0.08);
-    background: white;
+    border-color: var(--input-border-focus);
+    box-shadow: var(--input-shadow-focus);
+    background-color: var(--input-bg);
 }
 
 .audit-filter-clear {
@@ -5376,4 +5402,59 @@ html {
         display: flex !important;
         flex-direction: column !important;
     }
+}
+
+/* =========================================================
+   ESTANDARIZACION FORZADA DE FILTROS DE BUSQUEDA (INLINE)
+   Aplica los colores de focus y hover manteniendo la forma (pill) original
+   ========================================================= */
+
+/* Aplicar hover y focus al CONTENEDOR div (que es la pastilla visible) O al input directo si es la pastilla */
+div[style*="border-radius: 20px"][style*="background: white"]:has(> input[id^="filter-"]),
+div[style*="border-radius: 20px"][style*="background: white"]:has(> input[placeholder*="Buscar detalle"]),
+input#course-search-input {
+    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s !important;
+}
+
+div[style*="border-radius: 20px"][style*="background: white"]:has(> input[id^="filter-"]):hover,
+div[style*="border-radius: 20px"][style*="background: white"]:has(> input[placeholder*="Buscar detalle"]):hover,
+input#course-search-input:hover {
+    background-color: var(--input-bg-hover) !important;
+}
+
+div[style*="border-radius: 20px"][style*="background: white"]:has(> input[id^="filter-"]):focus-within,
+div[style*="border-radius: 20px"][style*="background: white"]:has(> input[placeholder*="Buscar detalle"]):focus-within,
+input#course-search-input:focus {
+    border-color: var(--input-border-focus) !important;
+    background-color: var(--input-bg) !important;
+    box-shadow: var(--input-shadow-focus) !important;
+}
+
+/* El input interno se mantiene transparente pero le quitamos el outline de sistema */
+div[style*="border-radius: 20px"][style*="background: white"] > input[id^="filter-"]:focus,
+div[style*="border-radius: 20px"][style*="background: white"] > input[placeholder*="Buscar detalle"]:focus {
+    outline: none !important;
+}
+
+/* =========================================================
+   ESTANDARIZACION DE SELECTS Y CAMPOS DE FECHA
+   Aplica colores de hover/focus manteniendo su estructura
+   ========================================================= */
+
+select,
+input[type="date"] {
+    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s !important;
+}
+
+select:hover,
+input[type="date"]:hover {
+    background-color: var(--input-bg-hover) !important;
+}
+
+select:focus,
+input[type="date"]:focus {
+    outline: none !important;
+    border-color: var(--input-border-focus) !important;
+    background-color: var(--input-bg) !important;
+    box-shadow: var(--input-shadow-focus) !important;
 }
