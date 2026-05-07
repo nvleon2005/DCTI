@@ -163,7 +163,6 @@ const UsersView = {
                         <div style="width: 40px; background: var(--grad-primary); flex-shrink: 0;"></div>
                         
                         <div style="flex: 1; padding: 30px 40px 30px 30px; position: relative;">
-                            <button class="close-modal" onclick="closeUserModal()" style="position: absolute; right: 15px; top: 15px; background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted);">&times;</button>
                             
                             <form id="user-admin-form" onsubmit="handleUserAdminSubmit(event)" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                                 <input type="hidden" id="edit-email-target">

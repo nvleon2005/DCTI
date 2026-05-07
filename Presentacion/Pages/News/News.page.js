@@ -115,7 +115,6 @@ const AdminNewsView = {
                                 <h2 id="news-modal-title" style="margin: 0; font-size: 1.25rem;">Nueva Noticia</h2>
                                 <p style="font-size: 0.8rem; color: rgba(255,255,255,0.7); margin: 5px 0 0 0;">Complete todos los campos obligatorios (*).</p>
                             </div>
-                            <button class="close-modal" onclick="closeNewsModal()" style="color: white; opacity: 0.8; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
                         </div>
                         <form id="news-admin-form" onsubmit="handleNewsAdminSubmit(event)" style="padding: 25px; max-height: 85vh; overflow-y: auto;">
                             <input type="hidden" id="edit-news-id">

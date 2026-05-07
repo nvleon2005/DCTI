@@ -93,7 +93,6 @@ const ProjectsView = {
                     <div class="modal-card" style="max-width: 1000px; width: 95%; padding: 0;">
                         <div class="modal-header">
                             <h2 id="project-modal-title">Gestión de Proyecto</h2>
-                            <button class="close-modal" onclick="closeProjectModal()">&times;</button>
                         </div>
                         <form id="project-admin-form" onsubmit="handleProjectSubmit(event)" style="padding: 30px; max-height: 90vh; overflow-y: auto;">
                             <input type="hidden" id="edit-project-id">

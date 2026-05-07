@@ -65,7 +65,6 @@ const StrategicView = {
                     <div class="modal-card" style="max-width: 850px; width: 90%; padding: 0;">
                         <div class="modal-header" style="background: var(--grad-primary); color: white; padding: 15px 20px;">
                             <h2 id="strategic-modal-title" style="margin: 0; font-size: 1.1rem;">Área Estratégica</h2>
-                            <button class="close-modal" onclick="closeStrategicModal()" style="color: white; border: none; background: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
                         </div>
                         <form id="strategic-admin-form" onsubmit="handleStrategicSubmit(event)" style="padding: 25px;">
                             <input type="hidden" id="edit-strategic-id">

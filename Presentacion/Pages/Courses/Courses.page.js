@@ -104,7 +104,6 @@ const CoursesView = {
                             <div>
                                 <h2 id="course-modal-title" style="margin: 0; font-size: 1.15rem;">Creación Académica</h2>
                             </div>
-                            <button class="close-modal" onclick="closeCourseModal()" style="color: white; border: none; background: none; font-size: 1.5rem; cursor: pointer; opacity: 0.8;">&times;</button>
                         </div>
                         
                         <!-- Pestañas -->
