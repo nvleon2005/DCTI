@@ -125,7 +125,7 @@ async function handleLogin(e) {
                 }
                 localStorage.removeItem(`lockout_${email}`);
 
-                const sessionToken = btoa(JSON.stringify({ email: user.email, role: user.role, iat: Date.now() }));
+                const sessionToken = await (window.generateJWT ? window.generateJWT({ email: user.email, role: user.role, iat: Date.now() }) : btoa(JSON.stringify({ email: user.email, role: user.role, iat: Date.now() })));
                 localStorage.setItem('dcti_session', JSON.stringify({ ...user, token: sessionToken }));
 
                 if (typeof App !== 'undefined') {

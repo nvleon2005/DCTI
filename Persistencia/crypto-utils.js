@@ -30,6 +30,57 @@ async function hashSHA256(message) {
 }
 
 /**
+ * [SECURITY] Genera un JWT simulado (HS256 simplificado)
+ */
+async function generateJWT(payload) {
+    const secret = "dcti_super_secret_key_2026"; // Simulación de variable de entorno (Backend)
+    const header = { alg: 'HS256', typ: 'JWT' };
+    
+    const base64UrlEncode = (str) => btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    
+    const encodedHeader = base64UrlEncode(JSON.stringify(header));
+    const encodedPayload = base64UrlEncode(JSON.stringify(payload));
+    const data = `${encodedHeader}.${encodedPayload}`;
+    
+    // HMAC simplificado usando el hash que ya tenemos
+    const signatureHex = await hashSHA256(data + secret);
+    const encodedSignature = base64UrlEncode(signatureHex);
+    
+    return `${data}.${encodedSignature}`;
+}
+window.generateJWT = generateJWT;
+
+/**
+ * [SECURITY] Verifica un JWT simulado y retorna el payload si es válido
+ */
+async function verifyJWT(token) {
+    if (!token) return null;
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    
+    const secret = "dcti_super_secret_key_2026";
+    const data = `${parts[0]}.${parts[1]}`;
+    const expectedSignatureHex = await hashSHA256(data + secret);
+    
+    const base64UrlEncode = (str) => btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const expectedEncodedSignature = base64UrlEncode(expectedSignatureHex);
+    
+    if (parts[2] === expectedEncodedSignature) {
+        try {
+            // Decodificamos el payload
+            const payloadStr = atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
+            // Soporte para caracteres UTF-8 en base64
+            const utf8PayloadStr = decodeURIComponent(escape(payloadStr));
+            return JSON.parse(utf8PayloadStr);
+        } catch (e) {
+            return null;
+        }
+    }
+    return null;
+}
+window.verifyJWT = verifyJWT;
+
+/**
  * [SECURITY] Vanilla JS XSS Sanitizer (Anti-Scripting)
  * Crea un árbol DOM inerte usando DOMParser para purgar scripts y listeners peligrosos.
  */

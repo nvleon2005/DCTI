@@ -364,7 +364,8 @@ window.handleCourseSubmit = window.rateLimitAction(async function(e) {
     const objetivos = document.getElementById('admin-course-objetivos') ? window.sanitizeHTML(document.getElementById('admin-course-objetivos').value.trim()) : '';
     const areaTematica = document.getElementById('admin-course-area') ? document.getElementById('admin-course-area').value : 'Tecnología e Informática';
     const modalidad = document.getElementById('admin-course-modalidad') ? document.getElementById('admin-course-modalidad').value : 'Virtual';
-    const urlCurso = (modalidad === 'Virtual' && document.getElementById('admin-course-url')) ? document.getElementById('admin-course-url').value.trim() : '';
+    const urlRaw = (modalidad === 'Virtual' && document.getElementById('admin-course-url')) ? document.getElementById('admin-course-url').value.trim() : '';
+    const urlCurso = window.sanitizeHTML ? window.sanitizeHTML(urlRaw) : urlRaw;
     // Construir costo compuesto desde moneda + monto
     const monedaVal = document.getElementById('admin-course-moneda') ? document.getElementById('admin-course-moneda').value : 'Gratuito';
     const montoVal = document.getElementById('admin-course-monto') ? document.getElementById('admin-course-monto').value.trim() : '';

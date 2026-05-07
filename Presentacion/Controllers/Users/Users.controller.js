@@ -400,12 +400,13 @@ async function handleUserAdminSubmit(e) {
     }
 
     const editEmail = document.getElementById('edit-email-target').value;
-    const name = document.getElementById('admin-user-name').value;
-    const lastname = document.getElementById('admin-user-lastname').value;
+    const sanitize = (val) => window.sanitizeHTML ? window.sanitizeHTML(val.trim()) : val.trim();
+    const name = sanitize(document.getElementById('admin-user-name').value);
+    const lastname = sanitize(document.getElementById('admin-user-lastname').value);
     const cedulaType = document.getElementById('admin-user-cedula-type') ? document.getElementById('admin-user-cedula-type').value : 'V';
-    const cedulaNum = document.getElementById('admin-user-cedula').value;
+    const cedulaNum = document.getElementById('admin-user-cedula').value.trim();
     const cedula = cedulaNum ? `${cedulaType}-${cedulaNum}` : '';
-    const username = document.getElementById('admin-user-username').value;
+    const username = sanitize(document.getElementById('admin-user-username').value);
     const email = document.getElementById('admin-user-email').value;
     const pass = document.getElementById('admin-user-pass').value;
     const role = document.getElementById('admin-user-role').value;
