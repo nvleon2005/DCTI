@@ -89,7 +89,7 @@ window.AdminTemplate = {
                 if (dataItem) {
                     titleField = dataItem.headline;
                     descHtml = `
-                        <p><strong>Autor:</strong> ${dataItem.author || 'Sin Definir'}</p>
+                        <p><strong>Autor(es):</strong> ${Array.isArray(dataItem.author) ? dataItem.author.join(', ') : (dataItem.author || 'Sin Definir')}</p>
                         <p><strong>Categoría:</strong> ${dataItem.category}</p>
                         <p><strong>Fecha Publicación:</strong> ${dataItem.published}</p>
                         <hr style="border:0; border-top:1px solid #eee; margin: 15px 0;">

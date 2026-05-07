@@ -724,7 +724,7 @@ if (document.readyState === 'loading') {
             <h1 style="color:#1e293b;font-size:2rem;margin-top:10px;margin-bottom:15px;">${news.headline}</h1>
             <div style="display:flex;gap:20px;color:#64748b;font-size:0.9rem;margin-bottom:30px;border-bottom:1px solid #f1f5f9;padding-bottom:15px;">
                 <span><i class="far fa-calendar-alt"></i> ${dateStr}</span>
-                <span><i class="fas fa-user-edit"></i> ${news.author || 'DCTI'}</span>
+                <span><i class="fas fa-user-edit"></i> ${Array.isArray(news.author) ? news.author.join(', ') : (news.author || 'DCTI')}</span>
             </div>
             <div style="width:100%;max-height:450px;overflow:hidden;border-radius:8px;margin-bottom:${mediaArray.length > 1 ? '5px' : '30px'};">
                 <img id="main-detail-img" src="${mediaArray[0]}" alt="${news.headline}" style="width:100%;height:100%;object-fit:cover;max-height:450px;">

@@ -169,8 +169,12 @@ const AdminNewsView = {
                                     </div>
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                                         <div class="form-group">
-                                            <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Autor <span style="color: #ef4444;">*</span></label>
-                                            <input type="text" id="admin-news-author" placeholder="Nombre del autor" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;" required>
+                                            <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Autor(es) <span style="color: #ef4444;">*</span></label>
+                                            <div id="admin-news-author-container" style="display: flex; flex-wrap: wrap; gap: 8px; padding: 5px 8px; border: 1px solid var(--color-border); border-radius: 6px; background: white; min-height: 42px; align-items: center; cursor: text;" onclick="document.getElementById('admin-news-author-input').focus()">
+                                                <div id="admin-news-author-chips" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                                                <input type="text" id="admin-news-author-input" placeholder="Añadir autor y presionar Enter..." style="flex: 1; min-width: 180px; border: none; outline: none; background: transparent; font-size: 0.85rem;" onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault(); window.addNewsAuthorChip(this.value); this.value='';}">
+                                            </div>
+                                            <input type="hidden" id="admin-news-author" required>
                                         </div>
                                         <div class="form-group">
                                             <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 700;">Fecha Publicación <span style="color: #ef4444;">*</span></label>

@@ -29,6 +29,57 @@ function saveLocalNews(newsArray) {
 
 let currentNewsCategoryFilter = 'Todas';
 
+// --- LÓGICA DE CHIPS DE AUTORES ---
+window.renderNewsAuthorChips = function() {
+    const hiddenInput = document.getElementById('admin-news-author');
+    const chipsContainer = document.getElementById('admin-news-author-chips');
+    if (!hiddenInput || !chipsContainer) return;
+    
+    let currentAuthors = [];
+    if (hiddenInput.value) {
+        try { currentAuthors = JSON.parse(hiddenInput.value); } catch(e) { currentAuthors = [hiddenInput.value]; }
+    }
+    
+    chipsContainer.innerHTML = currentAuthors.map(author => `
+        <div style="display: inline-flex; align-items: center; background: var(--color-surface-muted); border: 1px solid var(--color-border); padding: 4px 10px; border-radius: 16px; font-size: 0.8rem; gap: 6px;">
+            <span>${author}</span>
+            <button type="button" onclick="window.removeNewsAuthorChip('${author}')" style="background: none; border: none; color: var(--color-text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%;" onmouseover="this.style.color='var(--color-error)'" onmouseout="this.style.color='var(--color-text-muted)'">
+                <i class="fas fa-times" style="font-size: 0.7rem;"></i>
+            </button>
+        </div>
+    `).join('');
+};
+
+window.addNewsAuthorChip = function(name) {
+    if (!name) return;
+    const authorName = window.sanitizeHTML ? window.sanitizeHTML(name.trim()) : name.trim();
+    if (!authorName) return;
+
+    const hiddenInput = document.getElementById('admin-news-author');
+    let currentAuthors = [];
+    if (hiddenInput.value) {
+        try { currentAuthors = JSON.parse(hiddenInput.value); } catch(e) { currentAuthors = [hiddenInput.value]; }
+    }
+    
+    if (!currentAuthors.includes(authorName)) {
+        currentAuthors.push(authorName);
+        hiddenInput.value = JSON.stringify(currentAuthors);
+        window.renderNewsAuthorChips();
+    }
+};
+
+window.removeNewsAuthorChip = function(name) {
+    const hiddenInput = document.getElementById('admin-news-author');
+    if (!hiddenInput.value) return;
+    
+    let currentAuthors = [];
+    try { currentAuthors = JSON.parse(hiddenInput.value); } catch(e) { currentAuthors = [hiddenInput.value]; }
+    
+    currentAuthors = currentAuthors.filter(a => a !== name);
+    hiddenInput.value = JSON.stringify(currentAuthors);
+    window.renderNewsAuthorChips();
+};
+
 // --- LÓGICA DE MODAL DE NOTICIAS ---
 
 function openNewsModal(id = null) {
@@ -52,7 +103,12 @@ function openNewsModal(id = null) {
         if (newsItem) {
             document.getElementById('admin-news-headline').value = newsItem.headline || '';
             document.getElementById('admin-news-category').value = newsItem.category || '';
-            document.getElementById('admin-news-author').value = newsItem.author || '';
+            let authors = newsItem.author || [];
+            if (!Array.isArray(authors)) {
+                authors = typeof authors === 'string' ? authors.split(',').map(a => a.trim()).filter(Boolean) : [];
+            }
+            document.getElementById('admin-news-author').value = JSON.stringify(authors);
+            window.renderNewsAuthorChips();
 
             document.getElementById('admin-news-content').value = newsItem.content || '';
             document.getElementById('admin-news-media').value = typeof newsItem.multimedia === 'string' ? JSON.stringify([newsItem.multimedia]) : JSON.stringify(newsItem.multimedia || []);
@@ -102,6 +158,12 @@ function openNewsModal(id = null) {
     } else {
         title.textContent = 'Nueva Noticia';
         editIdInput.value = '';
+        
+        // Auto-completado del autor usando la sesión activa
+        const session = JSON.parse(localStorage.getItem('dcti_session')) || {};
+        const activeUser = session.name ? `${session.name} ${session.lastname || ''}`.trim() : session.username || 'Autor';
+        document.getElementById('admin-news-author').value = JSON.stringify([activeUser]);
+        window.renderNewsAuthorChips();
         const carouselSelect = document.getElementById('admin-news-carousel-placement');
         if (carouselSelect) carouselSelect.value = 'Ninguno';
         
@@ -220,7 +282,11 @@ window.handleNewsAdminSubmit = window.rateLimitAction(async function(e) {
     const editId = document.getElementById('edit-news-id').value;
     const headline = window.sanitizeHTML(document.getElementById('admin-news-headline').value.trim());
     const category = document.getElementById('admin-news-category').value;
-    const author = window.sanitizeHTML(document.getElementById('admin-news-author').value.trim());
+    const authorRaw = document.getElementById('admin-news-author').value;
+    let authorArray = [];
+    if (authorRaw) {
+        try { authorArray = JSON.parse(authorRaw); } catch(e) { authorArray = [authorRaw]; }
+    }
 
     const content = window.sanitizeHTML(document.getElementById('admin-news-content').value.trim());
     const mediaRaw = document.getElementById('admin-news-media').value;
@@ -241,7 +307,7 @@ window.handleNewsAdminSubmit = window.rateLimitAction(async function(e) {
     }
 
     // VALIDACIÓN COMPLETA
-    if (!headline || !category || !author || !content || !date || status.length === 0) {
+    if (!headline || !category || authorArray.length === 0 || !content || !date || status.length === 0) {
         AlertService.notify('Campos Vacíos', 'Por favor complete todos los campos obligatorios (*) y seleccione al menos un estado.', 'warning');
         return;
     }
@@ -261,7 +327,7 @@ window.handleNewsAdminSubmit = window.rateLimitAction(async function(e) {
                 ...allNews[index],
                 headline,
                 category,
-                author,
+                author: authorArray,
                 content,
                 multimedia: mediaArray.length > 0 ? mediaArray : allNews[index].multimedia, // Mantener si no se subió una nueva
                 carouselPlacement,
@@ -277,7 +343,7 @@ window.handleNewsAdminSubmit = window.rateLimitAction(async function(e) {
             id: newId,
             headline,
             category,
-            author,
+            author: authorArray,
             content,
             multimedia: mediaArray.length > 0 ? mediaArray : ['assets/images/img8.jpg'],
             carouselPlacement,

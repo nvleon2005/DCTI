@@ -416,6 +416,18 @@ async function handleUserAdminSubmit(e) {
         // ACTUALIZAR
         await updateUser(editEmail, { name, lastname, cedula, username, email, role, password: pass, avatar });
     } else {
+        // Confirmación para roles privilegiados
+        if (role === 'admin' || role === 'editor') {
+            const roleName = role === 'admin' ? 'Administrador' : 'Editor';
+            const confirmed = await AlertService.confirm(
+                'Confirmar Rol Privilegiado',
+                `¿Estás seguro que deseas otorgar el nivel de <b>${roleName}</b> a este nuevo usuario? Este rango tiene acceso a funciones de gestión del portal.`,
+                'Sí, Crear Usuario',
+                'Cancelar'
+            );
+            if (!confirmed) return;
+        }
+
         // AGREGAR
         // Hashing de contraseña para cumplimiento de HU-001
         const passwordHash = await hashSHA256(pass);
@@ -471,6 +483,18 @@ async function updateUser(oldEmail, newData) {
                 AlertService.notify('Acción Denegada', 'Debe existir al menos un administrador en el sistema. No puede degradarse a sí mismo si es el único.', 'error');
                 return;
             }
+        }
+
+        // Confirmación al subir rango a admin o editor
+        if (currentUser.role !== newData.role && (newData.role === 'admin' || newData.role === 'editor')) {
+            const roleName = newData.role === 'admin' ? 'Administrador' : 'Editor';
+            const confirmed = await AlertService.confirm(
+                'Confirmar Cambio de Rol',
+                `¿Estás seguro que deseas otorgar el nivel de <b>${roleName}</b> a este usuario? Esto le dará acceso a funciones de gestión en el portal.`,
+                'Sí, Actualizar Rol',
+                'Cancelar'
+            );
+            if (!confirmed) return;
         }
 
         const updatedUser = {
