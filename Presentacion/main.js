@@ -75,6 +75,10 @@ function initMainApp() {
             }
         }
     });
+    // 6. Iniciar rastreador global de inactividad
+    if (typeof App !== 'undefined' && App.initInactivityTracker) {
+        App.initInactivityTracker();
+    }
 }
 
 if (document.readyState === 'loading') {

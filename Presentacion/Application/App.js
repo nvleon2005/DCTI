@@ -4,6 +4,44 @@
  */
 
 const App = {
+    inactivityTimer: null,
+    inactivityLimit: 15 * 60 * 1000, // 15 minutos
+
+    resetInactivityTimer: () => {
+        if (App.inactivityTimer) clearTimeout(App.inactivityTimer);
+        if (App.isLoggedIn()) {
+            App.inactivityTimer = setTimeout(() => {
+                App.handleInactivityLogout();
+            }, App.inactivityLimit);
+        }
+    },
+
+    handleInactivityLogout: () => {
+        if (typeof AlertService !== 'undefined') {
+            AlertService.warning(
+                'Por motivos de seguridad, tu sesión ha sido cerrada debido a 15 minutos de inactividad.',
+                'Sesión Cerrada por Inactividad',
+                10000
+            );
+        }
+        App.logout();
+    },
+
+    initInactivityTracker: () => {
+        const events = ['mousemove', 'mousedown', 'keypress', 'touchstart', 'scroll'];
+        let throttleTimer;
+        const trackActivity = () => {
+            if (!throttleTimer) {
+                throttleTimer = setTimeout(() => {
+                    throttleTimer = null;
+                    App.resetInactivityTimer();
+                }, 1000); // Evita procesar múltiples eventos por segundo
+            }
+        };
+        events.forEach(event => document.addEventListener(event, trackActivity, { passive: true }));
+        App.resetInactivityTimer();
+    },
+
     isLoggedIn: () => {
         return !!localStorage.getItem('dcti_session');
     },
@@ -271,9 +309,18 @@ const App = {
 
         // Cambiar título de la página
         document.title = 'Panel de Gestión Administrativo | DCTI';
+
+        // Activar rastreo de inactividad al iniciar sesión
+        App.resetInactivityTimer();
     },
 
     logout: () => {
+        // Limpiar temporizador de inactividad
+        if (App.inactivityTimer) {
+            clearTimeout(App.inactivityTimer);
+            App.inactivityTimer = null;
+        }
+
         // Log de auditoría antes de limpiar la sesión
         const sessionData = JSON.parse(localStorage.getItem('dcti_session')) || {};
         if (typeof AuditService !== 'undefined' && sessionData.email) {
