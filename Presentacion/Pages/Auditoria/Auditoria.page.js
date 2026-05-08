@@ -480,6 +480,9 @@ window.exportAuditExcel = function () {
             a.click();
             URL.revokeObjectURL(url);
             if (typeof AlertService !== 'undefined') AlertService.success('Archivo Excel generado y descargado exitosamente.', 'Exportación Exitosa');
+        }).catch(err => {
+            console.error('Error exportando Excel:', err);
+            if (typeof AlertService !== 'undefined') AlertService.error('Falló la generación del archivo Excel.', 'Error de Exportación');
         });
     } catch (e) {
         console.error('Error exportando Excel de auditoría:', e);

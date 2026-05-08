@@ -6,6 +6,9 @@
 
 (function () {
     const scripts = [
+        // --- Core ---
+        "Presentacion/Application/ErrorHandler.js",
+        
         // --- Persistencia ---
         "Persistencia/mock-data.js",
         "Persistencia/crypto-utils.js",
@@ -78,7 +81,7 @@
     // Iniciamos la carga en paralelo de todos los scripts a la vez
     // El navegador los descargará simultáneamente pero los ejecutará estrictamente
     // en el orden en el que se anexan al DOM porque async = false.
-    const appVersion = '1.0.0'; // Cambiar esto cuando haya una nueva versión a producción
+    const appVersion = '1.0.1'; // Actualizado para forzar carga de ErrorHandler
     scripts.forEach(src => {
         const script = document.createElement('script');
         script.src = src + '?v=' + appVersion;
