@@ -480,7 +480,7 @@ function renderAuthPage() {
         return;
     }
 
-    root.innerHTML = authView.render();
+    window.DOMHelper.setTrustedHTML(root, authView.render());
     initAuthUI();
     initAuthEvents();
 }

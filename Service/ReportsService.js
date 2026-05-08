@@ -232,8 +232,8 @@ function renderReportDashboard() {
         });
     }
 
-    tableHead.innerHTML = headHTML;
-    tableBody.innerHTML = bodyHTML;
+    window.DOMHelper.setSafeHTML(tableHead, headHTML);
+    window.DOMHelper.setSafeHTML(tableBody, bodyHTML);
 
     renderReportExtraFilters(currentReportDomain);
     renderReportStats(currentReportDomain, data);
@@ -336,7 +336,7 @@ function renderReportExtraFilters(domain) {
         `;
     }
 
-    container.innerHTML = filterHTML;
+    window.DOMHelper.setSafeHTML(container, filterHTML);
 }
 
 function renderReportStats(domain, data) {
@@ -346,7 +346,7 @@ function renderReportStats(domain, data) {
     // El usuario ha solicitado remover u ocultar de forma permanente
     // estas miniaturas del reporte tras haber sido migradas a los submódulos de gestión.
     container.style.display = 'none';
-    container.innerHTML = '';
+    container.replaceChildren();
 }
 
 function logExportAudit(domain, format, count) {
@@ -365,7 +365,7 @@ function logExportAudit(domain, format, count) {
     localStorage.setItem('dcti_export_logs', JSON.stringify(logs));
 }
 
-async function exportReportToExcel() {
+window.exportReportToExcel = async function exportReportToExcel() {
     if (currentReportData.length === 0) {
         AlertService.notify('Bloqueo de Exportación', 'El conjunto de datos se encuentra vacío. Ejecute primero una consulta.', 'warning');
         return;
@@ -436,7 +436,7 @@ async function exportReportToExcel() {
 
 let savedPDFHtml = '';
 
-function previewReportPDF() {
+window.previewReportPDF = function previewReportPDF() {
     if (currentReportData.length === 0) {
         AlertService.notify('Bloqueo de Exportación', 'El conjunto de datos se encuentra vacío. Ejecute primero una consulta.', 'warning');
         return;
@@ -520,13 +520,13 @@ function previewReportPDF() {
     `;
 
     const paperSheet = document.getElementById('report-paper-sheet');
-    if (paperSheet) paperSheet.innerHTML = htmlContent;
+    if (paperSheet) window.DOMHelper.setSafeHTML(paperSheet, htmlContent);
 
     const modal = document.getElementById('report-preview-modal');
     if (modal) modal.style.display = 'flex';
 }
 
-function executePDFPrint() {
+window.executePDFPrint = function executePDFPrint() {
     if (!currentReportData || currentReportData.length === 0) return;
 
     document.getElementById('report-preview-modal').style.display = 'none';

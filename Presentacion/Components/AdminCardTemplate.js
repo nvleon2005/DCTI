@@ -165,7 +165,7 @@ window.AdminTemplate = {
                 }
             }
 
-            modal.innerHTML = `
+            window.DOMHelper.setTrustedHTML(modal, `
                 <div class="modal-card" style="max-width: 650px; width: 95%; padding: 0; display: flex; flex-direction: column; max-height: 90vh; animation: slideInUp 0.3s ease;">
                     <div class="modal-header" style="background: var(--grad-primary); color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; position: relative;">
                         <!-- Acción Secundaria: BOTON EDITAR COMO ICONO -->
@@ -198,7 +198,7 @@ window.AdminTemplate = {
                         </div>
                     </div>
                 </div>
-            `;
+            `);
             
             // Animación de Entrada CSS nativa si no existe
             if (!document.getElementById('admin-template-styles')) {
@@ -274,14 +274,14 @@ window.AdminTemplate = {
             if (formId === 'news-admin-form') { 
                 const previewContainer = document.getElementById('admin-news-images-preview');
                 const uploadArea = form.querySelector('.upload-area');
-                if (previewContainer) previewContainer.innerHTML = '';
+                if (previewContainer) previewContainer.replaceChildren();
                 if (uploadArea) {
                     const icon = uploadArea.querySelector('i');
                     const spanText = uploadArea.querySelector('span');
                     if (icon) icon.style.display = 'block';
                     if (spanText) {
                         spanText.style.display = 'block';
-                        spanText.innerHTML = 'Subir imágenes localmente<br>(Puede seleccionar múltiples)';
+                        window.DOMHelper.setSafeHTML(spanText, 'Subir imágenes localmente<br>(Puede seleccionar múltiples)');
                     }
                 }
             }

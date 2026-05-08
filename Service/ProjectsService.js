@@ -112,7 +112,7 @@ function openProjectModal(id = null) {
                         </details>
                     `;
                 }
-                auditContainer.innerHTML = auditHtml;
+                window.DOMHelper.setSafeHTML(auditContainer, auditHtml);
                 auditContainer.style.display = 'block';
             }
         }
@@ -126,7 +126,7 @@ function openProjectModal(id = null) {
         
         const auditContainer = document.getElementById('project-audit-container');
         if (auditContainer) {
-            auditContainer.innerHTML = '';
+            auditContainer.replaceChildren();
             auditContainer.style.display = 'none';
         }
     }
@@ -248,7 +248,7 @@ function renderProjectGallery() {
             html += `<div style="aspect-ratio: 1; background: #e2e8f0; border-radius: 4px; border: 1px dashed #cbd5e1;"></div>`;
         }
     }
-    gallery.innerHTML = html;
+    window.DOMHelper.setSafeHTML(gallery, html);
 }
 
 function setProjectMainPreview(index) {

@@ -124,14 +124,14 @@ const Router = {
 
         // 2. Cargar componente dinámicamente si no existe
         if (typeof window[config.component] === 'undefined') {
-            root.innerHTML = '<div class="loader-container"><i class="fas fa-spinner fa-spin"></i> Cargando sección...</div>';
+            window.DOMHelper.setTrustedHTML(root, '<div class="loader-container"><i class="fas fa-spinner fa-spin"></i> Cargando sección...</div>');
             await this.loadScript(config.path);
         }
 
         // 3. Renderizar y ejecutar init
         const component = window[config.component];
         if (component) {
-            root.innerHTML = component.render();
+            window.DOMHelper.setTrustedHTML(root, component.render());
             if (component.init) component.init();
 
             // Actualizar navegación activa

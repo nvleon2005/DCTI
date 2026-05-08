@@ -240,7 +240,7 @@ function validateUserField(fieldId) {
         setStatus(false, 'Los caracteres < y > no están permitidos por seguridad.', '');
         valDiv.style.display = 'flex';
         valDiv.style.color = '#ef4444';
-        valDiv.innerHTML = `<i class="fas fa-times-circle"></i> <span>${errorMsg}</span>`;
+        window.DOMHelper.setSafeHTML(valDiv, `<i class="fas fa-times-circle"></i> <span>${errorMsg}</span>`);
         el.style.borderColor = '#ef4444';
         el.style.backgroundColor = '#fef2f2';
         return false;
@@ -347,15 +347,15 @@ function validateUserField(fieldId) {
     valDiv.style.display = 'flex';
     if (isValid) {
         valDiv.style.color = '#10b981';
-        valDiv.innerHTML = `<i class="fas fa-check-circle"></i> <span>${successMsg}</span>`;
+        window.DOMHelper.setSafeHTML(valDiv, `<i class="fas fa-check-circle"></i> <span>${successMsg}</span>`);
         el.style.borderColor = '#10b981';
         el.style.backgroundColor = '#f0fdf4';
     } else {
         valDiv.style.color = '#ef4444';
         if (errorMsg.includes('<div')) {
-            valDiv.innerHTML = errorMsg;
+            window.DOMHelper.setSafeHTML(valDiv, errorMsg);
         } else {
-            valDiv.innerHTML = `<i class="fas fa-times-circle"></i> <span>${errorMsg}</span>`;
+            window.DOMHelper.setSafeHTML(valDiv, `<i class="fas fa-times-circle"></i> <span>${errorMsg}</span>`);
         }
         el.style.borderColor = '#ef4444';
         el.style.backgroundColor = '#fef2f2';
@@ -371,7 +371,7 @@ function clearUserValidations() {
         const el = document.getElementById(fieldId);
         if (valDiv) {
             valDiv.style.display = 'none';
-            valDiv.innerHTML = '';
+            valDiv.replaceChildren();
         }
         if (el) {
             el.style.borderColor = 'var(--color-border)';

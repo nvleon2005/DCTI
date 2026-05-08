@@ -287,8 +287,8 @@ window.MyCoursesController = {
             // Población de Textos
             document.getElementById('modal-c-title').textContent = course.title || course.nombreCurso || 'Curso DCTI';
             document.getElementById('modal-c-badge').textContent = course.type || course.modalidad || 'General';
-            document.getElementById('modal-c-instructor').innerHTML = `<i class="fas fa-chalkboard-teacher" style="color: var(--color-primary); margin-right: 5px;"></i> ${course.instructor || 'Instructor No Asignado'}`;
-            document.getElementById('modal-c-hours').innerHTML = `<i class="far fa-clock" style="color: var(--color-primary); margin-right: 5px;"></i> ${course.duracion || course.hours || '40 Horas'}`;
+            window.DOMHelper.setSafeHTML(document.getElementById('modal-c-instructor'), `<i class="fas fa-chalkboard-teacher" style="color: var(--color-primary); margin-right: 5px;"></i> ${course.instructor || 'Instructor No Asignado'}`);
+            window.DOMHelper.setSafeHTML(document.getElementById('modal-c-hours'), `<i class="far fa-clock" style="color: var(--color-primary); margin-right: 5px;"></i> ${course.duracion || course.hours || '40 Horas'}`);
             document.getElementById('modal-c-desc').textContent = course.desc || course.descripcion || 'No hay descripción académica extendida para este curso actualmente. Contacte con la coordinación de métodos y procesos para más información.';
 
             // Renderizar Materiales Educativos con restricciones de fecha
@@ -335,9 +335,9 @@ window.MyCoursesController = {
                         <button ${btnOnClick} style="${btnStyle}">${btnIcon}</button>
                     </div>`;
                 });
-                materialsContainer.innerHTML = matsHtml;
+                window.DOMHelper.setTrustedHTML(materialsContainer, matsHtml);
             } else {
-                materialsContainer.innerHTML = `<p style="font-size: 0.85rem; color: var(--color-text-muted); font-style: italic;"><i class="fas fa-info-circle"></i> No hay archivos descargables anexados a este curso.</p>`;
+                window.DOMHelper.setTrustedHTML(materialsContainer, `<p style="font-size: 0.85rem; color: var(--color-text-muted); font-style: italic;"><i class="fas fa-info-circle"></i> No hay archivos descargables anexados a este curso.</p>`);
             }
 
             // Mostrar modal usando transiciones de clase 'show'

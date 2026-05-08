@@ -345,21 +345,21 @@ window.openAuditModal = function(logId) {
     if (!log) return;
 
     document.getElementById('audit-modal-id-text').textContent = `ID: ${log.id}`;
-    document.getElementById('audit-modal-datetime').innerHTML = `${new Date(log.timestamp).toLocaleDateString('es-VE')} <span style="font-size:0.85em; color:var(--color-text-muted);">${new Date(log.timestamp).toLocaleTimeString('es-VE')}</span>`;
+    window.DOMHelper.setSafeHTML(document.getElementById('audit-modal-datetime'), `${new Date(log.timestamp).toLocaleDateString('es-VE')} <span style="font-size:0.85em; color:var(--color-text-muted);">${new Date(log.timestamp).toLocaleTimeString('es-VE')}</span>`);
     
-    document.getElementById('audit-modal-module-pill').innerHTML = `<span style="background: rgba(94, 27, 174, 0.1); color: var(--color-primary); border: 1px solid rgba(94, 27, 174, 0.2); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">${log.module}</span>`;
+    window.DOMHelper.setSafeHTML(document.getElementById('audit-modal-module-pill'), `<span style="background: rgba(94, 27, 174, 0.1); color: var(--color-primary); border: 1px solid rgba(94, 27, 174, 0.2); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">${log.module}</span>`);
     
     document.getElementById('audit-modal-username').textContent = log.user;
     
     const roleColors = { 'admin': 'background:#fee2e2;color:#ef4444', 'editor': 'background:#fef3c7;color:#f59e0b', 'visitante': 'background:#f1f5f9;color:#64748b' };
     const r = (log.userRole || 'Desconocido').toLowerCase();
     const rCol = roleColors[r] || 'background:#f1f5f9;color:#64748b';
-    document.getElementById('audit-modal-role').innerHTML = `<span style="padding: 4px 10px; border-radius: 20px; font-weight: 600; font-size: 0.75rem; ${rCol}">${log.userRole || 'Desconocido'}</span>`;
+    window.DOMHelper.setSafeHTML(document.getElementById('audit-modal-role'), `<span style="padding: 4px 10px; border-radius: 20px; font-weight: 600; font-size: 0.75rem; ${rCol}">${log.userRole || 'Desconocido'}</span>`);
 
-    let entityHtml = log.entityLabel ? ` sobre <i style="color:var(--color-text-main); font-weight:700;">${log.entityLabel}</i>` : '';
-    document.getElementById('audit-modal-action-box').innerHTML = `El usuario efectuó una acción de <b>${log.action}</b>${entityHtml}.`;
+    let entityHtml = log.targetEntity ? ` sobre <b>${log.targetEntity}</b>` : '';
+    window.DOMHelper.setSafeHTML(document.getElementById('audit-modal-action-box'), `El usuario efectuó una acción de <b>${log.action}</b>${entityHtml}.`);
     
-    document.getElementById('audit-modal-details-grid').innerHTML = window.renderAuditJSONToGrid(log.details);
+    window.DOMHelper.setSafeHTML(document.getElementById('audit-modal-details-grid'), window.renderAuditJSONToGrid(log.details));
 
     const modal = document.getElementById('audit-details-modal');
     if (modal) {

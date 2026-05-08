@@ -254,7 +254,7 @@ function initPortalController() {
         if (!noticiasSlider.slider || !noticiasSlider.slides.length) return;
 
         // Limpiar dots previos
-        noticiasSlider.dotsContainer.innerHTML = '';
+        noticiasSlider.dotsContainer.replaceChildren();
         noticiasSlider.slides.forEach((_, index) => {
             const dot = document.createElement("div");
             dot.classList.add("dot");

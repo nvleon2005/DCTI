@@ -103,7 +103,102 @@ window.sanitizeHTML = function (str) {
             }
         }
     });
-    return doc.body.innerHTML;
+    return doc.body.innerHTML; // Getter is safe
+};
+
+/**
+ * [SECURITY] DOMHelper: Inyector de DOM seguro que reemplaza innerHTML.
+ */
+window.DOMHelper = {
+    /**
+     * Modo ESTRICTO: Elimina on*, style, script, iframe, etc.
+     * Usar para contenido que incluye datos directos de usuario sin sanitizar.
+     */
+    setSafeHTML: function(element, htmlString) {
+        if (!element) return;
+        element.replaceChildren();
+        if (htmlString === undefined || htmlString === null || htmlString === '') return;
+        const str = String(htmlString);
+        
+        const tagName = element.tagName.toLowerCase();
+        let wrapStart = '', wrapEnd = '';
+        if (tagName === 'tbody' || tagName === 'thead' || tagName === 'tfoot') {
+            wrapStart = '<table><tbody>'; wrapEnd = '</tbody></table>';
+        } else if (tagName === 'tr') {
+            wrapStart = '<table><tbody><tr>'; wrapEnd = '</tr></tbody></table>';
+        }
+        
+        const doc = new DOMParser().parseFromString(wrapStart + str + wrapEnd, 'text/html');
+        
+        const unsafeTags = doc.querySelectorAll('script, style, iframe, object, embed, link, base');
+        unsafeTags.forEach(s => s.remove());
+        
+        const all = doc.querySelectorAll('*');
+        all.forEach(el => {
+            for (let i = el.attributes.length - 1; i >= 0; i--) {
+                const attr = el.attributes[i];
+                const name = attr.name.toLowerCase();
+                const val = attr.value.toLowerCase();
+                if (name.startsWith('on') || val.includes('javascript:') || val.includes('data:text/html')) {
+                    el.removeAttribute(attr.name);
+                }
+            }
+        });
+        
+        let sourceNode = doc.body;
+        if (tagName === 'tbody' || tagName === 'thead' || tagName === 'tfoot') {
+            sourceNode = doc.body.querySelector('tbody') || doc.body;
+        } else if (tagName === 'tr') {
+            sourceNode = doc.body.querySelector('tr') || doc.body;
+        }
+
+        const fragment = document.createDocumentFragment();
+        while (sourceNode.firstChild) {
+            fragment.appendChild(sourceNode.firstChild);
+        }
+        element.appendChild(fragment);
+    },
+
+    /**
+     * Modo CONFIABLE: Para HTML generado internamente por el código del desarrollador.
+     * Preserva onclick, onchange, onerror, <style>, etc.
+     */
+    setTrustedHTML: function(element, htmlString) {
+        if (!element) return;
+        element.replaceChildren();
+        if (htmlString === undefined || htmlString === null || htmlString === '') return;
+        const str = String(htmlString);
+
+        const tagName = element.tagName.toLowerCase();
+        let wrapStart = '', wrapEnd = '';
+        if (tagName === 'tbody' || tagName === 'thead' || tagName === 'tfoot') {
+            wrapStart = '<table><tbody>'; wrapEnd = '</tbody></table>';
+        } else if (tagName === 'tr') {
+            wrapStart = '<table><tbody><tr>'; wrapEnd = '</tr></tbody></table>';
+        }
+
+        const doc = new DOMParser().parseFromString(wrapStart + str + wrapEnd, 'text/html');
+        doc.querySelectorAll('script').forEach(s => s.remove());
+        doc.querySelectorAll('*').forEach(el => {
+            ['href', 'src', 'action', 'formaction'].forEach(attrName => {
+                const val = (el.getAttribute(attrName) || '').toLowerCase().trim();
+                if (val.startsWith('javascript:') || val.startsWith('data:text/html')) {
+                    el.removeAttribute(attrName);
+                }
+            });
+        });
+
+        let sourceNode = doc.body;
+        if (tagName === 'tbody' || tagName === 'thead' || tagName === 'tfoot') {
+            sourceNode = doc.body.querySelector('tbody') || doc.body;
+        } else if (tagName === 'tr') {
+            sourceNode = doc.body.querySelector('tr') || doc.body;
+        }
+
+        const fragment = document.createDocumentFragment();
+        while (sourceNode.firstChild) fragment.appendChild(sourceNode.firstChild);
+        element.appendChild(fragment);
+    }
 };
 
 /**

@@ -309,7 +309,7 @@ function renderModule(id, skipAnimation = false) {
         content = `<div class="view-container"><h2>Error al cargar el módulo ${id}</h2><p>${err.message}</p></div>`;
     }
 
-    contentArea.innerHTML = content;
+    window.DOMHelper.setTrustedHTML(contentArea, content);
 
     if (skipAnimation) {
         const container = contentArea.querySelector('.view-container');

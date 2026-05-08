@@ -32,10 +32,10 @@ window.openOrganigramaLightbox = function(src) {
         overlay = document.createElement('div');
         overlay.id = 'dcti-lightbox-overlay';
         overlay.className = 'lightbox-overlay';
-        overlay.innerHTML = `
+        window.DOMHelper.setSafeHTML(overlay, `
             <button class="lightbox-close" onclick="closeOrganigramaLightbox()">&times;</button>
             <img class="lightbox-content" src="" alt="Organigrama Pantalla Completa">
-        `;
+        `);
         document.body.appendChild(overlay);
         
         overlay.addEventListener('click', function(e) {

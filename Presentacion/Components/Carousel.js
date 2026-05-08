@@ -11,7 +11,7 @@ function initEjesCarousels() {
         if (!sliderEje || slidesEje.length === 0 || !dotsContainerEje) return;
 
         // Limpiar dots previos si existen (evita duplicación en SPA)
-        dotsContainerEje.innerHTML = '';
+        dotsContainerEje.replaceChildren();
 
         // Crear los puntos
         slidesEje.forEach((slide, index) => {

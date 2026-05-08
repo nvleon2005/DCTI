@@ -180,7 +180,7 @@ function openCourseModal(id = null) {
 
     // Reseteo visual Base
     document.getElementById('course-admin-form').reset();
-    document.getElementById('admin-course-gallery').innerHTML = '';
+    document.getElementById('admin-course-gallery').replaceChildren();
 
     // Pestañas UI por defecto
     switchCourseTab('technical');
@@ -583,7 +583,7 @@ function handleCourseImageUpload(event) {
 function renderCourseGallery() {
     const galleryContainer = document.getElementById('admin-course-gallery');
     if (!galleryContainer) return;
-    galleryContainer.innerHTML = '';
+    galleryContainer.replaceChildren();
 
     courseImageQueue.forEach((src, index) => {
         const div = document.createElement('div');
@@ -596,12 +596,12 @@ function renderCourseGallery() {
         div.style.backgroundSize = 'cover';
         div.style.backgroundPosition = 'center';
 
-        div.innerHTML = `
+        window.DOMHelper.setSafeHTML(div, `
             <div style="position: absolute; inset: 0; backdrop-filter: blur(10px); background: rgba(255,255,255,0.15);"></div>
             <img src="${src}" style="width: 100%; height: 100%; object-fit: contain; position: relative; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));">
             <button type="button" onclick="removeCourseImage(${index})" style="position: absolute; top: 5px; right: 5px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 22px; height: 22px; border-radius: 50%; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2;"><i class="fas fa-times"></i></button>
             <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.6); color: white; font-size: 0.65rem; padding: 4px; text-align: center; z-index: 2; font-weight: 500;">Imagen ${index + 1}</div>
-        `;
+        `);
         galleryContainer.appendChild(div);
     });
 }
@@ -784,7 +784,7 @@ function renderCourseMaterialsGallery() {
         </div>
     `;
 
-    materialsContainer.innerHTML = html;
+    window.DOMHelper.setSafeHTML(materialsContainer, html);
 }
 
 function removeCourseMaterial(index) {

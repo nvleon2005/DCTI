@@ -35,7 +35,7 @@ const CoursesController = {
 
         form.reset();
         document.getElementById('edit-course-id').value = id || '';
-        document.getElementById('admin-course-gallery').innerHTML = '';
+        document.getElementById('admin-course-gallery').replaceChildren();
 
         if (id) {
             document.getElementById('course-modal-title').textContent = "Gestionar Curso";
@@ -118,18 +118,18 @@ const CoursesController = {
     renderCourseGallery() {
         const container = document.getElementById('admin-course-gallery');
         if (!container) return;
-        container.innerHTML = this.imageQueue.map((src, i) => `
+        window.DOMHelper.setSafeHTML(container, this.imageQueue.map((src, i) => `
             <div style="position:relative;">
                 <img src="${src}" style="width:100px;height:100px;object-fit:cover;border-radius:4px;">
                 <button type="button" onclick="removeCourseImage(${i})" style="position:absolute;top:0;right:0;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;">&times;</button>
             </div>
-        `).join('');
+        `).join(''));
     },
 
     renderCourseMaterialsGallery() {
         const container = document.getElementById('materials-grid-container');
         if (!container) return;
-        container.innerHTML = this.materialsQueue.map((mat, i) => `
+        window.DOMHelper.setSafeHTML(container, this.materialsQueue.map((mat, i) => `
             <div style="border:1px solid #ddd;padding:10px;border-radius:4px;text-align:center;">
                 <i class="fas ${mat.iconClass || 'fa-file'}" style="font-size:2rem;color:${mat.iconColor || '#666'}"></i>
                 <p style="font-size:0.8rem;margin:5px 0;">${mat.name}</p>
@@ -140,7 +140,7 @@ const CoursesController = {
                 <i class="fas fa-plus"></i><br>Subir Material
                 <input type="file" id="admin-course-materials-file" style="display:none;" multiple onchange="handleCourseMaterialUpload(event)">
             </div>
-        `;
+        `);
     },
 
     filterCoursesAdmin(category, resetPage = true) {

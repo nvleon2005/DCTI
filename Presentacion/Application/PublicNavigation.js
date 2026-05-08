@@ -12,7 +12,7 @@ function initPublicNavigation() {
                     ? `<img src="${session.avatar}" alt="Avatar" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover;">`
                     : `<div style="width: 35px; height: 35px; border-radius: 50%; background: #6366f1; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">${session.initials || 'U'}</div>`;
 
-                authMenuContainer.innerHTML = `
+                window.DOMHelper.setTrustedHTML(authMenuContainer, `
                     <div class="public-user-pill-container" style="position: relative;">
                         <!-- User Pill Button -->
                         <div class="public-user-pill" id="public-user-pill-btn" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 14px 4px 4px; border-radius: 50px; background: #ffffff; border: 1px solid #c7d2fe; transition: all 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
@@ -58,7 +58,7 @@ function initPublicNavigation() {
                             </div>
                         </div>
                     </div>
-                `;
+                `);
 
                 // Sub-Lógica del Dropdown
                 const pillBtn = document.getElementById('public-user-pill-btn');
@@ -96,7 +96,7 @@ function initPublicNavigation() {
     }
 
     function renderDefaultLoginLink(container) {
-        container.innerHTML = ''; // FIXED: No mostrar "Ingresar" en el nav público (el login se hace desde el footer)
+        container.replaceChildren(); // FIXED: No mostrar "Ingresar" en el nav público (el login se hace desde el footer)
     }
 
 }
@@ -144,14 +144,14 @@ if (document.readyState === 'loading') {
         // Manejo de estado vacío
         if (allPublished.length === 0) {
             gridCursos.style.display = 'block';
-            gridCursos.innerHTML = `
+            window.DOMHelper.setTrustedHTML(gridCursos, `
                 <div style="text-align: center; padding: 60px 20px; color: var(--color-text-muted); width: 100%;">
                     <i class="fas fa-book-reader" style="font-size: 3rem; opacity: 0.5; margin-bottom: 15px;"></i>
                     <h3 style="margin-bottom: 10px; color: var(--color-primary);">Próximamente</h3>
                     <p>Actualmente estamos preparando nuestra nueva oferta académica. ¡Vuelve pronto!</p>
                 </div>
-            `;
-            paginationContainer.innerHTML = '';
+            `);
+            paginationContainer.replaceChildren();
             return;
         }
 
@@ -199,7 +199,7 @@ if (document.readyState === 'loading') {
                 </div>
             `;
         });
-        gridCursos.innerHTML = html;
+        window.DOMHelper.setTrustedHTML(gridCursos, html);
 
         // Renderizar controles de paginación
         let paginationHtml = '';
@@ -221,7 +221,7 @@ if (document.readyState === 'loading') {
                 Siguiente <i class="fas fa-chevron-right"></i>
             </button>`;
         }
-        paginationContainer.innerHTML = paginationHtml;
+        window.DOMHelper.setTrustedHTML(paginationContainer, paginationHtml);
 
         // Re-atar eventos a los nuevos botones
         attachCourseDetailEvents();
@@ -296,7 +296,7 @@ if (document.readyState === 'loading') {
         const course = allCourses.find(c => c.id == courseId);
 
         if (!course) {
-            contentContainer.innerHTML = `<div style="text-align:center; padding: 40px;">Curso no encontrado o no disponible.</div>`;
+            window.DOMHelper.setTrustedHTML(contentContainer, `<div style="text-align:center; padding: 40px;">Curso no encontrado o no disponible.</div>`);
             return;
         }
 
@@ -332,7 +332,7 @@ if (document.readyState === 'loading') {
             btnHtml = `<button class="btn-inscribirse" id="btn-trigger-enrollment" style="${baseBtnStyle} background: #530e90; color: white; cursor: pointer; box-shadow: 0 4px 6px rgba(83, 14, 144, 0.2);"><i class="fas fa-user-plus"></i> Inscribirse Ahora</button>`;
         }
 
-        contentContainer.innerHTML = `
+        window.DOMHelper.setTrustedHTML(contentContainer, `
             <div class="curso-detalle-header" style="margin-bottom: 20px;">
                 <h2 style="font-size: 2rem; color: #530e90;">${course.nombreCurso}</h2>
             </div>
@@ -390,7 +390,7 @@ if (document.readyState === 'loading') {
                     ${btnHtml}
                 </div>
             </section>
-        `;
+        `);
 
         // Atar evento modal inscripción dinámico si el botón está activo
         const btnTrigger = document.getElementById('btn-trigger-enrollment');
@@ -589,8 +589,8 @@ if (document.readyState === 'loading') {
 
         let news = getPublicNews();
         if (news.length === 0) {
-            wrapper.innerHTML = `<div style="text-align: center; width:100%; padding: 40px; color: #64748b;"><i class="fas fa-newspaper" style="font-size:3rem;opacity:0.4;margin-bottom:15px;"></i><p>No hay noticias disponibles.</p></div>`;
-            if (pagination) pagination.innerHTML = '';
+            window.DOMHelper.setTrustedHTML(wrapper, `<div style="text-align: center; width:100%; padding: 40px; color: #64748b;"><i class="fas fa-newspaper" style="font-size:3rem;opacity:0.4;margin-bottom:15px;"></i><p>No hay noticias disponibles.</p></div>`);
+            if (pagination) pagination.replaceChildren();
             return;
         }
 
@@ -637,7 +637,8 @@ if (document.readyState === 'loading') {
                                         ${n.content || ''}
                                     </p>
                                 </div>
-                            </div>`;
+                            </div>
+            `;
                 }).join('')}
                     </div>
                     ${totalPages > 1 ? `
@@ -683,7 +684,8 @@ if (document.readyState === 'loading') {
                                         ${n.content || ''}
                                     </p>
                                 </div>
-                            </div>`;
+                            </div>
+            `;
             }).join('')}
                     </div>
                     ${totalPages > 1 ? `
@@ -696,8 +698,8 @@ if (document.readyState === 'loading') {
                 </section>`;
         }
 
-        wrapper.innerHTML = html;
-        if (pagination) pagination.innerHTML = '';
+        window.DOMHelper.setTrustedHTML(wrapper, html);
+        if (pagination) pagination.replaceChildren();
     };
 
     window.showNewsDetail = function (id) {
@@ -718,7 +720,7 @@ if (document.readyState === 'loading') {
             </div>`;
         }
 
-        content.innerHTML = `
+        window.DOMHelper.setTrustedHTML(content, `
         <div style="background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.05);padding:30px;">
             <span style="background:rgba(83,14,144,0.1);color:#530e90;padding:5px 12px;border-radius:20px;font-size:0.8rem;font-weight:bold;margin-bottom:15px;display:inline-block;">${news.category || 'General'}</span>
             <h1 style="color:#1e293b;font-size:2rem;margin-top:10px;margin-bottom:15px;">${news.headline}</h1>
@@ -732,7 +734,7 @@ if (document.readyState === 'loading') {
             ${galleryHtml}
 
             <div style="color:#334155;line-height:1.8;font-size:1.05rem;white-space:pre-wrap;">${news.content || ''}</div>
-        </div>`;
+        </div>`);
         grid.classList.remove('public-active'); grid.classList.add('public-hidden');
         detail.classList.remove('public-hidden'); detail.classList.add('public-active');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -784,8 +786,8 @@ if (document.readyState === 'loading') {
 
         let projects = getPublicProjects();
         if (projects.length === 0) {
-            grid.innerHTML = `<div style="text-align:center;width:100%;padding:40px;color:#64748b;">Aún no hay proyectos públicos para mostrar.</div>`;
-            if (pagination) pagination.innerHTML = '';
+            window.DOMHelper.setTrustedHTML(grid, `<div style="text-align:center;width:100%;padding:40px;color:#64748b;">Aún no hay proyectos públicos para mostrar.</div>`);
+            if (pagination) pagination.replaceChildren();
             return;
         }
 
@@ -811,12 +813,13 @@ if (document.readyState === 'loading') {
                         <span style="font-size:0.7rem; font-weight:800; padding: 2px 8px; border-radius:12px; background:${p.status === 'Destacado' ? '#fef3c7' : (p.status === 'En Progreso' ? '#dbeafe' : '#f3f4f6')}; color:${p.status === 'Destacado' ? '#b45309' : (p.status === 'En Progreso' ? '#1e40af' : '#6b7280')}; display:inline-block; margin-bottom:6px;">${p.status}</span>
                         <h2>${p.title}</h2>
                     </div>
-                </div>`;
+                </div>
+            `;
             });
             html += `</section>`;
         });
 
-        grid.innerHTML = html;
+        window.DOMHelper.setTrustedHTML(grid, html);
 
         if (pagination && totalPages > 1) {
             let pagHtml = `<button onclick="window.publicChangeProjPage(${page - 1})" ${page === 1 ? 'disabled style="opacity:0.4"' : ''}><i class="fas fa-chevron-left"></i></button>`;
@@ -824,9 +827,9 @@ if (document.readyState === 'loading') {
                 pagHtml += `<button onclick="window.publicChangeProjPage(${i})" style="background:${page === i ? '#530e90' : 'white'};color:${page === i ? 'white' : '#333'};padding:5px 10px;border-radius:4px;border:1px solid #ccc;">${i}</button>`;
             }
             pagHtml += `<button onclick="window.publicChangeProjPage(${page + 1})" ${page === totalPages ? 'disabled style="opacity:0.4"' : ''}><i class="fas fa-chevron-right"></i></button>`;
-            pagination.innerHTML = pagHtml;
+            window.DOMHelper.setTrustedHTML(pagination, pagHtml);
         } else if (pagination) {
-            pagination.innerHTML = '';
+            pagination.replaceChildren();
         }
     }
 
@@ -861,7 +864,7 @@ if (document.readyState === 'loading') {
             'A Futuro':   { bg: '#f3f4f6', color: '#6b7280' }
         };
         const sc = statusColors[p.status] || { bg: '#f3f4f6', color: '#6b7280' };
-        content.innerHTML = `
+        window.DOMHelper.setTrustedHTML(content, `
         <div style="background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.05);padding:30px;">
             <div style="width:100%;max-height:400px;overflow:hidden;border-radius:8px;margin-bottom:25px;">
                 <img src="${media}" alt="${p.title}" style="width:100%;object-fit:cover;">
@@ -885,7 +888,7 @@ if (document.readyState === 'loading') {
                 <h3 style="color:#15803d;margin-bottom:10px;font-size:1.1rem;"><i class="fas fa-check-double" style="margin-right:8px;"></i>Avances Realizados</h3>
                 <p style="white-space:pre-wrap;color:#334155;line-height:1.7;">${p.advances}</p>
             </div>` : ''}
-        </div>`;
+        </div>`);
         list.classList.remove('public-active'); list.classList.add('public-hidden');
         detail.classList.remove('public-hidden'); detail.classList.add('public-active');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -936,7 +939,7 @@ if (document.readyState === 'loading') {
         if (!grid) return;
         const ejes = getPublicEjes();
         if (ejes.length === 0) {
-            grid.innerHTML = `<div style="text-align:center;width:100%;padding:40px;color:#64748b;">No hay información disponible sobre los ejes de gestión.</div>`;
+            window.DOMHelper.setTrustedHTML(grid, `<div style="text-align:center;width:100%;padding:40px;color:#64748b;">No hay información disponible sobre los ejes de gestión.</div>`);
             return;
         }
 
@@ -980,7 +983,7 @@ if (document.readyState === 'loading') {
             html += `</div>`;
         }
 
-        grid.innerHTML = html;
+        window.DOMHelper.setTrustedHTML(grid, html);
     };
 
     window.showEjeDetail = function (index) {
@@ -995,7 +998,7 @@ if (document.readyState === 'loading') {
 
         const bgMedia = eje.image || 'assets/images/img7.jpg';
 
-        content.innerHTML = `
+        window.DOMHelper.setTrustedHTML(content, `
         <div style="background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.05);padding:30px;">
             <div style="width:100%;max-height:400px;overflow:hidden;border-radius:8px;margin-bottom:25px;">
                 <img src="${bgMedia}" alt="${eje.area || 'Eje'}" style="width:100%;height:100%;object-fit:cover;max-height:400px;">
@@ -1006,7 +1009,7 @@ if (document.readyState === 'loading') {
                 <h3 style="color:#530e90;margin-bottom:10px;font-size:1.1rem;"><i class="fas fa-align-left" style="margin-right:8px;"></i>Descripción</h3>
                 <p style="color:#475569;line-height:1.7;white-space:pre-wrap;">${(eje.description || '').replace(/\n/g, '<br>')}</p>
             </div>
-        </div>`;
+        </div>`);
 
         list.classList.remove('public-active'); list.classList.add('public-hidden');
         detail.classList.remove('public-hidden'); detail.classList.add('public-active');
@@ -1086,13 +1089,13 @@ if (document.readyState === 'loading') {
             }
             const nCount = heroSlides.length;
             principal.style.width = (nCount * 100) + '%';
-            principal.innerHTML = heroSlides.map(slide => `
+            window.DOMHelper.setTrustedHTML(principal, heroSlides.map(slide => `
             <div class="ccp" style="width:calc(100%/${nCount});">
                 <div class="imgc"><img src="${slide.img}" alt="${slide.title}" style="width:100%;height:100%;object-fit:cover;"></div>
                 <div class="tc" style="background:rgba(83,14,144,0.8);">
                     <h2 style="color:white;margin:0;">${slide.title.length > 50 ? slide.title.substring(0, 50) + '...' : slide.title}</h2>
                 </div>
-            </div>`).join('');
+            </div>`).join(''));
 
             const btn1 = document.getElementById('btn-left-principal');
             const btn2 = document.getElementById('btn-right-principal');
@@ -1116,7 +1119,7 @@ if (document.readyState === 'loading') {
                 const containerWidth = Math.max(3, nCount) * 100;
                 noticiasG.style.width = containerWidth + '%';
 
-                noticiasG.innerHTML = topNews.map(n => {
+                window.DOMHelper.setTrustedHTML(noticiasG, topNews.map(n => {
                     const imgs = getMediaArray(n);
                     if (imgs.length === 0) imgs.push('assets/images/img8.jpg');
                     const coverMedia = imgs[0];
@@ -1129,13 +1132,13 @@ if (document.readyState === 'loading') {
                             <p style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${n.summary || ''}</p>
                         </div>
                     </article>`;
-                }).join('');
+                }).join(''));
                 
                 if (typeof window.initCarruselNoticias === 'function') {
                     window.initCarruselNoticias();
                 }
             } else {
-                noticiasG.innerHTML = '<div style="padding:20px;text-align:center;width:100%;">No hay noticias para mostrar en este carrusel.</div>';
+                window.DOMHelper.setTrustedHTML(noticiasG, '<div style="padding:20px;text-align:center;width:100%;">No hay noticias para mostrar en este carrusel.</div>');
             }
         }
 
@@ -1221,14 +1224,14 @@ if (document.readyState === 'loading') {
             miniatura.style.display = 'flex';
             miniatura.style.transition = 'transform 0.6s ease';
 
-            miniatura.innerHTML = mix.map(m => `
+            window.DOMHelper.setTrustedHTML(miniatura, mix.map(m => `
             <div class="miniaturasc" style="width:${100 / numImages}%;" onclick="${m.link}">
                 <img src="${m.img}" alt="${m.title || 'Miniatura'}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;">
                 <div class="miniaturasc-overlay">
                     <span style="font-weight:bold;display:block;">${m.type}</span>
                     <span style="font-size:0.7rem;">${m.title || ''}</span>
                 </div>
-            </div>`).join('');
+            </div>`).join(''));
 
             const m1 = document.getElementById('btn-left-m');
             const m2 = document.getElementById('btn-right-m');

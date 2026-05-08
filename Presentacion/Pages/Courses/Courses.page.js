@@ -360,7 +360,7 @@ const CoursesView = {
         `;
 
         if (participations.length === 0) {
-            listContainer.innerHTML = headerHtml + `<div style="padding: 20px; text-align: center; color: var(--color-text-muted);"><i class="fas fa-users-slash" style="font-size: 2rem; opacity:0.5; margin-bottom: 10px;"></i><p>Aún no hay participantes inscritos en este reporte.</p></div>`;
+            window.DOMHelper.setTrustedHTML(listContainer, headerHtml + `<div style="padding: 20px; text-align: center; color: var(--color-text-muted);"><i class="fas fa-users-slash" style="font-size: 2rem; opacity:0.5; margin-bottom: 10px;"></i><p>Aún no hay participantes inscritos en este reporte.</p></div>`);
             return;
         }
 
@@ -408,6 +408,6 @@ const CoursesView = {
         });
 
         tableHtml += `</tbody></table>`;
-        listContainer.innerHTML = tableHtml;
+        window.DOMHelper.setTrustedHTML(listContainer, tableHtml);
     }
 };

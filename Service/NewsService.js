@@ -80,7 +80,7 @@ const NewsController = {
                         `;
                     }
                     auditHtml += `</div>`;
-                    auditContainer.innerHTML = auditHtml;
+                    window.DOMHelper.setSafeHTML(auditContainer, auditHtml);
                     auditContainer.style.display = 'block';
                 }
             }
@@ -91,7 +91,7 @@ const NewsController = {
             
             const auditContainer = document.getElementById('news-audit-container');
             if (auditContainer) {
-                auditContainer.innerHTML = '';
+                auditContainer.replaceChildren();
                 auditContainer.style.display = 'none';
             }
         }

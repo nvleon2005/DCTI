@@ -27,13 +27,13 @@ const AlertService = {
             info: 'fa-info-circle'
         };
 
-        toast.innerHTML = `
+        window.DOMHelper.setTrustedHTML(toast, `
             <i class="fas ${icons[type] || icons.info}"></i>
             <div class="toast__content">
                 <span class="toast__title">${title}</span>
                 <span class="toast__message">${message}</span>
             </div>
-        `;
+        `);
 
         this._container.appendChild(toast);
 
@@ -70,7 +70,7 @@ const AlertService = {
             const iconClass = isDanger ? 'modal-icon--warning' : '';
             const confirmBtnClass = isDanger ? 'btn-modal--danger' : 'btn-modal--confirm';
 
-            overlay.innerHTML = `
+            window.DOMHelper.setTrustedHTML(overlay, `
                 <div class="custom-modal">
                     <div class="modal-icon ${iconClass}">
                         <i class="fas ${isDanger ? 'fa-trash-alt' : 'fa-question-circle'}"></i>
@@ -82,7 +82,7 @@ const AlertService = {
                         <button class="btn-modal ${confirmBtnClass}" id="modal-confirm">${confirmText}</button>
                     </div>
                 </div>
-            `;
+            `);
 
             document.body.appendChild(overlay);
             setTimeout(() => overlay.classList.add('show'), 10);

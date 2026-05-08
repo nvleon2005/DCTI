@@ -295,7 +295,7 @@ let originalLatLng = null; // Guardará la ubicación original para poder reinic
 
 // Inyectar clase CSS para la animación de rebote del pin ("bounce")
 const bounceStyle = document.createElement('style');
-bounceStyle.innerHTML = `
+bounceStyle.textContent = `
 /* Evitar que el pin de Leaflet se vuelva transparente al arrastrarlo */
 .leaflet-dragging .leaflet-marker-icon {
   opacity: 1 !important;
@@ -403,7 +403,7 @@ function unlockAdminMap() {
     // Desactivar boton de desbloqueo para evitar confusiones
     const btn = document.getElementById('admin-dcti-unlock-map');
     if (btn) {
-        btn.innerHTML = '<i class="fas fa-unlock"></i> Mapa Desbloqueado';
+        window.DOMHelper.setSafeHTML(btn, '<i class="fas fa-unlock"></i> Mapa Desbloqueado');
         btn.style.opacity = '0.5';
         btn.style.cursor = 'default';
         btn.onclick = null;

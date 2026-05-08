@@ -48,7 +48,7 @@ const App = {
         // 2. Renderizar AdminShell si no existe
         if (adminRoot) {
             adminRoot.classList.remove('hidden');
-            adminRoot.innerHTML = AdminShell.render(user);
+            window.DOMHelper.setTrustedHTML(adminRoot, AdminShell.render(user));
         }
 
         // 3. Inicializar Navegación del Sidebar
@@ -232,7 +232,7 @@ const App = {
                         if (!noResultsMsg) {
                             noResultsMsg = document.createElement('li');
                             noResultsMsg.id = 'sidebar-no-results';
-                            noResultsMsg.innerHTML = '<i class="fas fa-search-minus" style="margin-right: 8px;"></i> No se encontraron módulos';
+                            window.DOMHelper.setSafeHTML(noResultsMsg, '<i class="fas fa-search-minus" style="margin-right: 8px;"></i> No se encontraron módulos');
                             noResultsMsg.style.cssText = 'padding: 15px; color: white; text-align: center; font-size: 0.85rem; font-weight: 500; font-family: "Outfit", sans-serif;';
                             const sidebarList = document.querySelector('.sidebar__list');
                             if(sidebarList) sidebarList.appendChild(noResultsMsg);
@@ -286,11 +286,11 @@ const App = {
         const authRoot = document.getElementById('auth-view-root');
 
         if (adminRoot) {
-            adminRoot.innerHTML = '';
+            adminRoot.replaceChildren();
             adminRoot.classList.add('hidden');
         }
         if (authRoot) {
-            authRoot.innerHTML = '';
+            authRoot.replaceChildren();
             authRoot.classList.add('hidden');
         }
         if (publicPortal) {
@@ -306,7 +306,7 @@ const App = {
             if (typeof initPublicNavigation === 'function') {
                 initPublicNavigation();
             } else {
-                publicAuthMenu.innerHTML = '';
+                publicAuthMenu.replaceChildren();
             }
         }
 

@@ -95,7 +95,7 @@ const ConsultasController = {
         const html = ConsultasView.render(dataEnvio);
         const container = document.getElementById('content-area');
         if (container) {
-            container.innerHTML = html;
+            window.DOMHelper.setTrustedHTML(container, html);
         }
 
 
@@ -149,11 +149,11 @@ window.verConsultaCompleta = function (id) {
     // Acciones del modal
     const btnRespondida = document.getElementById('btn-modal-respondida');
     if (consulta.estado === 'Respondida') {
-        btnRespondida.innerHTML = '<i class="fas fa-undo" style="color: #f59e0b;"></i> <span style="color: #f59e0b;">Marcar Pendiente</span>';
+        window.DOMHelper.setSafeHTML(btnRespondida, '<i class="fas fa-undo" style="color: #f59e0b;"></i> <span style="color: #f59e0b;">Marcar Pendiente</span>');
         btnRespondida.style.borderColor = '#f59e0b50';
         btnRespondida.onclick = () => { window.toggleEstadoConsulta(id); document.getElementById('modal-ver-consulta').classList.add('hidden'); };
     } else {
-        btnRespondida.innerHTML = '<i class="fas fa-check" style="color: #10b981;"></i> <span style="color: #475569;">Marcar Respondida</span>';
+        window.DOMHelper.setSafeHTML(btnRespondida, '<i class="fas fa-check" style="color: #10b981;"></i> <span style="color: #475569;">Marcar Respondida</span>');
         btnRespondida.style.borderColor = '#e2e8f0';
         btnRespondida.onclick = () => { window.toggleEstadoConsulta(id); document.getElementById('modal-ver-consulta').classList.add('hidden'); };
     }
@@ -282,7 +282,7 @@ window.exportConsultasCSV = function () {
         return;
     }
 
-    let csvContent = "data:text/csv;charset=utf-8,ID,Fecha,Hora,Nombre,Apellido,Correo,Estado,Consulta\n";
+    let csvContent = "ID,Fecha,Hora,Nombre,Apellido,Correo,Estado,Consulta\n";
 
     consultas.forEach(function (row) {
         // Envolver en comillas dobles para evitar problemas con las comas en el texto
@@ -300,7 +300,8 @@ window.exportConsultasCSV = function () {
         csvContent += rowArray.join(",") + "\n";
     });
 
-    const encodedUri = encodeURI(csvContent);
+    // Se usa encodeURIComponent para escapar caracteres especiales como el '#'
+    const encodedUri = "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
     link.setAttribute("download", "buzon_consultas_dcti.csv");

@@ -40,14 +40,14 @@ window.renderNewsAuthorChips = function() {
         try { currentAuthors = JSON.parse(hiddenInput.value); } catch(e) { currentAuthors = [hiddenInput.value]; }
     }
     
-    chipsContainer.innerHTML = currentAuthors.map(author => `
+    window.DOMHelper.setSafeHTML(chipsContainer, currentAuthors.map(author => `
         <div style="display: inline-flex; align-items: center; background: var(--color-surface-muted); border: 1px solid var(--color-border); padding: 4px 10px; border-radius: 16px; font-size: 0.8rem; gap: 6px;">
             <span>${author}</span>
             <button type="button" onclick="window.removeNewsAuthorChip('${author}')" style="background: none; border: none; color: var(--color-text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%;" onmouseover="this.style.color='var(--color-error)'" onmouseout="this.style.color='var(--color-text-muted)'">
                 <i class="fas fa-times" style="font-size: 0.7rem;"></i>
             </button>
         </div>
-    `).join('');
+    `).join(''));
 };
 
 window.addNewsAuthorChip = function(name) {
@@ -141,12 +141,12 @@ function openNewsModal(id = null) {
                 }
 
                 // Actualizar Galería
-                previewContainer.innerHTML = imagesArray.map(m => `
+                window.DOMHelper.setSafeHTML(previewContainer, imagesArray.map(m => `
                     <div style="position: relative; width: 100%; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1; background-image: url('${m}'); background-size: cover; background-position: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <div style="position: absolute; inset: 0; backdrop-filter: blur(8px); background: rgba(255,255,255,0.15);"></div>
                         <img src="${m}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));">
                     </div>
-                `).join('');
+                `).join(''));
             }
 
             // Set checkboxes
@@ -172,7 +172,7 @@ function openNewsModal(id = null) {
         const mainPreviewImg = document.getElementById('admin-news-preview-img');
         const placeholderIcon = document.getElementById('admin-news-icon');
         
-        if (previewContainer) previewContainer.innerHTML = '';
+        if (previewContainer) previewContainer.replaceChildren();
         if (mainPreviewBlur) mainPreviewBlur.style.display = 'none';
         if (mainPreviewImg) {
             mainPreviewImg.style.display = 'none';
@@ -231,12 +231,12 @@ document.addEventListener('change', async (e) => {
                 }
 
                 // Gallery
-                previewContainer.innerHTML = base64Results.map(base64 => `
+                window.DOMHelper.setSafeHTML(previewContainer, base64Results.map(base64 => `
                     <div style="position: relative; width: 100%; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1; background-image: url('${base64}'); background-size: cover; background-position: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <div style="position: absolute; inset: 0; backdrop-filter: blur(8px); background: rgba(255,255,255,0.15);"></div>
                         <img src="${base64}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));">
                     </div>
-                `).join('');
+                `).join(''));
             }
         } catch (err) {
             console.error(err);
