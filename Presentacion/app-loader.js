@@ -66,7 +66,7 @@
     function onScriptLoaded() {
         loadedCount++;
         if (loadedCount === totalScripts) {
-            console.log("DCTI: Todos los módulos cargados dinámicamente en paralelo.");
+
             document.dispatchEvent(new CustomEvent('DCTIScriptsLoaded'));
             // Poblar links de redes sociales del footer tan pronto estén disponibles
             if (typeof window.applyDctiContactLinks === 'function') {

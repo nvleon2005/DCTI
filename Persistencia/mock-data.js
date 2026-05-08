@@ -143,7 +143,7 @@ function initMockData() {
             });
             if (modified) {
                 localStorage.setItem('dcti_news', JSON.stringify(existingNews));
-                console.log("Noticias antiguas migradas a nuevas categorías y rutas de imágenes actualizadas.");
+
             }
         } catch (e) { }
     }
@@ -167,7 +167,7 @@ function initMockData() {
             });
             if (modified) {
                 localStorage.setItem('dcti_courses', JSON.stringify(existingCourses));
-                console.log("Rutas de imágenes de cursos locales actualizadas en caché.");
+
             }
         } catch (e) { }
     }
@@ -203,7 +203,7 @@ function initMockData() {
             });
             if (modified) {
                 localStorage.setItem('dcti_projects', JSON.stringify(existingProjects));
-                console.log("Proyectos migrados al nuevo esquema de estados.");
+
             }
         } catch (e) { }
     }
@@ -222,22 +222,22 @@ function initMockData() {
             });
             if (modified) {
                 localStorage.setItem('dcti_strategic', JSON.stringify(existingStrategic));
-                console.log("Rutas de imágenes de áreas estratégicas locales actualizadas en caché.");
+
             }
         } catch (e) { }
     }
 
     if (!localStorage.getItem('dcti_news') || JSON.parse(localStorage.getItem('dcti_news')).length === 0) {
         localStorage.setItem('dcti_news', JSON.stringify(MOCK_DATA.news));
-        console.log("Mock News injected");
+
     }
     if (!localStorage.getItem('dcti_projects') || JSON.parse(localStorage.getItem('dcti_projects')).length === 0) {
         localStorage.setItem('dcti_projects', JSON.stringify(MOCK_DATA.projects));
-        console.log("Mock Projects injected");
+
     }
     if (!localStorage.getItem('dcti_strategic') || JSON.parse(localStorage.getItem('dcti_strategic')).length === 0) {
         localStorage.setItem('dcti_strategic', JSON.stringify(MOCK_DATA.strategic));
-        console.log("Mock Strategic Areas injected");
+
     }
 
     // --- MIGRACIÓN: SISTEMA DE AUDITORÍA ---
@@ -273,7 +273,7 @@ function initMockData() {
                 });
                 if (modified) {
                     localStorage.setItem(key, JSON.stringify(items));
-                    console.log(`Auditoría migrada en ${key}.`);
+
                 }
             } catch (e) {
                 console.error(`Error migrando auditoría en ${key}:`, e);
@@ -283,7 +283,7 @@ function initMockData() {
 
     if (!localStorage.getItem('dcti_info')) {
         localStorage.setItem('dcti_info', JSON.stringify(MOCK_DATA.dcti));
-        console.log("Mock DCTI Info injected");
+
     }
 }
 

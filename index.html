@@ -3,6 +3,35 @@
 
 <head>
     <meta charset="UTF-8">
+    <!-- Script de Seguridad Anti-DevTools -->
+    <script>
+        // 1. Eliminar acceso a consola
+        console.log = function() {};
+        console.info = function() {};
+        console.warn = function() {};
+
+        // 2. Prevenir atajos de teclado para herramientas de desarrollador
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', event => {
+            if (event.keyCode === 123 || 
+               (event.ctrlKey && event.shiftKey && (event.keyCode === 73 || event.keyCode === 74 || event.keyCode === 67)) ||
+               (event.ctrlKey && event.keyCode === 85)) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
+        // 3. Trampa de depurador (Debugger Trap)
+        setInterval(function() {
+            const before = new Date().getTime();
+            (function() { debugger; }());
+            const after = new Date().getTime();
+            if (after - before > 100) {
+                document.body.innerHTML = "<h2 style='text-align:center; margin-top:20vh; color:red;'>Acceso No Autorizado</h2>";
+                window.location.reload();
+            }
+        }, 2000);
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- Política de Seguridad (Anti-XSS Global) -->

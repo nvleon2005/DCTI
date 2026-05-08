@@ -248,7 +248,7 @@ window.AdminTemplate = {
         window.AdminTemplate.formBackups[formId] = backup;
         
         // Notificador genérico de captura
-        console.log(`[AdminTemplate] Snapshot tomado del formulario: ${formId}`);
+
     },
 
     resetForm: function(formId) {
@@ -294,7 +294,7 @@ window.AdminTemplate = {
                 }
             }
 
-            console.log(`[AdminTemplate] Formulario y colas limpiados completamente: ${formId}`);
+
             return;
         }
 
@@ -312,7 +312,7 @@ window.AdminTemplate = {
                 }
             }
         }
-        console.log(`[AdminTemplate] Cambios descartados. Formulario restaurado a su backup visual en: ${formId}`);
+
     },
 
     ModalFooter: function(cancelFn, formId, hideCancel = false) {
